@@ -25,14 +25,14 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(at = @At("HEAD"), method = "tickMovement")
     public void speedometer$beforeTickMovement(CallbackInfo info) {
-        if (this.getType().getName().toString().contains("onewheel")) {
+        if (this.getType().getName().toString().contains("onewheel") && this.hasPassengers()) {
             speedometer$lastPos = this.getPos();
         }
     }
     @Inject(at = @At("TAIL"), method = "tickMovement")
     public void tickMovement(CallbackInfo info) {
-        if (this.getType().getName().toString().contains("onewheel")) {
-            MinecraftClient.getInstance().player.sendMessage(new LiteralText(df.format(this.getPos().distanceTo(speedometer$lastPos)*20*2.237)+" MPH"), true);
+        if (this.getType().getName().toString().contains("onewheel") && this.hasPassengers() && MinecraftClient.getInstance().player != null) {
+            MinecraftClient.getInstance().player.sendMessage(new LiteralText(df.format((this.getPos().distanceTo(speedometer$lastPos)*20)*2.237)+" MPH"), true);
         }
     }
 }

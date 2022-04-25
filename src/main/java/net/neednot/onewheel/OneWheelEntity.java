@@ -87,12 +87,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
         if (this.hasPassengers()) {
             if (f > 0) {
-                event.getController().setAnimationSpeed(f*1.2);
+                event.getController().setAnimationSpeed(f*0.85f);
                 event.getController().setAnimation(forward);
                 return PlayState.CONTINUE;
             }
             if (f < 0) {
-                event.getController().setAnimationSpeed(Math.abs(f*1.2));
+                event.getController().setAnimationSpeed(Math.abs(f*0.85f));
                 event.getController().setAnimation(backward);
                 return PlayState.CONTINUE;
             }
@@ -121,16 +121,17 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             name = "null";
         }
 
-        if (f > 8) {
+        if (f > 0.66f) {
             event.getController().setAnimation(pushbackf);
             return PlayState.CONTINUE;
         }
-        if (f < -8) {
+        if (f < -0.66f) {
             event.getController().setAnimation(pushbackb);
             return PlayState.CONTINUE;
         }
 
         if (breakingf) {
+            System.out.println("got it ");
             event.getController().setAnimation(holdf);
             return PlayState.CONTINUE;
         }
@@ -139,12 +140,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             return PlayState.CONTINUE;
         }
 
-        if (f < 8 && f > 0) {
+        if (f < 0.66f && f > 0) {
             event.getController().setAnimation(tiltf);
             return PlayState.CONTINUE;
         }
 
-        if (f > -8 && f < 0) {
+        if (f > -0.66f && f < 0) {
             event.getController().setAnimation(tiltb);
             return PlayState.CONTINUE;
         }
@@ -330,7 +331,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 //            breakingf = false;
 //        }
             breakingb = false;
-//          breakingf = false;
+            breakingf = false;
         try {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
             pressingForward = player.input.pressingForward;
@@ -342,17 +343,16 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
         if (this.isAlive()) {
             yawVelocity = 0.0F;
-            System.out.println(f);
             if (this.hasPassengers()) {
 
                 ghost = false;
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
-                    this.yawVelocity -= 0.1F;
+                    this.yawVelocity -= 1F;
                 }
 
                 if (pressingRight) {
-                    this.yawVelocity += 0.1F;
+                    this.yawVelocity += 1F;
                 }
 
                 if (pressingRight != pressingLeft && !pressingForward && !pressingBack) {
@@ -367,7 +367,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                             breakingf = false;
                         }
                     }
-                    f += 0.03F;
+                    f += 0.002F;
                 }
 
                 if (pressingBack) {
@@ -378,11 +378,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                             breakingb = false;
                         }
                     }
-                    f -= 0.03F;
+                    f -= 0.002F;
                 }
 
                 if (!pressingBack && !pressingForward) {
-                    if (f > 0.08f) {
+                    if (f > 0.008f) {
                         f/=1.2;
                         if (prevF > f) {
                             System.out.println("breaking f");
@@ -390,7 +390,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                             breakingb = false;
                         }
                     }
-                    if (f < -0.08f) {
+                    if (f < -0.008f) {
                         f/=1.2;
                         if (prevF < f) {
                             System.out.println("breaking b");
@@ -398,7 +398,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                             breakingf = false;
                         }
                     }
-                    if(Math.abs(f) < 0.08f){
+                    if(Math.abs(f) < 0.008f){
                         f = 0.0f;
                     }
                     if (pressingLeft) {
@@ -413,15 +413,17 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                         breakingf = false;
                     }
                 }
-                if (f >= 1.23F) {
-                    f = 1.23F;
+                if (f >= 1F) {
+                    f = 1F;
                 }
                 this.setYaw(this.getYaw() + this.yawVelocity);
                 this.setMovementSpeed(1F);
                 this.setRotation(this.getYaw(), this.getPitch());
                 this.bodyYaw = this.getYaw();
                 this.headYaw = this.bodyYaw;
-                Vec3d vec3d = new Vec3d(0, 0, f);
+                Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
+
+                System.out.println(f);
 
                 super.travel(vec3d);
                 //String[] strings = this.get.toShortString().split(", ");
@@ -448,7 +450,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 //                        ghost = true;
 //                    } else {
                 f /= 1.6;
-                if (Math.abs(f) < 0.08) {
+                if (Math.abs(f) < 0.008) {
                     f = 0;
                 }
                 if (f > 0) {
