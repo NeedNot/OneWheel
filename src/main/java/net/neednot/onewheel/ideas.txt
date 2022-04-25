@@ -1,0 +1,12 @@
+player animations
+nose dive at 26mph
+speedometer
+flight fins let you jump
+fender
+slow down if you hit a wall
+punch to pick up the board
+
+nbt - done
+go up half slabs - done
+change colors with dye - done
+ghosting - done
