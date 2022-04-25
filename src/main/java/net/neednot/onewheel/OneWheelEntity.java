@@ -28,7 +28,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.neednot.onewheel.mixin.LivingEntityMixin;
-import net.neednot.onewheel.mixin.SetSpeed;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.example.entity.BikeEntity;
 import software.bernie.geckolib3.core.AnimationState;
@@ -427,10 +426,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 //Vec3d npos = new Vec3d(Float.parseFloat(strings[0]), Float.parseFloat(strings[1]), Float.parseFloat(strings[2]));
                 if (this.getControllingPassenger() instanceof LivingEntity livingEntity) {
                     System.out.println("1");
-                    Vec3d npos = MinecraftClient.getInstance().player.getPos();
-                    SetSpeed sa = new SetSpeed();
+                    if (livingEntity instanceof ExpandedLivingEntity entity) {
+                        System.out.println("2");
+                        Vec3d lastPos = entity.getLastPos();
+                        Vec3d npos = MinecraftClient.getInstance().player.getPos();
 
-                    MinecraftClient.getInstance().player.sendMessage(new LiteralText("tick "+npos.distanceTo(sa.speed)*20), true);
+                        MinecraftClient.getInstance().player.sendMessage(new LiteralText("tick "+npos.distanceTo(lastPos)*20), true);
+                    }
+
                 }
             }
             else {
