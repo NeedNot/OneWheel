@@ -115,7 +115,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         String name;
         try {
             name = event.getController().getCurrentAnimation().animationName;
-            System.out.println("tilt "+name);
+            //System.out.println("tilt "+name);
         } catch (NullPointerException e) {
             System.out.println("null");
             name = "null";
@@ -342,15 +342,17 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
         if (this.isAlive()) {
             yawVelocity = 0.0F;
+            System.out.println(f);
             if (this.hasPassengers()) {
+
                 ghost = false;
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
-                    this.yawVelocity -= 1F;
+                    this.yawVelocity -= 0.1F;
                 }
 
                 if (pressingRight) {
-                    this.yawVelocity += 1F;
+                    this.yawVelocity += 0.1F;
                 }
 
                 if (pressingRight != pressingLeft && !pressingForward && !pressingBack) {
@@ -411,8 +413,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                         breakingf = false;
                     }
                 }
-                if (f >= 11F) {
-                    f = 11F;
+                if (f >= 1.23F) {
+                    f = 1.23F;
                 }
                 this.setYaw(this.getYaw() + this.yawVelocity);
                 this.setMovementSpeed(1F);
@@ -424,17 +426,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 super.travel(vec3d);
                 //String[] strings = this.get.toShortString().split(", ");
                 //Vec3d npos = new Vec3d(Float.parseFloat(strings[0]), Float.parseFloat(strings[1]), Float.parseFloat(strings[2]));
-                if (this.getControllingPassenger() instanceof LivingEntity livingEntity) {
-                    System.out.println("1");
-                    if (livingEntity instanceof ExpandedLivingEntity entity) {
-                        System.out.println("2");
-                        Vec3d lastPos = entity.getLastPos();
-                        Vec3d npos = MinecraftClient.getInstance().player.getPos();
-
-                        MinecraftClient.getInstance().player.sendMessage(new LiteralText("tick "+npos.distanceTo(lastPos)*20), true);
-                    }
-
-                }
             }
             else {
                 //ghosting
@@ -449,6 +440,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 this.bodyYaw = this.getYaw();
                 this.headYaw = this.bodyYaw;
                 Vec3d vec3d = new Vec3d(0 , 0 , f);
+                System.out.println(f);
                 super.travel(vec3d);
 //                if (!ghost) {
 //                    System.out.println(breakingf);
