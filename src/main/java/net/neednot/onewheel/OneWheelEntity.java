@@ -5,6 +5,8 @@ import com.eliotlash.mclib.math.functions.limit.Min;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.entity.BipedEntityRenderer;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
@@ -344,7 +346,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         if (this.isAlive()) {
             yawVelocity = 0.0F;
             if (this.hasPassengers()) {
-
+                this.updatePassengerPosition(this.getControllingPassenger());
                 ghost = false;
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
@@ -422,7 +424,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 this.bodyYaw = this.getYaw();
                 this.headYaw = this.bodyYaw;
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
-
                 System.out.println(f);
 
                 super.travel(vec3d);

@@ -18,7 +18,6 @@ public class OneWheelItem extends Item {
     }
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity playerEntity, Hand hand) {
-
         return TypedActionResult.success(playerEntity.getStackInHand(hand));
     }
 
