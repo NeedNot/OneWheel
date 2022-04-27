@@ -346,7 +346,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         if (this.isAlive()) {
             yawVelocity = 0.0F;
             if (this.hasPassengers()) {
-                this.updatePassengerPosition(this.getControllingPassenger());
                 ghost = false;
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
@@ -420,11 +419,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 }
                 this.setYaw(this.getYaw() + this.yawVelocity);
                 this.setMovementSpeed(1F);
-                this.setRotation(this.getYaw(), this.getPitch());
                 this.bodyYaw = this.getYaw();
                 this.headYaw = this.bodyYaw;
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
                 System.out.println(f);
+
+                livingentity.setYaw(livingentity.getYaw() + this.yawVelocity);
+                livingentity.setHeadYaw(livingentity.getHeadYaw() + this.yawVelocity);
+                //setPlayerYaw(livingentity);
 
                 super.travel(vec3d);
                 //String[] strings = this.get.toShortString().split(", ");
@@ -439,11 +441,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 //                }
                 this.setYaw(this.getYaw() + this.yawVelocity);
                 this.setMovementSpeed(1F);
-                this.setRotation(this.getYaw() , this.getPitch());
-                this.bodyYaw = this.getYaw();
-                this.headYaw = this.bodyYaw;
                 Vec3d vec3d = new Vec3d(0 , 0 , f);
-                System.out.println(f);
+
                 super.travel(vec3d);
 //                if (!ghost) {
 //                    System.out.println(breakingf);
@@ -471,6 +470,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         }
     }
 
+    public void setPlayerYaw(LivingEntity entity) {
+        entity.setBodyYaw(this.getYaw()+90);
+        float f = MathHelper.wrapDegrees(entity.getYaw() - this.getYaw());
+        float g = MathHelper.clamp(f, -105.0F, 105.0F);
+        entity.prevYaw += g - f;
+        entity.setYaw(entity.getYaw() + g - f);
+    }
+
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
@@ -496,9 +503,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         return color;
     }
 
-    public float getSpeed() {
-        return (float)this.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
-    }
 
     @Nullable
     public Entity getControllingPassenger() {
