@@ -56,11 +56,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float yawVelocity;
     public float f = 0.0F;
     public float prevF;
-    public boolean update;
-    public Vec3d oldPos = new Vec3d(0, 0, 0);
     public String color = "ow";
     public boolean ghost;
-    public int time;
+    public float oldYawVelocity;
 
     private static final TrackedData<String> nbtdata = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
 
@@ -349,11 +347,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 ghost = false;
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
-                    this.yawVelocity -= 1F;
+                    this.yawVelocity -= 1.5F;
                 }
 
                 if (pressingRight) {
-                    this.yawVelocity += 1F;
+                    this.yawVelocity += 1.5F;
                 }
 
                 if (pressingRight != pressingLeft && !pressingForward && !pressingBack) {
@@ -403,11 +401,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                         f = 0.0f;
                     }
                     if (pressingLeft) {
-                        this.yawVelocity -= 5F;
+                        this.yawVelocity -= 4.5F;
                     }
 
                     if (pressingRight) {
-                        this.yawVelocity += 5F;
+                        this.yawVelocity += 4.5F;
                     }
                     if (f == 0) {
                         breakingb = false;
@@ -417,16 +415,20 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 if (f >= 1F) {
                     f = 1F;
                 }
-                this.setYaw(this.getYaw() + this.yawVelocity);
                 this.setMovementSpeed(1F);
                 this.bodyYaw = this.getYaw();
                 this.headYaw = this.bodyYaw;
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
-                System.out.println(f);
                 if (!world.isClient) {
-                    livingentity.setYaw(livingentity.getYaw() + this.yawVelocity);
-                    livingentity.setHeadYaw(livingentity.getHeadYaw() + this.yawVelocity);
+                    this.setYaw(this.getYaw());
+                    System.out.println("yaw"+90);
+                    livingentity.setYaw(livingentity.getYaw() + 90);
+                    livingentity.setHeadYaw(livingentity.getHeadYaw() + 90);
                     setPlayerYaw(livingentity);
+                } else {
+                    this.setYaw(this.getYaw() + this.yawVelocity);
+                    oldYawVelocity = yawVelocity;
+                    System.out.println("we ran "+oldYawVelocity);
                 }
 
                 super.travel(vec3d);

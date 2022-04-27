@@ -31,19 +31,19 @@ public abstract class BipedEntityModelMixin<T extends LivingEntity> extends Anim
         if (this.riding) {
             this.rightLeg.pitch = 0f;
             this.leftLeg.pitch = 0F;
-            this.leftLeg.yaw = -0f;
-            this.rightLeg.yaw = 0f;
+            this.leftLeg.yaw = -0.07853982F;
+            this.rightLeg.yaw = 0.07853982F;
 
-            this.rightLeg.roll = 50;
-            this.leftLeg.roll = -50;
+            this.rightLeg.roll = 0.349066f;
+            this.leftLeg.roll = -0.349066f;
 
             this.leftArm.pitch = 0f;
             this.rightArm.pitch = 0f;
             this.leftArm.yaw = 0f;
             this.rightArm.yaw = 0f;
 
-            this.rightArm.roll = 165f;
-            this.leftArm.roll = -165f;
+            this.rightArm.roll = 0.523599f;
+            this.leftArm.roll = -0.523599f;
         }
     }
 
