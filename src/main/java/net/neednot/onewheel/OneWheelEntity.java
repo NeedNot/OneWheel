@@ -415,21 +415,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 if (f >= 1F) {
                     f = 1F;
                 }
+                this.setYaw(this.getYaw() + this.yawVelocity);
                 this.setMovementSpeed(1F);
                 this.bodyYaw = this.getYaw();
                 this.headYaw = this.bodyYaw;
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
-                if (!world.isClient) {
-                    this.setYaw(this.getYaw());
-                    System.out.println("yaw"+90);
-                    livingentity.setYaw(livingentity.getYaw() + 90);
-                    livingentity.setHeadYaw(livingentity.getHeadYaw() + 90);
-                    setPlayerYaw(livingentity);
-                } else {
-                    this.setYaw(this.getYaw() + this.yawVelocity);
-                    oldYawVelocity = yawVelocity;
-                    System.out.println("we ran "+oldYawVelocity);
-                }
 
                 super.travel(vec3d);
 
@@ -477,11 +467,43 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         }
     }
 
-    public void setPlayerYaw(LivingEntity entity) {
-        Float yaw = this.getYaw() -90;
-        entity.setBodyYaw(yaw);
+    @Override
+    public void updatePassengerPosition(Entity passenger) {
+        super.updatePassengerPosition(passenger);
+        if (this.hasPassenger(passenger)) {
+            float f = 0.0F;
+            float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset());
+            if (this.getPassengerList().size() > 1) {
+                int i = this.getPassengerList().indexOf(passenger);
+                if (i == 0) {
+                    f = 0.2F;
+                } else {
+                    f = -0.6F;
+                }
+
+                if (passenger instanceof AnimalEntity) {
+                    f += 0.2F;
+                }
+            }
+
+            Vec3d vec3d = (new Vec3d((double)f, 0.0D, 0.0D)).rotateY(-this.getYaw() * 0.017453292F - 1.5707964F);
+            passenger.setPosition(this.getX() + vec3d.x, this.getY() + (double)g, this.getZ() + vec3d.z);
+            passenger.setYaw(passenger.getYaw() + this.yawVelocity);
+            passenger.setHeadYaw(passenger.getHeadYaw() + this.yawVelocity);
+            this.setPlayerYaw(passenger);
+            if (passenger instanceof AnimalEntity && this.getPassengerList().size() > 1) {
+                int j = passenger.getId() % 2 == 0 ? 90 : 270;
+                passenger.setBodyYaw(((AnimalEntity)passenger).bodyYaw + (float)j);
+                passenger.setHeadYaw(passenger.getHeadYaw() + (float)j);
+            }
+
+        }
+    }
+
+    public void setPlayerYaw(Entity entity) {
+        entity.setBodyYaw(this.getYaw());
         float f = MathHelper.wrapDegrees(entity.getYaw() - this.getYaw());
-        float g = MathHelper.clamp(f , -105.0F , 105.0F);
+        float g = MathHelper.clamp(f, -105.0F, 105.0F);
         entity.prevYaw += g - f;
         entity.setYaw(entity.getYaw() + g - f);
         entity.setHeadYaw(entity.getYaw());
