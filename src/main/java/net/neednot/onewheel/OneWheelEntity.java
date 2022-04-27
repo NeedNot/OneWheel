@@ -423,12 +423,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 this.headYaw = this.bodyYaw;
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
                 System.out.println(f);
-
-                livingentity.setYaw(livingentity.getYaw() + this.yawVelocity);
-                livingentity.setHeadYaw(livingentity.getHeadYaw() + this.yawVelocity);
-                //setPlayerYaw(livingentity);
+                if (!world.isClient) {
+                    livingentity.setYaw(livingentity.getYaw() + this.yawVelocity);
+                    livingentity.setHeadYaw(livingentity.getHeadYaw() + this.yawVelocity);
+                    setPlayerYaw(livingentity);
+                }
 
                 super.travel(vec3d);
+
                 //String[] strings = this.get.toShortString().split(", ");
                 //Vec3d npos = new Vec3d(Float.parseFloat(strings[0]), Float.parseFloat(strings[1]), Float.parseFloat(strings[2]));
             }
@@ -441,6 +443,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 //                }
                 this.setYaw(this.getYaw() + this.yawVelocity);
                 this.setMovementSpeed(1F);
+                this.setRotation(this.getYaw() , this.getPitch());
+                this.bodyYaw = this.getYaw();
+                this.headYaw = this.bodyYaw;
                 Vec3d vec3d = new Vec3d(0 , 0 , f);
 
                 super.travel(vec3d);
@@ -471,11 +476,13 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     }
 
     public void setPlayerYaw(LivingEntity entity) {
-        entity.setBodyYaw(this.getYaw()+90);
+        Float yaw = this.getYaw() -90;
+        entity.setBodyYaw(yaw);
         float f = MathHelper.wrapDegrees(entity.getYaw() - this.getYaw());
-        float g = MathHelper.clamp(f, -105.0F, 105.0F);
+        float g = MathHelper.clamp(f , -105.0F , 105.0F);
         entity.prevYaw += g - f;
         entity.setYaw(entity.getYaw() + g - f);
+        entity.setHeadYaw(entity.getYaw());
     }
 
     @Override
