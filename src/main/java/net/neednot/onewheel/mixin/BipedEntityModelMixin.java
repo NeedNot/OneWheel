@@ -19,6 +19,8 @@ public abstract class BipedEntityModelMixin<T extends LivingEntity> extends Anim
 
     @Shadow @Final public ModelPart leftLeg;
 
+    @Shadow @Final public ModelPart body;
+
     @Inject(at = @At("TAIL"), method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V")
     public void setAngles(T livingEntity, float f, float g, float h, float i, float j, CallbackInfo ci) {
 
