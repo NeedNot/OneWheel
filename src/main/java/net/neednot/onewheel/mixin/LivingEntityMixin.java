@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,7 +33,10 @@ public abstract class LivingEntityMixin extends Entity {
     @Inject(at = @At("TAIL"), method = "tickMovement")
     public void tickMovement(CallbackInfo info) {
         if (this.getType().getName().toString().contains("onewheel") && this.hasPassengers() && MinecraftClient.getInstance().player != null) {
-            MinecraftClient.getInstance().player.sendMessage(new LiteralText(df.format((this.getPos().distanceTo(speedometer$lastPos)*20)*2.237)+" MPH"), true);
+            double speed = MathHelper.clamp(((double)this.getPos().distanceTo(speedometer$lastPos)*20)*2.237, 0, 27);
+            if (world.isClient) {
+                MinecraftClient.getInstance().player.sendMessage(new LiteralText(df.format(speed) + " MPH") , true);
+            }
         }
     }
 }
