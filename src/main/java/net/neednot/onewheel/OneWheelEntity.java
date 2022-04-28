@@ -58,7 +58,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float prevF;
     public String color = "ow";
     public boolean ghost;
-    public float oldYawVelocity;
+    public boolean offset;
+    public float fdecay =1f;
+    public float bdecay =1f;
 
     private static final TrackedData<String> nbtdata = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
 
@@ -87,12 +89,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
         if (this.hasPassengers()) {
             if (f > 0) {
-                event.getController().setAnimationSpeed(f*0.85f);
+                event.getController().setAnimationSpeed(f*2.3f);
                 event.getController().setAnimation(forward);
                 return PlayState.CONTINUE;
             }
             if (f < 0) {
-                event.getController().setAnimationSpeed(Math.abs(f*0.85f));
+                event.getController().setAnimationSpeed(Math.abs(f*2.3f));
                 event.getController().setAnimation(backward);
                 return PlayState.CONTINUE;
             }
@@ -361,28 +363,34 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 if (pressingForward) {
                     if (f < 0) {
                         f/=1.2;
+                        fdecay/=1.2;
                         if (prevF < f) {
                             breakingb = true;
                             breakingf = false;
                         }
                     }
-                    f += 0.002F;
+                    fdecay += 0.000007;
+                    f += 0.0039-fdecay;
+                    System.out.println("going "+f);
                 }
 
                 if (pressingBack) {
                     if (f > 0) {
                         f/=1.2;
+                        bdecay /=1.2;
                         if (prevF > f) {
                             breakingf = true;
                             breakingb = false;
                         }
                     }
-                    f -= 0.002F;
+                    bdecay += 0.000007;
+                    f -= 0.0039-bdecay;
                 }
 
                 if (!pressingBack && !pressingForward) {
                     if (f > 0.008f) {
                         f/=1.2;
+                        fdecay /=1.2;
                         if (prevF > f) {
                             System.out.println("breaking f");
                             breakingf = true;
@@ -391,6 +399,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     }
                     if (f < -0.008f) {
                         f/=1.2;
+                        bdecay /=1.2;
                         if (prevF < f) {
                             System.out.println("breaking b");
                             breakingb = true;
@@ -410,10 +419,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     if (f == 0) {
                         breakingb = false;
                         breakingf = false;
+                        bdecay = 0;
+                        fdecay = 0;
                     }
                 }
                 if (f >= 1F) {
                     f = 1F;
+                    bdecay = 0f;
+                    fdecay = 0f;
                 }
                 this.setMovementSpeed(1F);
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
@@ -443,6 +456,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 //                        ghost = true;
 //                    } else {
                 f /= 1.6;
+                fdecay /= 1.6;
+                bdecay /= 1.6;
                 if (Math.abs(f) < 0.008) {
                     f = 0;
                 }
