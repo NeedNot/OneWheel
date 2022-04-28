@@ -345,7 +345,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             yawVelocity = 0.0F;
             if (this.hasPassengers()) {
                 ghost = false;
-                LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
                     this.yawVelocity -= 1.5F;
                 }
@@ -419,8 +418,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 this.setMovementSpeed(1F);
                 this.bodyYaw = this.getYaw();
                 this.headYaw = this.bodyYaw;
-                Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
-
+                Vec3d vec3d = new Vec3d(0, 0, (f*0.28f) * 0.9785f);
                 super.travel(vec3d);
 
                 //String[] strings = this.get.toShortString().split(", ");
@@ -472,7 +470,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         super.updatePassengerPosition(passenger);
         if (this.hasPassenger(passenger)) {
             float f = 0.0F;
-            float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset());
+            float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()+0.1f) + passenger.getHeightOffset());
             if (this.getPassengerList().size() > 1) {
                 int i = this.getPassengerList().indexOf(passenger);
                 if (i == 0) {
