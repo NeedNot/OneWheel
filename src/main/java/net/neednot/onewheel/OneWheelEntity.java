@@ -2,6 +2,7 @@ package net.neednot.onewheel;
 
 import ca.weblite.objc.Client;
 import com.eliotlash.mclib.math.functions.limit.Min;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -20,11 +21,13 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -447,7 +450,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 this.setMovementSpeed(1F);
                 this.bodyYaw = this.getYaw();
                 this.headYaw = this.bodyYaw;
-                Vec3d vec3d = new Vec3d(0 , 0 , f);
+                Vec3d vec3d = new Vec3d(0 , 0 , (f*0.28f)*0.9785f);
 
                 super.travel(vec3d);
 //                if (!ghost) {
@@ -482,7 +485,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public void updatePassengerPosition(Entity passenger) {
         super.updatePassengerPosition(passenger);
         if (this.hasPassenger(passenger)) {
-
             float f = 0.0F;
             float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset());
             if (this.getPassengerList().size() > 1) {

@@ -1,8 +1,10 @@
 package net.neednot.onewheel.mixin;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.entity.LivingEntity;
+import net.neednot.onewheel.OneWheel;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,7 +30,7 @@ public abstract class BipedEntityModelMixin<T extends LivingEntity> extends Anim
     @Inject(at = @At("TAIL"), method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V")
     public void setAngles(T livingEntity, float f, float g, float h, float i, float j, CallbackInfo ci) {
 
-        if (this.riding) {
+        if (this.riding && livingEntity.getVehicle().getType().equals(OneWheel.OW)) {
             this.rightLeg.pitch = 0f;
             this.leftLeg.pitch = 0F;
             this.leftLeg.yaw = -0.07853982F;

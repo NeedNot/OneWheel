@@ -4,7 +4,7 @@ flight fins let you jump
 fender
 slow down if you hit a wall
 punch to pick up the board
-require charing
+require charging
 
 speedometer - done
 nbt - done
