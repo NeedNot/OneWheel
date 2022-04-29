@@ -485,6 +485,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public void updatePassengerPosition(Entity passenger) {
         super.updatePassengerPosition(passenger);
         if (this.hasPassenger(passenger)) {
+            passenger.setInvisible(true);
             float f = 0.0F;
             float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset());
             if (this.getPassengerList().size() > 1) {
@@ -522,12 +523,21 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             }
 
         }
+        else {
+            passenger.setInvisible(false);
+        }
+    }
+
+    @Override
+    public Vec3d updatePassengerForDismount(LivingEntity passenger) {
+        passenger.setInvisible(false);
+        return super.updatePassengerForDismount(passenger);
     }
 
     public void setPlayerYaw(Entity entity) {
         entity.setBodyYaw(this.getYaw());
         float f = MathHelper.wrapDegrees(entity.getYaw() - this.getYaw());
-        float g = MathHelper.clamp(f, -105.0F, 105.0F);
+        float g = MathHelper.clamp(f, 0f, 180F);
         entity.prevYaw += g - f;
         entity.setYaw(entity.getYaw() + g - f);
         entity.setHeadYaw(entity.getYaw());

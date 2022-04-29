@@ -4,8 +4,7 @@
   "package": "net.neednot.onewheel.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "LivingEntityMixin",
-    "BipedEntityModelMixin"
+    "LivingEntityMixin"
   ],
   "client": [
   ],

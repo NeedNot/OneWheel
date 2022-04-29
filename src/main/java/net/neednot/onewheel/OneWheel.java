@@ -24,9 +24,15 @@ public class OneWheel implements ModInitializer {
 
 	public static final EntityType<OneWheelEntity> OW = Registry.register(
 			Registry.ENTITY_TYPE,
-			new Identifier("entitytesting", "onewheel"),
+			new Identifier("future_motion", "onewheel"),
 			FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, OneWheelEntity::new).dimensions(EntityDimensions.fixed(0.75f, 0.55f)).build()
 	);
+	public static final EntityType<OneWheelPlayerEntity> OWPE = Registry.register(
+			Registry.ENTITY_TYPE,
+			new Identifier("future_motion", "onewheelplayer"),
+			FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, OneWheelPlayerEntity::new).dimensions(EntityDimensions.fixed(0.75f, 0.55f)).build()
+	);
+
 	public static final Item oneWheel = new Item(new Item.Settings().group(ItemGroup.TRANSPORTATION).maxCount(1));
 
 	@Override
@@ -34,5 +40,7 @@ public class OneWheel implements ModInitializer {
 		EntityRendererRegistry.register(OW, OneWheelRender::new);
 		FabricDefaultAttributeRegistry.register(OW, OneWheelEntity.createMobAttributes());
 		Registry.register(Registry.ITEM, new Identifier("modid", "onewheel"), oneWheel);
+		EntityRendererRegistry.register(OWPE, OneWheelPlayerRender::new);
+		FabricDefaultAttributeRegistry.register(OWPE, OneWheelPlayerEntity.createMobAttributes());
 	}
 }
