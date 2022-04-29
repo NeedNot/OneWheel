@@ -48,7 +48,18 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         else {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
             this.setPos(player.getX(), player.getY(), player.getZ());
+            this.headYaw = player.headYaw+90;
+            this.bodyYaw = player.bodyYaw+90;
+            this.setYaw(player.getYaw()+90);
         }
+    }
+    @Override
+    public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        this.setYaw(player.getYaw());
+        this.bodyYaw = this.getYaw();
+        this.headYaw = this.getYaw();
+        super.updatePositionAndAngles(x, y, z, this.getYaw(), this.getPitch());
     }
 
     @Override
