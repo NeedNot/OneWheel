@@ -1,16 +1,20 @@
 package net.neednot.onewheel;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -34,14 +38,23 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         super(type, worldIn);
         this.ignoreCameraFrustum = true;
     }
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (!MinecraftClient.getInstance().player.hasVehicle()) {
+            this.discard();
+        }
+        else {
+            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            this.setPos(player.getX(), player.getY(), player.getZ());
+        }
+    }
 
     @Override
-    public ActionResult interactMob(PlayerEntity player, Hand hand) {
-        if (!this.hasPassengers()) {
-            player.startRiding(this);
-            return super.interactMob(player, hand);
-        }
-        return super.interactMob(player, hand);
+    public void updatePosition(double x, double y, double z) {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        super.updatePosition(player.getX(), player.getY(), player.getZ());
     }
 
     @Override
