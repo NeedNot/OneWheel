@@ -79,22 +79,11 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
                         bone.setRotationX(invert(muti));
                     }
                 }
-
             }
         }
-        System.out.println(alpha);
-        super.renderRecursively(bone, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-    }
-    @Override
-    public void renderLate(OneWheelPlayerEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
-        if (MinecraftClient.getInstance().options.getPerspective().isFirstPerson()) {
-            animatable.setInvisible(true);
+        if (!MinecraftClient.getInstance().options.getPerspective().isFirstPerson()) {
+            super.renderRecursively(bone, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         }
-        else {
-            animatable.setInvisible(false);
-        }
-        super.renderLate(animatable, stackIn, ticks, renderTypeBuffer, bufferIn, packedLightIn, packedOverlayIn, red,
-                green, blue, partialTicks);
     }
     public float invert(float amount) {
         return amount *=-1;
