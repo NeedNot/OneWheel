@@ -62,8 +62,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public String color = "ow";
     public boolean ghost;
     public boolean offset;
-    public float fdecay =1f;
-    public float bdecay =1f;
+    public float fdecay = 1f;
+    public float bdecay = 1f;
+    public float battery = 32186.88f;
 
     private static final TrackedData<String> nbtdata = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
 
@@ -374,6 +375,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     }
                     fdecay += 0.000007;
                     f += 0.0039-fdecay;
+                    float mps = f * 0.082849355f;
+                    battery -= mps/20;
                     System.out.println("going "+f);
                 }
 
@@ -388,6 +391,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     }
                     bdecay += 0.000007;
                     f -= 0.0039-bdecay;
+                    float mps = f * 0.082849355f;
+                    battery -= mps/20;
                 }
 
                 if (!pressingBack && !pressingForward) {
@@ -430,6 +435,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     f = 1F;
                     bdecay = 0f;
                     fdecay = 0f;
+                }
+                if (breakingb || breakingf) {
+                    float recharge = ((f-prevF)*0.00082849355f)/20;
+                    if (f > 0) {
+                        battery -= recharge;
+                    } else if (f < 0) {
+                        battery += recharge;
+                    }
                 }
                 this.setMovementSpeed(1F);
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
@@ -478,6 +491,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 //}
             }
             prevF = f;
+            this.setHealth((battery/32186.88f)*20);
         }
     }
 

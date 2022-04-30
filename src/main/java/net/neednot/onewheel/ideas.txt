@@ -1,11 +1,12 @@
-player animations
 nose dive at 26mph
 flight fins let you jump
 fender
 slow down if you hit a wall
 punch to pick up the board
 require charging
+add a way to stop accelerating
 
+player animations - done
 speedometer - done
 nbt - done
 go up half slabs - done
