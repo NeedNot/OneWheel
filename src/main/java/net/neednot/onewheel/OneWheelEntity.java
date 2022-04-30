@@ -376,7 +376,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     fdecay += 0.000007;
                     f += 0.0039-fdecay;
                     float mps = f * 0.082849355f;
-                    battery -= mps/20;
+                    float ratio = mps/3.576f;
+                    battery -= ratio(mps, ratio)/20;
                     System.out.println("going "+f);
                 }
 
@@ -392,7 +393,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     bdecay += 0.000007;
                     f -= 0.0039-bdecay;
                     float mps = f * 0.082849355f;
-                    battery -= mps/20;
+                    float ratio = mps/3.576f;
+                    battery -= ratio(mps, ratio)/20;
                 }
 
                 if (!pressingBack && !pressingForward) {
@@ -493,6 +495,13 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             prevF = f;
             this.setHealth((battery/32186.88f)*20);
         }
+    }
+
+    private float ratio(float v, float ratio) {
+        if (ratio >= 1) {
+            return ratio*v;
+        }
+        return (v/ratio)*1.25f;
     }
 
     @Override
