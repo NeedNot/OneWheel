@@ -60,8 +60,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float yawVelocity;
     public float f = 0.0F;
     public float prevF;
-    public boolean prevbd;
-    public boolean prevfd;
+    public float prevbd;
+    public float prevfd;
     public String color = "ow";
     public boolean ghost;
     public boolean offset;
@@ -524,6 +524,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     }
     @Override
     public boolean damage(DamageSource source, float amount) {
+        Entity entity = source.getSource();
+        if (entity instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) entity;
+            ItemStack ow = new ItemStack(OneWheel.oneWheel);
+            ow.setCount(1);
+            player.setStackInHand(player.getActiveHand(), ow);
+            this.discard();
+        }
         return false;
     }
 
