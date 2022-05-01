@@ -60,6 +60,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float yawVelocity;
     public float f = 0.0F;
     public float prevF;
+    public boolean prevbd;
+    public boolean prevfd;
     public String color = "ow";
     public boolean ghost;
     public boolean offset;
@@ -458,6 +460,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     }
                 }
                 this.setMovementSpeed(1F);
+                if (!MinecraftClient.getInstance().options.sprintKey.isPressed()) {
+                    f = prevF;
+                    bdecay = prevbd;
+                    fdecay = prevfd;
+                }
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
 
                 super.travel(vec3d);
@@ -504,6 +511,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 //}
             }
             prevF = f;
+            prevbd = bdecay;
+            prevfd = fdecay;
         }
     }
 
