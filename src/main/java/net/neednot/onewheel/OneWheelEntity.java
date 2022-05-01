@@ -10,6 +10,7 @@ import net.minecraft.client.render.entity.BipedEntityRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -172,6 +173,16 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
 
         return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        this.setHealth((battery/32186.88f)*20);
+        BlockPos pos = this.getBlockPos();
+        if (world.getReceivedRedstonePower(pos) > 0) {
+            battery += 0.0022352f;
+        }
     }
 
     public OneWheelEntity(EntityType<? extends AnimalEntity> type, World worldIn) {
@@ -493,7 +504,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 //}
             }
             prevF = f;
-            this.setHealth((battery/32186.88f)*20);
         }
     }
 
@@ -502,6 +512,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             return ratio*v;
         }
         return (v/ratio)*1.25f;
+    }
+    @Override
+    public boolean damage(DamageSource source, float amount) {
+        return false;
     }
 
     @Override
