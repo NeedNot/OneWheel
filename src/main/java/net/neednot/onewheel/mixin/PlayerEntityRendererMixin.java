@@ -41,8 +41,8 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
         PlayerEntityModel<AbstractClientPlayerEntity> playerEntityModel = (PlayerEntityModel)this.getModel();
         if (MinecraftClient.getInstance().player.hasVehicle()) {
             playerEntityModel.setVisible(false);
-            playerEntityModel.head.visible = true;
-            playerEntityModel.hat.visible = true;
+//            playerEntityModel.head.visible = true;
+//            playerEntityModel.hat.visible = true;
         }
     }
 }

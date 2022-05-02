@@ -1,6 +1,7 @@
 package net.neednot.onewheel;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -16,10 +17,14 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
     }
     @Override
     public void renderRecursively(GeoBone bone, MatrixStack stack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        if (bone.getName().equals("heads")) {
-            bone.setHidden(true);
-        }
         if (MinecraftClient.getInstance().player.hasVehicle()) {
+            if (bone.getName().equals("heads")) {
+                ClientPlayerEntity player = MinecraftClient.getInstance().player;
+                OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
+                float yaw = player.getYaw()-ow.getYaw();
+                bone.setRotationY(invert((float) Math.toRadians((double) yaw+90)));
+                bone.setRotationX(invertif((float) Math.toRadians((double) player.getPitch())));
+            }
             if (bone.getName().equals("right_arms")) {
                 bone.setRotationZ(0.785398f);
             }
@@ -37,7 +42,7 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
                 float yaw = ow.yawVelocity;
                 if (yaw < 0) {
                     if (bone.getName().equals("player")) {
-
+                        bone.setPositionZ(-3);
                         bone.setRotationX((yaw * 0.005f));
                     }
                     if (bone.getName().equals("right_lower")) {
@@ -59,7 +64,7 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
                             muti = 0.15f;
                         }
                         if (yaw != 0.0f) {
-                            bone.setPositionZ(-4);
+                            bone.setPositionZ(0);
                         }
                         bone.setRotationX((yaw * (muti / 5)));
                     }
@@ -88,6 +93,13 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
             super.renderRecursively(bone, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         }
     }
+
+    private float invertif(float toRadians) {
+        if (!MinecraftClient.getInstance().options.getPerspective().isFirstPerson()) {
+            return toRadians *= -1;
+        } return toRadians;
+    }
+
     public float invert(float amount) {
         return amount *=-1;
     }

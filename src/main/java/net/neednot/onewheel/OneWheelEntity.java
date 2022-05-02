@@ -319,6 +319,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         if (!this.hasPassengers() && !pressingShift) {
             player.startRiding(this);
             mount = true;
+            if (!world.isClient) {
+                ServerWorld serverWorld = (ServerWorld) world;
+
+                OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
+            }
             return super.interactMob(player, hand);
         }
 
@@ -589,11 +594,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
     public void setPlayerYaw(Entity entity) {
         entity.setBodyYaw(this.getYaw());
-        float f = entity.getYaw() - this.getYaw();
-        float g = MathHelper.clamp(f, 0f, 180f);
+        float f = MathHelper.wrapDegrees(entity.getYaw() - this.getYaw()+90);
+        float g = MathHelper.clamp(f, -90, 90F);
         entity.prevYaw += g - f;
         entity.setYaw(entity.getYaw() + g - f);
         entity.setHeadYaw(entity.getYaw());
+
     }
 
     @Override
