@@ -33,7 +33,7 @@ public class OneWheel implements ModInitializer {
 			FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, OneWheelPlayerEntity::new).dimensions(EntityDimensions.fixed(0.75f, 0.55f)).build()
 	);
 
-	public static final Item oneWheel = new Item(new Item.Settings().group(ItemGroup.TRANSPORTATION).maxCount(1));
+	public static final OneWheelItem oneWheel = new OneWheelItem(new Item.Settings().group(ItemGroup.TRANSPORTATION).maxCount(1));
 
 	@Override
 	public void onInitialize() {

@@ -460,11 +460,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     }
                 }
                 this.setMovementSpeed(1F);
-                if (!MinecraftClient.getInstance().options.sprintKey.isPressed()) {
-                    f = prevF;
-                    bdecay = prevbd;
-                    fdecay = prevfd;
-                }
+//                if (!MinecraftClient.getInstance().options.sprintKey.isPressed()) {
+//                    f = prevF;
+//                    bdecay = prevbd;
+//                    fdecay = prevfd;
+//                }
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
 
                 super.travel(vec3d);
@@ -539,9 +539,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public void updatePassengerPosition(Entity passenger) {
         super.updatePassengerPosition(passenger);
         if (this.hasPassenger(passenger)) {
-            passenger.setInvisible(true);
             float f = 0.0F;
-            float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset());
+            float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset()+0.1f);
             if (this.getPassengerList().size() > 1) {
                 int i = this.getPassengerList().indexOf(passenger);
                 if (i == 0) {
@@ -591,10 +590,19 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public void setPlayerYaw(Entity entity) {
         entity.setBodyYaw(this.getYaw());
         float f = MathHelper.wrapDegrees(entity.getYaw() - this.getYaw());
-        float g = MathHelper.clamp(f, 0f, 180F);
+        float g = MathHelper.clamp(f, -20f, 160f);
         entity.prevYaw += g - f;
         entity.setYaw(entity.getYaw() + g - f);
         entity.setHeadYaw(entity.getYaw());
+    }
+
+    private float clamp(float f , float v , float v1) {
+        float x = MathHelper.clamp(f, v, v1);
+        if (x == 0 && f < -150) {
+            return 179f;
+        }
+        return x;
+
     }
 
     @Override

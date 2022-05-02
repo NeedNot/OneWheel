@@ -16,6 +16,9 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
     }
     @Override
     public void renderRecursively(GeoBone bone, MatrixStack stack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+        if (bone.getName().equals("heads")) {
+            bone.setHidden(true);
+        }
         if (MinecraftClient.getInstance().player.hasVehicle()) {
             if (bone.getName().equals("right_arms")) {
                 bone.setRotationZ(0.785398f);

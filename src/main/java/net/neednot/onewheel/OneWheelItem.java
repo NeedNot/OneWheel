@@ -21,17 +21,18 @@ public class OneWheelItem extends Item {
     public OneWheelItem(Settings settings) {
         super(settings);
     }
+
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity playerEntity, Hand hand) {
+    public ActionResult useOnBlock(ItemUsageContext context) {
         System.out.println("rn");
-        if (!world.isClient) {
+        if (!context.getWorld().isClient) {
             System.out.println("in");
-            ServerWorld serverWorld = (ServerWorld) world;
-            BlockPos pos = playerEntity.getCameraBlockPos();
-            OneWheel.OW.spawnFromItemStack(serverWorld, playerEntity.getStackInHand(hand), playerEntity, pos, SpawnReason.SPAWN_EGG, true, false);
-            playerEntity.getStackInHand(hand).setCount(0);
+            ServerWorld serverWorld = (ServerWorld) context.getWorld();
+            BlockPos pos = context.getBlockPos();
+            OneWheel.OW.spawnFromItemStack(serverWorld, context.getPlayer().getStackInHand(context.getHand()), context.getPlayer(), pos, SpawnReason.SPAWN_EGG, true, false);
+            context.getPlayer().getStackInHand(context.getHand()).setCount(0);
         }
-        return TypedActionResult.success(playerEntity.getStackInHand(hand));
+        return ActionResult.SUCCESS;
     }
 }
 
