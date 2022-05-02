@@ -589,20 +589,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
     public void setPlayerYaw(Entity entity) {
         entity.setBodyYaw(this.getYaw());
-        float f = MathHelper.wrapDegrees(entity.getYaw() - this.getYaw());
-        float g = MathHelper.clamp(f, -20f, 160f);
+        float f = entity.getYaw() - this.getYaw();
+        float g = MathHelper.clamp(f, 0f, 180f);
         entity.prevYaw += g - f;
         entity.setYaw(entity.getYaw() + g - f);
         entity.setHeadYaw(entity.getYaw());
-    }
-
-    private float clamp(float f , float v , float v1) {
-        float x = MathHelper.clamp(f, v, v1);
-        if (x == 0 && f < -150) {
-            return 179f;
-        }
-        return x;
-
     }
 
     @Override
