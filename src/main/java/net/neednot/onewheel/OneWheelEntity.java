@@ -57,6 +57,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public boolean mount;
     public boolean breakingf;
     public boolean breakingb;
+    public boolean noseDivingf;
+    public boolean noseDivingb;
+    public int forcedF;
+    public int forcedb;
     public float yawVelocity;
     public float f = 0.0F;
     public float prevF;
@@ -85,6 +89,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public AnimationBuilder dismount = new AnimationBuilder().addAnimation("animation.ow.dismount" , false).addAnimation("animation.ow.idle", true);
     public AnimationBuilder pushbackf = new AnimationBuilder().addAnimation("animation.ow.pushbackf", false).addAnimation("animation.ow.holdf", true);
     public AnimationBuilder pushbackb = new AnimationBuilder().addAnimation("animation.ow.pushbackb", false).addAnimation("animation.ow.holdb", true);
+    public AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.ow.nosedivef", true);
+    public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.ow.nosediveb", true);
+    public Vec3d bonePos = this.getPos();
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         try {
@@ -129,6 +136,16 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             System.out.println("null");
             name = "null";
         }
+        if (noseDivingf && !(f == 0)) {
+            event.getController().setAnimationSpeed(2.5);
+            event.getController().setAnimation(nosedivef);
+            return PlayState.CONTINUE;
+        }
+        if (noseDivingb && !(f == 0)) {
+            event.getController().setAnimationSpeed(2.5);
+            event.getController().setAnimation(nosediveb);
+            return PlayState.CONTINUE;
+        }
 
         if (f > 0.66f) {
             event.getController().setAnimation(pushbackf);
@@ -140,7 +157,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         }
 
         if (breakingf) {
-            System.out.println("got it ");
             event.getController().setAnimation(holdf);
             return PlayState.CONTINUE;
         }
@@ -367,7 +383,26 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
         if (this.isAlive()) {
             yawVelocity = 0.0F;
+            if (forcedb == 25 || forcedF == 25) {
+                Entity player = this.getControllingPassenger();
+                player.damage(DamageSource.FALL, 5);
+            }
+            if (forcedF > 30 || forcedb > 30 || f == 0) {
+                if (this.hasPassengers() && (forcedF > 30 || forcedb > 30)) {
+                    PlayerEntity player = (PlayerEntity) this.getControllingPassenger();
+                    player.dismountVehicle();
+                    updatePassengerForDismount((LivingEntity) player);
+                    player.setInvisible(false);
+                }
+                forcedb = 0;
+                forcedF = 0;
+                noseDivingf = false;
+                noseDivingb = false;
+            }
             if (this.hasPassengers()) {
+//                if (forcedF > 20 || forcedb > 20) {
+//                    this.getControllingPassenger().dismountVehicle();
+//                }
                 ghost = false;
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
@@ -381,41 +416,57 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 if (pressingRight != pressingLeft && !pressingForward && !pressingBack) {
                     f += 0.005F;
                 }
-
+                if (f < -0.96296296296 || forcedb > 0) {
+                    forcedb += 1;
+                    noseDivingb = true;
+                    if (forcedb > 20) {
+                        pressingBack = false;
+                        f /= 1.2;
+                        fdecay /= 1.2;
+                    }
+                }
+                if (f > 0.36296296296 || forcedF > 0) {//0.96296296296
+                    forcedF += 1;
+                    noseDivingf = true;
+                    if (forcedF > 20) {
+                        f /= 1.2;
+                        fdecay /= 1.2;
+                        pressingForward = false;
+                    }
+                }
                 if (pressingForward) {
                     if (f < 0) {
-                        f/=1.2;
-                        fdecay/=1.2;
+                        f /= 1.2;
+                        fdecay /= 1.2;
                         if (prevF < f) {
                             breakingb = true;
                             breakingf = false;
                         }
                     }
                     fdecay += 0.000007;
-                    f += 0.0039-fdecay;
+                    f += 0.0039 - fdecay;
                     float mps = f * 0.082849355f;
-                    float ratio = mps/3.576f;
-                    battery -= ratio(mps, ratio)/20;
-                    System.out.println("going "+f);
+                    float ratio = mps / 3.576f;
+                    battery -= ratio(mps , ratio) / 20;
                 }
 
                 if (pressingBack) {
                     if (f > 0) {
-                        f/=1.2;
-                        bdecay /=1.2;
+                        f /= 1.2;
+                        bdecay /= 1.2;
                         if (prevF > f) {
                             breakingf = true;
                             breakingb = false;
                         }
                     }
                     bdecay += 0.000007;
-                    f -= 0.0039-bdecay;
+                    f -= 0.0039 - bdecay;
                     float mps = f * 0.082849355f;
-                    float ratio = mps/3.576f;
-                    battery -= ratio(mps, ratio)/20;
+                    float ratio = mps / 3.576f;
+                    battery -= ratio(mps , ratio) / 20;
                 }
 
-                if (!pressingBack && !pressingForward) {
+                if (!pressingBack && !pressingForward && !noseDivingb && !noseDivingf) {
                     if (f > 0.008f) {
                         f/=1.2;
                         fdecay /=1.2;
@@ -445,6 +496,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                         this.yawVelocity += 4.5F;
                     }
                     if (f == 0) {
+                        noseDivingf = false;
+                        noseDivingb = false;
                         breakingb = false;
                         breakingf = false;
                         bdecay = 0;
@@ -470,6 +523,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 //                    bdecay = prevbd;
 //                    fdecay = prevfd;
 //                }
+
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
 
                 super.travel(vec3d);
@@ -543,9 +597,13 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void updatePassengerPosition(Entity passenger) {
         super.updatePassengerPosition(passenger);
-        if (this.hasPassenger(passenger)) {
+//        if (forcedF > 5 || forcedb > 5) {
+//            System.out.println(bonePos.toString() + "bones");
+//            passenger.setPosition(bonePos);
+//        }
+        if (this.hasPassenger(passenger) && (forcedF == 0 && forcedb == 0)) {
             float f = 0.0F;
-            float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset()+0.1f);
+            float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset()+0.15f);
             if (this.getPassengerList().size() > 1) {
                 int i = this.getPassengerList().indexOf(passenger);
                 if (i == 0) {
@@ -560,19 +618,24 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             }
 
             Vec3d vec3d = (new Vec3d((double)f, 0.0D, 0.0D)).rotateY(-this.getYaw() * 0.017453292F - 1.5707964F);
-            passenger.setPosition(this.getX() + vec3d.x, this.getY() + (double)g, this.getZ() + vec3d.z);
+            if (!(forcedb > 5) && !(forcedF > 5)) {
+                passenger.setPosition(this.getX() + vec3d.x , this.getY() + (double) g , this.getZ() + vec3d.z);
+            }
             passenger.setYaw(passenger.getYaw() + this.yawVelocity);
             passenger.setHeadYaw(passenger.getHeadYaw() + this.yawVelocity);
             this.setPlayerYaw(passenger);
-            System.out.println(this.getYaw());
             if (!this.getEntityWorld().isClient) {
-                this.setYaw(this.getYaw()+yawVelocity);
-                this.bodyYaw = this.getYaw();
-                this.headYaw = this.bodyYaw;
+                if (forcedb == 0 && forcedF == 0) {
+                    this.setYaw(this.getYaw() + yawVelocity);
+                    this.bodyYaw = this.getYaw();
+                    this.headYaw = this.bodyYaw;
+                }
             }
             else {
-                this.bodyYaw = this.getYaw();
-                this.headYaw = this.bodyYaw;
+                if (forcedb == 0 && forcedF == 0) {
+                    this.bodyYaw = this.getYaw();
+                    this.headYaw = this.bodyYaw;
+                }
             }
             if (passenger instanceof AnimalEntity && this.getPassengerList().size() > 1) {
                 int j = passenger.getId() % 2 == 0 ? 90 : 270;
@@ -581,15 +644,27 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             }
 
         }
-        else {
-            passenger.setInvisible(false);
-        }
     }
 
     @Override
     public Vec3d updatePassengerForDismount(LivingEntity passenger) {
         passenger.setInvisible(false);
-        return super.updatePassengerForDismount(passenger);
+//        double d = 3;
+//        float f = -MathHelper.sin(this.getYaw() * 0.017453292F);
+//        float g = MathHelper.cos(this.getYaw() * 0.017453292F);
+//        float h = Math.max(Math.abs(f), Math.abs(g));
+//        Vec3d vec3d = new Vec3d(this.getX(), this.getY(), this.getZ()).add(new Vec3d((double)f * d / (double)h, 0.0d, (double)g * d / (double)h));
+//
+//        d = -1;
+//        f = -MathHelper.sin(this.getYaw()+90 * 0.017453292F);
+//        g = MathHelper.cos(this.getYaw()+90 * 0.017453292F);
+//        h = Math.max(Math.abs(f), Math.abs(g));
+//        return vec3d.add(new Vec3d((double)f * d / (double)h, 0.0D, (double)g * d / (double)h));
+        //return new Vec3d(this.getX()+x, this.getBoundingBox().maxY, this.getZ()+z);
+        if (forcedF > 0 || forcedb > 0) {
+            return bonePos;
+        }
+        return this.getPos();
     }
 
     public void setPlayerYaw(Entity entity) {

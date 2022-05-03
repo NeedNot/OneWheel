@@ -63,27 +63,45 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
             OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
             if (ow.forcedb == 25 || ow.forcedF == 25) {
                 this.setHealth(player.getHealth());
-                this.damage(DamageSource.FALL, 5f);
+                this.damage(DamageSource.FALL , 5f);
             }
-            this.setPos(player.getX(), player.getY()-0.1f, player.getZ());
-            this.headYaw = player.headYaw-90;
-            this.bodyYaw = player.bodyYaw-90;
-            this.setYaw(player.getYaw()-90);
+            this.setPos(player.getX() , player.getY() - 0.1f , player.getZ());
+            if (ow.forcedb == 0 && ow.forcedF == 0) {
+                this.headYaw = player.headYaw - 90;
+                this.bodyYaw = player.bodyYaw - 90;
+                this.setYaw(player.getYaw() - 90);
+            }
+            else {
+                this.headYaw = ow.headYaw -90;
+                this.bodyYaw = ow.bodyYaw -90;
+                this.setYaw(ow.getYaw() - 90);
+            }
         }
     }
     @Override
     public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
         this.setYaw(player.getYaw());
         this.bodyYaw = this.getYaw();
         this.headYaw = this.getYaw();
+        if (ow.forcedb > 0|| ow.forcedF > 0) {
+            this.setYaw(ow.getYaw()+90);
+        }
         super.updatePositionAndAngles(x, y, z, this.getYaw(), this.getPitch());
     }
 
     @Override
     public void updatePosition(double x, double y, double z) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        super.updatePosition(player.getX(), player.getY(), player.getZ());
+        OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
+//        if (ow.forcedb == 0 && ow.forcedF == 0) {
+//            super.updatePosition(player.getX() , player.getY() , player.getZ());
+//        }
+//        else {
+//            super.updatePosition(ow.getX() , ow.getY() , ow.getZ());
+//        }
+        super.updatePosition(player.getX() , player.getY() , player.getZ());
     }
 
     @Override
