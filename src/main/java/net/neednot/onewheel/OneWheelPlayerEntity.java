@@ -6,6 +6,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,8 +30,20 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
 
     private AnimationFactory factory = new AnimationFactory(this);
+    public AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.player.nosedivef", false);
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        if (player.hasVehicle()) {
+            if (player.getVehicle() instanceof OneWheelEntity) {
+                OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
+                if (ow.forcedb > 10 || ow.forcedF > 10) {
+                    event.getController().animationSpeed = 4;
+                    event.getController().setAnimation(nosedivef);
+                    return PlayState.CONTINUE;
+                }
+            }
+        }
         return PlayState.STOP;
     }
 
@@ -47,6 +60,11 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         }
         else {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
+            if (ow.forcedb == 25 || ow.forcedF == 25) {
+                this.setHealth(player.getHealth());
+                this.damage(DamageSource.FALL, 5f);
+            }
             this.setPos(player.getX(), player.getY()-0.1f, player.getZ());
             this.headYaw = player.headYaw-90;
             this.bodyYaw = player.bodyYaw-90;

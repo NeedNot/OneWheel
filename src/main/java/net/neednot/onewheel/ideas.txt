@@ -1,10 +1,11 @@
-nose dive at 26mph
 flight fins let you jump
 fender
 slow down if you hit a wall
 fix speedometer glitches
 add a way to stop accelerating
+fix board tilt when turning backwards
 
+nose dive at 26mph - done
 punch to pick up the board - done
 require charging - done
 player animations - done

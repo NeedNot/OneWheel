@@ -22,6 +22,6 @@ public class OneWheelPlayerModel extends AnimatedGeoModel<OneWheelPlayerEntity> 
     @Override
     public Identifier getAnimationFileLocation(OneWheelPlayerEntity object)
     {
-        return new Identifier("onewheel", "animations/ow.animation.json");
+        return new Identifier("player", "animations/model.animation.json");
     }
 }
