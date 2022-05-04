@@ -65,16 +65,17 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                 this.setHealth(player.getHealth());
                 this.damage(DamageSource.FALL , 5f);
             }
-            this.setPos(player.getX() , player.getY() - 0.1f , player.getZ());
             if (ow.forcedb == 0 && ow.forcedF == 0) {
                 this.headYaw = player.headYaw - 90;
                 this.bodyYaw = player.bodyYaw - 90;
                 this.setYaw(player.getYaw() - 90);
+                this.setPos(player.getX() , player.getY() - 0.1f , player.getZ());
             }
             else {
                 this.headYaw = ow.headYaw -90;
                 this.bodyYaw = ow.bodyYaw -90;
                 this.setYaw(ow.getYaw() - 90);
+                this.setPos(ow.getX(), ow.getY(), ow.getZ());
             }
         }
     }
@@ -95,12 +96,12 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     public void updatePosition(double x, double y, double z) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
-//        if (ow.forcedb == 0 && ow.forcedF == 0) {
-//            super.updatePosition(player.getX() , player.getY() , player.getZ());
-//        }
-//        else {
-//            super.updatePosition(ow.getX() , ow.getY() , ow.getZ());
-//        }
+        if (ow.forcedb == 0 && ow.forcedF == 0) {
+            super.updatePosition(player.getX() , player.getY() , player.getZ());
+        }
+        else {
+            super.updatePosition(ow.getX() , ow.getY() , ow.getZ());
+        }
         super.updatePosition(player.getX() , player.getY() , player.getZ());
     }
 

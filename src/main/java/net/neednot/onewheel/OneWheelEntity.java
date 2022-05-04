@@ -196,6 +196,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
+        if (forcedb == 0 && forcedF == 0) bonePos = this.getPos();
         this.setHealth((battery/32186.88f)*20);
         BlockPos pos = this.getBlockPos();
         if (world.getReceivedRedstonePower(pos) > 0) {
@@ -597,10 +598,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void updatePassengerPosition(Entity passenger) {
         super.updatePassengerPosition(passenger);
-//        if (forcedF > 5 || forcedb > 5) {
-//            System.out.println(bonePos.toString() + "bones");
-//            passenger.setPosition(bonePos);
-//        }
+        if (forcedF > 5 || forcedb > 5) {
+            passenger.setPosition(bonePos);
+        }
         if (this.hasPassenger(passenger) && (forcedF == 0 && forcedb == 0)) {
             float f = 0.0F;
             float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset()+0.15f);
