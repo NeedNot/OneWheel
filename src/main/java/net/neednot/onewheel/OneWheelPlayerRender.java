@@ -13,6 +13,7 @@ import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 
 public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity> {
     float yaw = 90;
+    float realyaw;
     boolean isRiding;
     public OneWheelPlayerRender(EntityRendererFactory.Context renderManager) {
         super(renderManager, new OneWheelPlayerModel());
@@ -42,9 +43,10 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
             if (MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
                 OneWheelEntity ow = (OneWheelEntity) MinecraftClient.getInstance().player.getVehicle();
                 float yaw = ow.yawVelocity;
+                System.out.println(Math.abs(ow.getYaw()-90) + "yaw");
                 if (bone.getName().equals("player")) {
                     if (ow.forcedb > 0 || ow.forcedF > 0) {
-                        ow.bonePos = new Vec3d(bone.getPositionX()/12, bone.getPositionY()/16, bone.getPositionZ()/-12).rotateY((float) Math.toRadians(ow.getYaw()+90)).add(ow.getPos());
+                        ow.bonePos = new Vec3d(bone.getPositionX()/12, bone.getPositionY()/16, bone.getPositionZ()/-12).rotateY((float) Math.toRadians(Math.abs(ow.getYaw()-90))).add(ow.getPos());
                     }
                 }
                 if (yaw < 0) {
@@ -105,6 +107,12 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
         if (!MinecraftClient.getInstance().options.getPerspective().isFirstPerson()) {
             return toRadians *= -1;
         } return toRadians;
+    }
+    @Override
+    public void renderLate(OneWheelPlayerEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
+        this.realyaw = MathHelper.wrapDegrees(animatable.bodyYaw);
+        super.renderLate(animatable, stackIn, ticks, renderTypeBuffer, bufferIn, packedLightIn, packedOverlayIn, red,
+                green, blue, partialTicks);
     }
 
     public float invert(float amount) {
