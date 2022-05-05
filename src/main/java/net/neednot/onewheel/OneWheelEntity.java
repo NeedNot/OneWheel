@@ -94,11 +94,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public Vec3d bonePos = this.getPos();
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        try {
-            //System.out.println("spin " + event.getController().getCurrentAnimation().animationName);
-        } catch (NullPointerException e) {
-            System.out.println("null");
-        }
         event.getController().transitionLengthTicks = 0F;
 
         if (this.hasPassengers()) {
@@ -133,7 +128,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             name = event.getController().getCurrentAnimation().animationName;
             //System.out.println("tilt "+name);
         } catch (NullPointerException e) {
-            System.out.println("null");
             name = "null";
         }
         if (noseDivingf && !(f == 0)) {

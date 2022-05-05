@@ -43,10 +43,24 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
             if (MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
                 OneWheelEntity ow = (OneWheelEntity) MinecraftClient.getInstance().player.getVehicle();
                 float yaw = ow.yawVelocity;
-                System.out.println(Math.abs(ow.getYaw()-90) + "yaw");
+                float oyaw = invert(360-(MathHelper.wrapDegrees(ow.getYaw())))%360;
+                //System.out.println(oyaw +"raw yaw");
+                //System.out.println((ow.getYaw()) + "yaw");
+                //ccw
+                //90g = -270
+                //0g = 0
+                //-90g = -90
+                //-180g = -180
+
+                //cw
+                //90g = 90
+                //-180g = 180
+                //-90g = -90
+                //0g = 180
+
                 if (bone.getName().equals("player")) {
                     if (ow.forcedb > 0 || ow.forcedF > 0) {
-                        ow.bonePos = new Vec3d(bone.getPositionX()/12, bone.getPositionY()/16, bone.getPositionZ()/-12).rotateY((float) Math.toRadians(Math.abs(ow.getYaw()-90))).add(ow.getPos());
+                        ow.bonePos = new Vec3d(bone.getPositionX()/12, bone.getPositionY()/16, bone.getPositionZ()/-12).rotateY((float) Math.toRadians(Math.abs(oyaw-90))).add(ow.getPos());
                     }
                 }
                 if (yaw < 0) {
@@ -101,6 +115,13 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
         if (!MinecraftClient.getInstance().options.getPerspective().isFirstPerson()) {
             super.renderRecursively(bone, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         }
+    }
+
+    private float invertDeg(float yaw) {
+        if (yaw > 0) {
+            return yaw-360;
+        }
+        return yaw;
     }
 
     private float invertif(float toRadians) {
