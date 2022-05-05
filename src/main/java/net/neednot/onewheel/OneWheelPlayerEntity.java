@@ -1,5 +1,6 @@
 package net.neednot.onewheel;
 
+import com.eliotlash.mclib.math.functions.limit.Min;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
