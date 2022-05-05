@@ -31,15 +31,21 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
 
     private AnimationFactory factory = new AnimationFactory(this);
     public AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.player.nosedivef", false);
+    public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.player.nosediveb", false);
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player.hasVehicle()) {
             if (player.getVehicle() instanceof OneWheelEntity) {
                 OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
-                if (ow.forcedb > 10 || ow.forcedF > 10) {
+                if (ow.forcedF > 10) {
                     event.getController().animationSpeed = 4;
                     event.getController().setAnimation(nosedivef);
+                    return PlayState.CONTINUE;
+                }
+                if (ow.forcedb > 10) {
+                    event.getController().animationSpeed = 4;
+                    event.getController().setAnimation(nosediveb);
                     return PlayState.CONTINUE;
                 }
             }
@@ -54,7 +60,6 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
-
         if (!MinecraftClient.getInstance().player.hasVehicle()) {
             this.discard();
         }

@@ -44,19 +44,6 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
                 OneWheelEntity ow = (OneWheelEntity) MinecraftClient.getInstance().player.getVehicle();
                 float yaw = ow.yawVelocity;
                 float oyaw = invert(360-(MathHelper.wrapDegrees(ow.getYaw())))%360;
-                //System.out.println(oyaw +"raw yaw");
-                //System.out.println((ow.getYaw()) + "yaw");
-                //ccw
-                //90g = -270
-                //0g = 0
-                //-90g = -90
-                //-180g = -180
-
-                //cw
-                //90g = 90
-                //-180g = 180
-                //-90g = -90
-                //0g = 180
 
                 if (bone.getName().equals("player")) {
                     if (ow.forcedb > 0 || ow.forcedF > 0) {

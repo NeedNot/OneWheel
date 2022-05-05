@@ -33,7 +33,7 @@ public abstract class LivingEntityMixin extends Entity {
     @Inject(at = @At("TAIL"), method = "tickMovement")
     public void tickMovement(CallbackInfo info) {
         if (this.getType().getName().toString().contains("onewheel") && this.hasPassengers() && MinecraftClient.getInstance().player != null) {
-            double speed = MathHelper.clamp(((double)this.getPos().distanceTo(speedometer$lastPos)*20)*2.237, 0, 27);
+            double speed = MathHelper.clamp(((double)this.getPos().distanceTo(speedometer$lastPos)*20)*2.237, 0, 35);
             if (world.isClient) {
                 MinecraftClient.getInstance().player.sendMessage(new LiteralText(df.format(speed) + " MPH") , true);
             }

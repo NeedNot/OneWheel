@@ -46,6 +46,8 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.shadowed.eliotlash.molang.MolangParser;
 
+import java.util.Random;
+
 
 public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
@@ -72,6 +74,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float fdecay = 1f;
     public float bdecay = 1f;
     public float battery = 32186.88f;
+    public int odds = 350;
+    public float prevprevf;
 
     private static final TrackedData<String> nbtdata = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
 
@@ -332,7 +336,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             mount = true;
             if (!world.isClient) {
                 ServerWorld serverWorld = (ServerWorld) world;
-
+                System.out.println("spawn");
                 OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
             }
             return super.interactMob(player, hand);
@@ -411,7 +415,23 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 if (pressingRight != pressingLeft && !pressingForward && !pressingBack) {
                     f += 0.005F;
                 }
-                if (f < -0.96296296296 || forcedb > 0) {
+
+                 if ((Math.abs(f) > 0.74074074074f && Math.abs(prevprevf) < Math.abs(f)) && !noseDivingb && !noseDivingf) {
+                    odds -= 1;
+                    int x = random.nextInt(odds);
+                    if (f > 0.74074074074f && x == 0) {
+                        MinecraftClient.getInstance().player.sendChatMessage("nose diving");
+                        forcedF += 1;
+                        noseDivingf = true;
+                    }
+                    if (f < -0.74074074074f && x == 0) {
+                        forcedb += 1;
+                        noseDivingb = true;
+                    }
+                }
+                else odds = 350;
+
+                if (f < -1.11 || forcedb > 0) {
                     forcedb += 1;
                     noseDivingb = true;
                     if (forcedb > 20) {
@@ -420,7 +440,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                         fdecay /= 1.2;
                     }
                 }
-                if (f > 0.36296296296 || forcedF > 0) {//0.96296296296
+                if (f > 1.11 || forcedF > 0) {
                     forcedF += 1;
                     noseDivingf = true;
                     if (forcedF > 20) {
@@ -429,6 +449,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                         pressingForward = false;
                     }
                 }
+
+                prevprevf = f;
                 if (pressingForward) {
                     if (f < 0) {
                         f /= 1.2;
@@ -438,7 +460,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                             breakingf = false;
                         }
                     }
-                    fdecay += 0.000007;
+                    fdecay += 0.000006;
                     f += 0.0039 - fdecay;
                     float mps = f * 0.082849355f;
                     float ratio = mps / 3.576f;
@@ -454,7 +476,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                             breakingb = false;
                         }
                     }
-                    bdecay += 0.000007;
+                    bdecay += 0.000006;
                     f -= 0.0039 - bdecay;
                     float mps = f * 0.082849355f;
                     float ratio = mps / 3.576f;
@@ -499,11 +521,17 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                         fdecay = 0;
                     }
                 }
-                if (f >= 1F) {
-                    f = 1F;
+                if (f >= 1.1111F) {
+                    f = 1.1111F;
                     bdecay = 0f;
                     fdecay = 0f;
                 }
+                if (f <= -1.1111F) {
+                    f = -1.1111F;
+                    bdecay = 0f;
+                    fdecay = 0f;
+                }
+
                 if (breakingb || breakingf) {
                     float recharge = ((f-prevF)*0.00082849355f)/20;
                     if (f > 0) {
@@ -642,6 +670,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
     @Override
     public Vec3d updatePassengerForDismount(LivingEntity passenger) {
+        if (passenger instanceof ClientPlayerEntity) {
+            ClientPlayerEntity player = (ClientPlayerEntity) passenger;
+            player.sendChatMessage("dismounting");
+        }
         passenger.setInvisible(false);
 //        double d = 3;
 //        float f = -MathHelper.sin(this.getYaw() * 0.017453292F);
