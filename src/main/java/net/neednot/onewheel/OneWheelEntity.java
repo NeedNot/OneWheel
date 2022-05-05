@@ -78,8 +78,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public int odds = 350;
     public float prevprevf;
 
-    public OneWheelPlayerEntity = null;
-
     private static final TrackedData<String> nbtdata = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
 
     private AnimationFactory factory = new AnimationFactory(this);
@@ -198,13 +196,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
-        if (!world.isClient && playerModel == null) {
-            playerModel = world.getEntitiesByClass(OneWheelPlayerEntity, getBoundingBox().expand(2, 2, 2), LivingEntity)
-            ServerWorld serverWorld = (ServerWorld) world;
-            System.out.println("spawn");
-            PlayerEntity player = (PlayerEntity) this.getControllingPassenger();
-            OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
-        }
         if (forcedb == 0 && forcedF == 0) bonePos = this.getPos();
         this.setHealth((battery/32186.88f)*20);
         BlockPos pos = this.getBlockPos();
@@ -345,7 +336,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         if (!this.hasPassengers() && !pressingShift) {
             player.startRiding(this);
             mount = true;
-            spawn = true;
+            if (!world.isClient) {
+                ServerWorld serverWorld = (ServerWorld) world;
+
+                OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
+            }
             return super.interactMob(player, hand);
         }
 
@@ -423,27 +418,21 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 if (pressingRight != pressingLeft && !pressingForward && !pressingBack) {
                     f += 0.005F;
                 }
-                if (world.isClient) {
-                    MinecraftClient.getInstance().player.sendChatMessage(String.valueOf(noseDivingf));
-                    MinecraftClient.getInstance().player.sendChatMessage(String.valueOf(forcedF));
-                }
-                if ((Math.abs(f) > 0.74074074074f && Math.abs(prevprevf) < Math.abs(f)) && !noseDivingb && !noseDivingf) {
-                    int x = random.nextInt(odds);
+                if (Math.abs(f) > 0.74074074074f && Math.abs(prevprevf) < Math.abs(f) && forcedF < 1 && forcedb < 1) {
                     odds -= 1;
+                    int x = random.nextInt(odds);
+                    MinecraftClient.getInstance().player.sendChatMessage(String.valueOf(x));
+                    MinecraftClient.getInstance().player.sendChatMessage(String.valueOf(odds));
                     if (x == 0) {
-                        if (f > 0.74074074074f) {
-                            MinecraftClient.getInstance().player.sendChatMessage("nose diving");
+                        if (f > 0) {
                             forcedF += 1;
-                            noseDivingf = true;
                         }
-                        if (f < -0.74074074074f) {
+                        if (f < 0) {
                             forcedb += 1;
-                            noseDivingb = true;
                         }
                     }
                 }
                 else odds = 350;
-
                 if (f < -1.11 || forcedb > 0) {
                     forcedb += 1;
                     noseDivingb = true;
