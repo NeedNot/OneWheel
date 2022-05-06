@@ -24,9 +24,7 @@ public class OneWheelItem extends Item {
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
-        System.out.println("rn");
         if (!context.getWorld().isClient) {
-            System.out.println("in");
             ServerWorld serverWorld = (ServerWorld) context.getWorld();
             BlockPos pos = context.getBlockPos();
             OneWheel.OW.spawnFromItemStack(serverWorld, context.getPlayer().getStackInHand(context.getHand()), context.getPlayer(), pos, SpawnReason.SPAWN_EGG, true, false);

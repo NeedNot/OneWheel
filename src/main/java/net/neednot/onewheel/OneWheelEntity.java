@@ -22,6 +22,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -97,12 +98,13 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.ow.nosedivef", true);
     public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.ow.nosediveb", true);
     public Vec3d bonePos = this.getPos();
-    public Random rand = new Random();
-    public long seed = LocalTime.now().getMinute();
+    public Random rand = getRand();
 
     public Random getRand() {
-        rand.setSeed(seed);
-        return rand;
+        Random random = new Random();
+        if (world.isClient) random.setSeed(Long.parseLong(String.valueOf(this.getId())));
+        if (!world.isClient) random.setSeed(Long.parseLong(String.valueOf(this.getId()+1)));
+        return random;
     }
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
@@ -344,7 +346,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             mount = true;
             if (!world.isClient) {
                 ServerWorld serverWorld = (ServerWorld) world;
-
                 OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
             }
             return super.interactMob(player, hand);
@@ -429,10 +430,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 }
                 float needSpeed = 1.11f;
                 if (Math.abs(f) > 0.74074074074f && Math.abs(prevprevf) < Math.abs(f) && (!noseDivingb) && (!noseDivingf)) {
-                    System.out.println("im here");
                     odds -= 1;
 
-                    int x = getRand().nextInt(odds);
+                    int x = rand.nextInt(odds);
+                    System.out.println(x);
                     if (x == 0) {
                         needSpeed = 0.1f;
                     }
@@ -442,7 +443,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     forcedb += 1;
                     noseDivingb = true;
                     if (forcedb > 20) {
-                        seed = LocalTime.now().getSecond();
                         pressingBack = false;
                         f /= 1.2;
                         fdecay /= 1.2;
@@ -452,7 +452,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     forcedF += 1;
                     noseDivingf = true;
                     if (forcedF > 20) {
-                        seed = LocalTime.now().getSecond();
                         f /= 1.2;
                         fdecay /= 1.2;
                         pressingForward = false;
