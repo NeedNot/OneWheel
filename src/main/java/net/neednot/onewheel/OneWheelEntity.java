@@ -58,6 +58,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public boolean pressingForward;
     public boolean pressingBack;
     public boolean pressingShift;
+    public boolean pressingCtrl;
     public boolean mount;
     public boolean breakingf;
     public boolean breakingb;
@@ -387,6 +388,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             pressingLeft = player.input.pressingLeft;
             pressingRight = player.input.pressingRight;
             pressingShift = player.isSneaking();
+            pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed();
         } catch (Exception e) { }
 
         if (this.isAlive()) {
@@ -468,11 +470,15 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                             breakingf = false;
                         }
                     }
-                    fdecay += 0.000006;
-                    f += 0.0039 - fdecay;
+                    if (pressingCtrl) {
+                        fdecay += 0.000006;
+                        f += 0.0039 - fdecay;
+                    }
                     float mps = f * 0.082849355f;
                     float ratio = mps / 3.576f;
+                    System.out.println(battery);
                     battery -= ratio(mps , ratio) / 20;
+                    System.out.println(battery);
                 }
 
                 if (pressingBack) {
@@ -484,8 +490,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                             breakingb = false;
                         }
                     }
-                    bdecay += 0.000006;
-                    f -= 0.0039 - bdecay;
+                    if (pressingCtrl) {
+                        bdecay += 0.000006;
+                        f -= 0.0039 - bdecay;
+                    }
                     float mps = f * 0.082849355f;
                     float ratio = mps / 3.576f;
                     battery -= ratio(mps , ratio) / 20;
@@ -607,9 +615,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     }
 
     private float ratio(float v, float ratio) {
-        if (ratio >= 1) {
-            return ratio*v;
-        }
+        if (ratio >= 1) return ratio*v;
+        if (v == 0) return 0;
         return (v/ratio)*1.25f;
     }
     @Override

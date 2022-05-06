@@ -1,10 +1,12 @@
 flight fins let you jump
 fender
 slow down if you hit a wall
-add a way to stop accelerating
 add alex model
-100% sync across rng
+add battery indicator
+hide armor and items other than helmet
 
+add a way to stop accelerating - done
+100% sync across rng - done
 fix board tilt when turning backwards - done
 fix speedometer glitches - done
 nose dive at 26mph - done

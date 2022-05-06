@@ -61,27 +61,27 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
-        if (!MinecraftClient.getInstance().player.hasVehicle()) {
-            this.discard();
-        }
-        else {
-            ClientPlayerEntity player = MinecraftClient.getInstance().player;
-            OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
-            if (ow.forcedb == 25 || ow.forcedF == 25) {
-                this.setHealth(player.getHealth());
-                this.damage(DamageSource.FALL , 5f);
-            }
-            if (ow.forcedb == 0 && ow.forcedF == 0) {
-                this.headYaw = player.headYaw - 90;
-                this.bodyYaw = player.bodyYaw - 90;
-                this.setYaw(player.getYaw() - 90);
-                this.setPos(player.getX() , player.getY() - 0.1f , player.getZ());
-            }
-            else {
-                this.headYaw = ow.headYaw -90;
-                this.bodyYaw = ow.bodyYaw -90;
-                this.setYaw(ow.getYaw() - 90);
-                this.setPos(ow.getX(), ow.getY(), ow.getZ());
+        if (MinecraftClient.getInstance().player != null) {
+            if (!MinecraftClient.getInstance().player.hasVehicle()) {
+                this.discard();
+            } else {
+                ClientPlayerEntity player = MinecraftClient.getInstance().player;
+                OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
+                if (ow.forcedb == 25 || ow.forcedF == 25) {
+                    this.setHealth(player.getHealth());
+                    this.damage(DamageSource.FALL , 5f);
+                }
+                if (ow.forcedb == 0 && ow.forcedF == 0) {
+                    this.headYaw = player.headYaw - 90;
+                    this.bodyYaw = player.bodyYaw - 90;
+                    this.setYaw(player.getYaw() - 90);
+                    this.setPos(player.getX() , player.getY() - 0.1f , player.getZ());
+                } else {
+                    this.headYaw = ow.headYaw - 90;
+                    this.bodyYaw = ow.bodyYaw - 90;
+                    this.setYaw(ow.getYaw() - 90);
+                    this.setPos(ow.getX() , ow.getY() , ow.getZ());
+                }
             }
         }
     }
