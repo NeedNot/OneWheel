@@ -47,6 +47,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.shadowed.eliotlash.molang.MolangParser;
 
+import java.time.LocalTime;
 import java.util.Random;
 
 
@@ -97,7 +98,13 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.ow.nosedivef", true);
     public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.ow.nosediveb", true);
     public Vec3d bonePos = this.getPos();
-    public boolean spawn;
+    public Random rand = new Random();
+    public long seed = LocalTime.now().getSecond();
+
+    public Random getRand() {
+        rand.setSeed(seed);
+        return rand;
+    }
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         event.getController().transitionLengthTicks = 0F;
@@ -392,7 +399,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 if (this.hasPassengers() && (forcedF > 30 || forcedb > 30)) {
                     PlayerEntity player = (PlayerEntity) this.getControllingPassenger();
                     player.dismountVehicle();
-                    MinecraftClient.getInstance().player.sendChatMessage("dismountinging");
                     updatePassengerForDismount((LivingEntity) player);
                     player.setInvisible(false);
                 }
@@ -418,34 +424,32 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 if (pressingRight != pressingLeft && !pressingForward && !pressingBack) {
                     f += 0.005F;
                 }
-                if (Math.abs(f) > 0.74074074074f && Math.abs(prevprevf) < Math.abs(f) && forcedF < 1 && forcedb < 1) {
+                float needSpeed = 1.11f;
+                if (Math.abs(f) > 0.74074074074f && Math.abs(prevprevf) < Math.abs(f) && (!noseDivingb) && (!noseDivingf)) {
+                    System.out.println("im here");
                     odds -= 1;
-                    int x = random.nextInt(odds);
-                    MinecraftClient.getInstance().player.sendChatMessage(String.valueOf(x));
-                    MinecraftClient.getInstance().player.sendChatMessage(String.valueOf(odds));
+
+                    int x = getRand().nextInt(odds);
                     if (x == 0) {
-                        if (f > 0) {
-                            forcedF += 1;
-                        }
-                        if (f < 0) {
-                            forcedb += 1;
-                        }
+                        needSpeed = 0.1f;
                     }
                 }
-                else odds = 350;
-                if (f < -1.11 || forcedb > 0) {
+                else odds = 250;
+                if (f < needSpeed*-1 || noseDivingb) {
                     forcedb += 1;
                     noseDivingb = true;
                     if (forcedb > 20) {
+                        seed = LocalTime.now().getSecond();
                         pressingBack = false;
                         f /= 1.2;
                         fdecay /= 1.2;
                     }
                 }
-                if (f > 1.11 || forcedF > 0) {
+                if (f > needSpeed || noseDivingf) {
                     forcedF += 1;
                     noseDivingf = true;
                     if (forcedF > 20) {
+                        seed = LocalTime.now().getSecond();
                         f /= 1.2;
                         fdecay /= 1.2;
                         pressingForward = false;
@@ -674,7 +678,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public Vec3d updatePassengerForDismount(LivingEntity passenger) {
         if (passenger instanceof ClientPlayerEntity) {
             ClientPlayerEntity player = (ClientPlayerEntity) passenger;
-            player.sendChatMessage("dismounting");
         }
         passenger.setInvisible(false);
 //        double d = 3;
