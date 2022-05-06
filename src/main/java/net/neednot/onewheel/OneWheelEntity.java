@@ -34,7 +34,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.neednot.onewheel.mixin.LivingEntityMixin;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.example.entity.BikeEntity;
 import software.bernie.geckolib3.core.AnimationState;
@@ -99,7 +98,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.ow.nosediveb", true);
     public Vec3d bonePos = this.getPos();
     public Random rand = new Random();
-    public long seed = LocalTime.now().getSecond();
+    public long seed = LocalTime.now().getMinute();
 
     public Random getRand() {
         rand.setSeed(seed);
@@ -408,6 +407,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 noseDivingb = false;
             }
             if (this.hasPassengers()) {
+                PlayerEntity player = (PlayerEntity) getControllingPassenger();
+                if (!world.isClient) {
+                    player.sendMessage(new LiteralText(String.format("%.2f", Math.abs(f*27)) +" MPH") , true);
+                }
 //                if (forcedF > 20 || forcedb > 20) {
 //                    this.getControllingPassenger().dismountVehicle();
 //                }

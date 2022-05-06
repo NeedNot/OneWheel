@@ -44,13 +44,18 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
                 OneWheelEntity ow = (OneWheelEntity) MinecraftClient.getInstance().player.getVehicle();
                 float yaw = ow.yawVelocity;
                 float oyaw = invert(360-(MathHelper.wrapDegrees(ow.getYaw())))%360;
+                float speed = ow.f;
+                float fakeyaw = yaw;
+                if (speed < 0) {
+                    fakeyaw = invert(yaw);
+                }
 
                 if (bone.getName().equals("player")) {
                     if (ow.forcedb > 0 || ow.forcedF > 0) {
                         ow.bonePos = new Vec3d(bone.getPositionX()/12, bone.getPositionY()/16, bone.getPositionZ()/-12).rotateY((float) Math.toRadians(Math.abs(oyaw-90))).add(ow.getPos());
                     }
                 }
-                if (yaw < 0) {
+                if (fakeyaw < 0) {
                     if (bone.getName().equals("player")) {
                         bone.setPositionZ(-3);
                         bone.setRotationX((yaw * 0.005f));
@@ -64,7 +69,7 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
                         bone.setRotationX(invert(0.436332f));
                     }
                 }
-                if (yaw > 0) {
+                if (fakeyaw > 0) {
                     if (bone.getName().equals("player")) {
 
                         float muti = 0;

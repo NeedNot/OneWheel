@@ -13,8 +13,9 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 
 public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
-    Float yaw;
-    Float x = 0f;
+    float yaw;
+    float x = 0f;
+    float speed;
     public OneWheelRender(EntityRendererFactory.Context renderManager) {
         super(renderManager, new OneWheelModel());
     }
@@ -22,6 +23,9 @@ public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
     public void renderRecursively(GeoBone bone, MatrixStack stack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         if (bone.getName().equals("onewheel")) {
             float muti;
+            if (speed < 0) {
+                yaw = invert(yaw);
+            }
             if (Math.abs(this.yaw) == 6.0f) {
                 muti = 0.055f;
             }
@@ -44,6 +48,7 @@ public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
     @Override
     public void renderLate(OneWheelEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
         this.yaw = animatable.yawVelocity;
+        this.speed = animatable.f;
         super.renderLate(animatable, stackIn, ticks, renderTypeBuffer, bufferIn, packedLightIn, packedOverlayIn, red,
                 green, blue, partialTicks);
     }
