@@ -1,4 +1,4 @@
-package net.neednot.onewheel;
+package net.neednot.onewheel.entity.player;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;

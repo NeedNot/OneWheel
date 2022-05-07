@@ -1,7 +1,6 @@
-package net.neednot.onewheel;
+package net.neednot.onewheel.entity.player;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 

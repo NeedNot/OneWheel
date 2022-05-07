@@ -13,6 +13,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.board.OneWheelRender;
+import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
+import net.neednot.onewheel.entity.player.OneWheelPlayerRender;
+import net.neednot.onewheel.item.OneWheelItem;
+import net.neednot.onewheel.packet.FallPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +26,7 @@ public class OneWheel implements ModInitializer {
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger("onewheel");
+	public static Identifier PACKET_ID = new Identifier("onewheel", "player_fall_packet");
 
 	public static final EntityType<OneWheelEntity> OW = Registry.register(
 			Registry.ENTITY_TYPE,
@@ -38,10 +43,8 @@ public class OneWheel implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		EntityRendererRegistry.register(OW, OneWheelRender::new);
 		FabricDefaultAttributeRegistry.register(OW, OneWheelEntity.createMobAttributes());
 		Registry.register(Registry.ITEM, new Identifier("modid", "onewheel"), oneWheel);
-		EntityRendererRegistry.register(OWPE, OneWheelPlayerRender::new);
 		FabricDefaultAttributeRegistry.register(OWPE, OneWheelPlayerEntity.createMobAttributes());
 	}
 }

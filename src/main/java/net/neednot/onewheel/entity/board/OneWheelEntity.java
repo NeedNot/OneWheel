@@ -1,5 +1,7 @@
 package net.neednot.onewheel.entity.board;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -14,6 +16,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
@@ -63,6 +67,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float battery = 32186.88f;
     public int odds = 350;
     public float prevprevf;
+    public float needSpeed = 1.11f;
 
     private static final TrackedData<String> nbtdata = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
 
@@ -83,15 +88,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.ow.nosedivef", true);
     public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.ow.nosediveb", true);
     public Vec3d bonePos = this.getPos();
-    public Random rand = getRand();
+    public Random rand = new Random();
 
-    public Random getRand() {
-        Random random = new Random();
-        if (world.isClient) random.setSeed(Long.parseLong(String.valueOf(this.getId())));
-        if (!world.isClient) random.setSeed(Long.parseLong(String.valueOf(this.getId())));
-        System.out.println(getId());
-        return random;
-    }
 
 
 
@@ -417,14 +415,19 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 if (pressingRight != pressingLeft && !pressingForward && !pressingBack) {
                     f += 0.005F;
                 }
-                float needSpeed = 1.11f;
-                if (Math.abs(f) > 0.74074074074f && Math.abs(prevprevf) < Math.abs(f) && (!noseDivingb) && (!noseDivingf)) {
-                    odds -= 1;
+                if (!world.isClient) {
+                    if (Math.abs(f) > 0.74074074074f && Math.abs(prevprevf) < Math.abs(f) && (!noseDivingb) && (!noseDivingf)) {
+                        odds -= 1;
 
-                    int x = rand.nextInt(odds);
-                    System.out.println(x);
-                    if (x == 0) {
-                        needSpeed = 0.1f;
+                        int x = rand.nextInt(odds);
+                        System.out.println(x);
+                        if (x == 0) {
+                            PacketByteBuf buf = PacketByteBufs.create();
+                            buf.writeBoolean(true);
+                            needSpeed = 0.1f;
+
+                            ServerPlayNetworking.send((ServerPlayerEntity) livingentity, OneWheel.PACKET_ID, buf);
+                        }
                     }
                 }
                 else odds = 250;
@@ -463,9 +466,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     }
                     float mps = f * 0.082849355f;
                     float ratio = mps / 3.576f;
-                    System.out.println(battery);
                     battery -= ratio(mps , ratio) / 20;
-                    System.out.println(battery);
                 }
 
                 if (pressingBack) {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "onewheel",
   "version": "${version}",
 
   "name": "Example Mod",
@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "net.neednot.onewheel.OneWheel"
+    ],
+    "client": [
+      "net.neednot.onewheel.OneWheelClient"
     ]
   },
   "mixins": [
