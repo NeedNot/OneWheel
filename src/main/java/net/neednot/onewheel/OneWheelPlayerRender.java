@@ -8,6 +8,7 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.neednot.onewheel.entity.board.OneWheelEntity;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 

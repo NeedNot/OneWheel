@@ -10,7 +10,12 @@ public class OneWheelPlayerModel extends AnimatedGeoModel<OneWheelPlayerEntity> 
     @Override
     public Identifier getModelLocation(OneWheelPlayerEntity object)
     {
-        return new Identifier("player", "geo/player.geo.json");
+        if (MinecraftClient.getInstance().player.getModel().equals("default")) {
+            return new Identifier("player" , "geo/player.geo.json");
+        }
+        else {
+            return new Identifier("player" , "geo/alex.geo.json");
+        }
     }
 
     @Override

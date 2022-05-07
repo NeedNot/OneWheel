@@ -1,15 +1,9 @@
-package net.neednot.onewheel;
+package net.neednot.onewheel.entity.board;
 
-import ca.weblite.objc.Client;
-import com.eliotlash.mclib.math.functions.limit.Min;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.entity.BipedEntityRenderer;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.*;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -20,24 +14,16 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.neednot.onewheel.OneWheel;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.example.entity.BikeEntity;
-import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -45,9 +31,7 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.shadowed.eliotlash.molang.MolangParser;
 
-import java.time.LocalTime;
 import java.util.Random;
 
 
@@ -104,9 +88,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public Random getRand() {
         Random random = new Random();
         if (world.isClient) random.setSeed(Long.parseLong(String.valueOf(this.getId())));
-        if (!world.isClient) random.setSeed(Long.parseLong(String.valueOf(this.getId()+1)));
+        if (!world.isClient) random.setSeed(Long.parseLong(String.valueOf(this.getId())));
+        System.out.println(getId());
         return random;
     }
+
+
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         event.getController().transitionLengthTicks = 0F;
