@@ -330,6 +330,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         if (!this.hasPassengers() && !pressingShift) {
             player.startRiding(this);
             mount = true;
+            needSpeed = 1.11f;
             if (!world.isClient) {
                 ServerWorld serverWorld = (ServerWorld) world;
                 OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
@@ -416,21 +417,22 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     f += 0.005F;
                 }
                 if (!world.isClient) {
-                    if (Math.abs(f) > 0.74074074074f && Math.abs(prevprevf) < Math.abs(f) && (!noseDivingb) && (!noseDivingf)) {
-                        odds -= 1;
+                    if (Math.abs(prevprevf) < Math.abs(f)) {
+                        if (Math.abs(f) > 0.74074074074f && (!noseDivingb) && (!noseDivingf)) {
+                            odds -= 1;
 
-                        int x = rand.nextInt(odds);
-                        System.out.println(x);
-                        if (x == 0) {
-                            PacketByteBuf buf = PacketByteBufs.create();
-                            buf.writeBoolean(true);
-                            needSpeed = 0.1f;
+                            int x = rand.nextInt(odds);
+                            System.out.println(x+"odds"+odds);
+                            if (x == 0) {
+                                PacketByteBuf buf = PacketByteBufs.create();
+                                buf.writeBoolean(true);
+                                needSpeed = 0.1f;
 
-                            ServerPlayNetworking.send((ServerPlayerEntity) livingentity, OneWheel.PACKET_ID, buf);
-                        }
+                                ServerPlayNetworking.send((ServerPlayerEntity) livingentity , OneWheel.PACKET_ID , buf);
+                            }
+                        } else odds = 250;
                     }
                 }
-                else odds = 250;
                 if (f < needSpeed*-1 || noseDivingb) {
                     forcedb += 1;
                     noseDivingb = true;
