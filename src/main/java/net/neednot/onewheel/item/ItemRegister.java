@@ -1,16 +1,14 @@
 package net.neednot.onewheel.item;
 
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.neednot.onewheel.OneWheel;
 
 public class ItemRegister {
     public static void registerOneWheelItem() {
-        FabricModelPredicateProviderRegistry.register(OneWheel.oneWheel, new Identifier("colors"), (itemStack, clientWorld, livingEntity) -> {
-            if (getColor == null) {
+        FabricModelPredicateProviderRegistry.register(OneWheel.oneWheel, new Identifier("decals"), (itemStack, clientWorld, livingEntity, seed) -> {
+            if (getColor(itemStack) == 0) {
                 return 0.0F;
             }
             return getColor(itemStack);
@@ -18,7 +16,12 @@ public class ItemRegister {
     }
 
     private static float getColor(ItemStack itemStack) {
-        String color = itemStack.getNbt().getString("color");
+        String color;
+        try {
+            color = itemStack.getNbt().getString("color");
+        } catch (NullPointerException e) {
+            return 0.0f;
+        }
         switch (color) {
             case "ow": return 0.0f;
             case "black": return 0.1f;
@@ -36,7 +39,8 @@ public class ItemRegister {
             case "red": return 0.85f;
             case "white": return 0.90f;
             case "yellow": return 0.95f;
-            return 0;
+            case "blue": return 1f;
         }
+        return 0f;
     }
 }
