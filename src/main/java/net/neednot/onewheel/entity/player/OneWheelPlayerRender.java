@@ -9,6 +9,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
+import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 
@@ -25,8 +26,8 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
             if (bone.getName().equals("heads")) {
                 ClientPlayerEntity player = MinecraftClient.getInstance().player;
                 OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
-                float yaw = player.getYaw()-ow.getYaw();
-                bone.setRotationY(invert((float) Math.toRadians((double) yaw+90)));
+                float yaw = player.getHeadYaw()-ow.getYaw();
+                bone.setRotationY(invert((float) Math.toRadians((double) yaw + 90)));
                 bone.setRotationX(invertif((float) Math.toRadians((double) player.getPitch())));
             }
             if (bone.getName().equals("right_arms")) {

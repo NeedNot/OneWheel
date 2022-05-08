@@ -15,6 +15,7 @@ import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.board.OneWheelRender;
 import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
 import net.neednot.onewheel.entity.player.OneWheelPlayerRender;
+import net.neednot.onewheel.item.ItemRegister;
 import net.neednot.onewheel.item.OneWheelItem;
 import net.neednot.onewheel.packet.FallPacket;
 import org.slf4j.Logger;
@@ -43,8 +44,9 @@ public class OneWheel implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ItemRegister.registerOneWheelItem();
 		FabricDefaultAttributeRegistry.register(OW, OneWheelEntity.createMobAttributes());
-		Registry.register(Registry.ITEM, new Identifier("modid", "onewheel"), oneWheel);
+		Registry.register(Registry.ITEM, new Identifier("onewheel", "onewheel"), oneWheel);
 		FabricDefaultAttributeRegistry.register(OWPE, OneWheelPlayerEntity.createMobAttributes());
 	}
 }

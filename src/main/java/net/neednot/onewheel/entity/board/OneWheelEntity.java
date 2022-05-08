@@ -374,7 +374,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             pressingLeft = player.input.pressingLeft;
             pressingRight = player.input.pressingRight;
             pressingShift = player.isSneaking();
-            pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed();
+            pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed() && battery > 0;
         } catch (Exception e) { }
 
         if (this.isAlive()) {
@@ -422,7 +422,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                             odds -= 1;
 
                             int x = rand.nextInt(odds);
-                            System.out.println(x+"odds"+odds);
                             if (x == 0) {
                                 PacketByteBuf buf = PacketByteBufs.create();
                                 buf.writeBoolean(true);
@@ -614,10 +613,13 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         Entity entity = source.getSource();
         if (entity instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entity;
-            ItemStack ow = new ItemStack(OneWheel.oneWheel);
-            ow.setCount(1);
-            player.setStackInHand(player.getActiveHand(), ow);
-            this.discard();
+            if (player.getMainHandStack().isEmpty()) {
+                ItemStack ow = new ItemStack(OneWheel.oneWheel);
+                ow.setCount(1);
+                ow.getOrCreateNbt().putString("color", getColor());
+                player.setStackInHand(player.getActiveHand() , ow);
+                this.discard();
+            }
         }
         return false;
     }

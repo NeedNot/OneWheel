@@ -1,10 +1,14 @@
-flight fins let you jump
-fender
+flight fins let you jump - on hold
+fender - on hold
+
 slow down if you hit a wall
 add battery indicator
-hide armor and items other than helmet
-100% sync across rng
+hide items and show armor
+add item model
+fix head delays
 
+make the item not replace other inventory items - done
+100% sync across rng - done
 add alex model - done
 add a way to stop accelerating - done
 fix board tilt when turning backwards - done
