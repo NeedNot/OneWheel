@@ -26,7 +26,7 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
             if (bone.getName().equals("heads")) {
                 ClientPlayerEntity player = MinecraftClient.getInstance().player;
                 OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
-                float yaw = player.getHeadYaw()-ow.getYaw();
+                float yaw = player.getYaw()-ow.getYaw();
                 bone.setRotationY(invert((float) Math.toRadians((double) yaw + 90)));
                 bone.setRotationX(invertif((float) Math.toRadians((double) player.getPitch())));
             }

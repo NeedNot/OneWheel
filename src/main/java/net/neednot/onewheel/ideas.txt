@@ -1,12 +1,13 @@
 flight fins let you jump - on hold
 fender - on hold
 
-slow down if you hit a wall
 add battery indicator
 hide items and show armor
-add item model
 fix head delays
 
+slow down if you hit a wall - done
+add translate text - done
+add item model - done
 make the item not replace other inventory items - done
 100% sync across rng - done
 add alex model - done

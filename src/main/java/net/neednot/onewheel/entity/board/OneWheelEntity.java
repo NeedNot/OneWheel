@@ -3,6 +3,7 @@ package net.neednot.onewheel.entity.board;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.LilyPadBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.*;
@@ -22,9 +23,16 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.function.BooleanBiFunction;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.neednot.onewheel.OneWheel;
 import org.jetbrains.annotations.Nullable;
@@ -381,7 +389,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             yawVelocity = 0.0F;
             if (forcedb == 25 || forcedF == 25) {
                 Entity player = this.getControllingPassenger();
-                player.damage(DamageSource.FALL, 5);
+                player.damage(DamageSource.CACTUS, 20);
             }
             if (forcedF > 30 || forcedb > 30 || f == 0) {
                 if (this.hasPassengers() && (forcedF > 30 || forcedb > 30)) {
@@ -545,12 +553,25 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                         battery += recharge;
                     }
                 }
-                this.setMovementSpeed(1F);
+                this.setMovementSpeed(1);
 //                if (!MinecraftClient.getInstance().options.sprintKey.isPressed()) {
 //                    f = prevF;
 //                    bdecay = prevbd;
 //                    fdecay = prevfd;
 //                }
+
+                HitResult deg15 = blockRaycast(45);
+                if (deg15.getType().equals(HitResult.Type.BLOCK)) {
+                    f = 0;
+                }
+                HitResult degneg15 = blockRaycast(-45);
+                if (degneg15.getType().equals(HitResult.Type.BLOCK)) {
+                    f *= 0.98;
+                }
+                HitResult deg0 = blockRaycast(0);
+                if (deg0.getType().equals(HitResult.Type.BLOCK)) {
+                    f *= 0.98;
+                }
 
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
 
@@ -608,6 +629,20 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         if (v == 0) return 0;
         return (v/ratio)*1.25f;
     }
+    private BlockHitResult blockRaycast(float angle) {
+
+        float degrees = 0;
+        if (f < 0) {
+            degrees = 180;
+        }
+
+        Vec3d vec3dx = this.getCameraPosVec(1);
+        Vec3d vec3dx2 = this.getRotationVec(1).rotateY((float) Math.toRadians(degrees+angle));
+        Vec3d vec3dx3 = vec3dx.add(vec3dx2.x*0.6, vec3dx2.y*0.65, vec3dx2.z*0.6);
+        return world.raycast(new RaycastContext(vec3dx, vec3dx3, RaycastContext.ShapeType.VISUAL, RaycastContext.FluidHandling.NONE, this));
+
+    }
+
     @Override
     public boolean damage(DamageSource source, float amount) {
         Entity entity = source.getSource();

@@ -14,6 +14,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.neednot.onewheel.entity.board.OneWheelEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -39,7 +40,7 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
     @Inject(at = @At("TAIL"), method = "setModelPose")
     private void setModelPose(AbstractClientPlayerEntity player , CallbackInfo ci) {
         PlayerEntityModel<AbstractClientPlayerEntity> playerEntityModel = (PlayerEntityModel)this.getModel();
-        if (MinecraftClient.getInstance().player.hasVehicle()) {
+        if (MinecraftClient.getInstance().player.hasVehicle() && MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
             playerEntityModel.setVisible(false);
 //            playerEntityModel.head.visible = true;
 //            playerEntityModel.hat.visible = true;
