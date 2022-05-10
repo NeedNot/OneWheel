@@ -1,12 +1,12 @@
 flight fins let you jump - on hold
 fender - on hold
 
-add battery indicator & battery nbt
 hide items and show armor
 fix head delays
 add water damage
 add player board animations
 
+add battery indicator & battery nbt
 slow down if you hit a wall - done
 add translate text - done
 add item model - done

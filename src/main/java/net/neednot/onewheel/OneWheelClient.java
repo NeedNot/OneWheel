@@ -26,49 +26,58 @@ public class OneWheelClient implements ClientModInitializer {
     public void onInitializeClient() {
         HudRenderCallback.EVENT.register(((matrixStack, tickDelta) -> {
             Entity entity;
+            int scaledwidth;
+            int scaledheight;
             if ((entity = MinecraftClient.getInstance().player.getVehicle()) != null) {
                 if (entity instanceof OneWheelEntity) {
                     OneWheelEntity ow = (OneWheelEntity) entity;
-
+                    scaledwidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
+                    scaledheight = MinecraftClient.getInstance().getWindow().getScaledHeight();
                     //battery png
                     RenderSystem.setShaderTexture(0, new Identifier("onewheel", "textures/ui/noprogress.png"));
-                    DrawableHelper.drawTexture(matrixStack, 10, 30, 0, 0, 0, 128,16,128,16);
+                    DrawableHelper.drawTexture(matrixStack, scaledwidth/2+10, scaledheight-40, 0, 0, 0, 81,10,81,10);
 
                     float ratio = 0;
                     if (ow.battery != 0) {
                         ratio = (float) (Math.abs(ow.battery)/32186.88f);
                     }
-                    int width = (int) (128*ratio);
-                    RenderSystem.setShaderTexture(0, new Identifier("onewheel", "textures/ui/progress.png"));
-                    DrawableHelper.drawTexture(matrixStack, 10, 30, 0, 0, 0, width,16, 128,16);
+                    int width = (int) (81*ratio);
+                    RenderSystem.setShaderTexture(0, new Identifier("onewheel", "textures/ui/100.png"));
+                    DrawableHelper.drawTexture(matrixStack, scaledwidth/2+10, scaledheight-40, 0, 0, 0, width,10, 81,10);
 
                     //battery mph string
-                    String percent = String.format("%.2f", (ow.battery/32186.88f)*100) +"%";
-                    int x = (128/2)-24;
-                    if (percent.length() == 8) {
-                        x = (128/2)-21;
+                    String percent = String.format("%.0f", (ow.battery/32186.88f)*100) +"%";
+                    int x = 0;
+                    if (percent.length() == 2) {
+                        x = 45;
                     }
-                    MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, percent, x+10, 40, 0x53A1D2);
+                    if (percent.length() == 3) {
+                        x = 42;
+                    }
+                    if (percent.length() == 4) {
+                        x = 39;
+                    }
+                    MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, percent, scaledwidth/2+x, scaledheight-39, 0x0f81c9);
 
                     //speed mph png
                     RenderSystem.setShaderTexture(0, new Identifier("onewheel", "textures/ui/noprogress.png"));
-                    DrawableHelper.drawTexture(matrixStack, 10, 10, 0, 0, 0, 128,16,128,16);
+                    DrawableHelper.drawTexture(matrixStack, scaledwidth/2+10, scaledheight-50, 0, 0, 0, 81,10,81,10);
 
                     ratio = 0;
                     if (ow.f != 0) {
-                       ratio = (float) (Math.abs(ow.f)/1.1111);
+                        ratio = (float) (Math.abs(ow.f)/1.1111);
                     }
-                    width = (int) (128*ratio);
+                    width = (int) (80*ratio);
                     RenderSystem.setShaderTexture(0, new Identifier("onewheel", "textures/ui/progress.png"));
-                    DrawableHelper.drawTexture(matrixStack, 10, 10, 0, 0, 0, width,16, 128,16);
+                    DrawableHelper.drawTexture(matrixStack, scaledwidth/2+10, scaledheight-50, 0, 0, 0, width,10, 81,10);
 
                     //speed mph string
                     String speed = String.format("%.2f", Math.abs(ow.f*27)) +" MPH";
-                    x = (128/2)-24;
+                    x = 21-(9/2);
                     if (speed.length() == 8) {
-                        x = (128/2)-21;
+                        x = 21-(3/2);
                     }
-                    MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, speed, x+10, 14, 0x53A1D2);
+                    MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, speed, scaledwidth/2+10+x, scaledheight-49, 0x0f81c9);
                 }
             }
         }));
