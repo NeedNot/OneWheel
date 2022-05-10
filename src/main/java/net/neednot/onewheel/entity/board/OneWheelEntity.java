@@ -3,7 +3,6 @@ package net.neednot.onewheel.entity.board;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.LilyPadBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.*;
@@ -20,18 +19,13 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.neednot.onewheel.OneWheel;
@@ -44,6 +38,8 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -404,13 +400,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 noseDivingb = false;
             }
             if (this.hasPassengers()) {
-                PlayerEntity player = (PlayerEntity) getControllingPassenger();
-                if (!world.isClient) {
-                    player.sendMessage(new LiteralText(String.format("%.2f", Math.abs(f*27)) +" MPH") , true);
-                }
-//                if (forcedF > 20 || forcedb > 20) {
-//                    this.getControllingPassenger().dismountVehicle();
-//                }
                 ghost = false;
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
