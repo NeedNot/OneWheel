@@ -3,9 +3,9 @@ fender - on hold
 
 hide items and show armor
 fix head delays
-add water damage
 add player board animations
 
+add water damage - done
 add battery indicator & battery nbt
 slow down if you hit a wall - done
 add translate text - done

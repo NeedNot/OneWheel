@@ -1,3 +1,7 @@
 {
-  "item.onewheel.onewheel": "Onewheel+ XR"
+  "item.onewheel.onewheel": "Onewheel+ XR",
+  "item.onewheel.battery": "Battery Charge:",
+  "item.onewheel.waterproofed": "Liquid Proof",
+  "item.onewheel.color": "Color:",
+  "item.onewheel.damaged": "Liquid Damaged"
 }

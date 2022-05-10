@@ -72,9 +72,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public int odds = 350;
     public float prevprevf;
     public float needSpeed = 1.11f;
+    public boolean waterproof;
 
     private static final TrackedData<String> nbtcolor = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
     private static final TrackedData<Float> nbtbattery = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.FLOAT);
+    private static final TrackedData<Boolean> nbtwaterproof = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> nbtwaterdamage = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     private AnimationFactory factory = new AnimationFactory(this);
 
@@ -94,8 +97,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.ow.nosediveb", true);
     public Vec3d bonePos = this.getPos();
     public Random rand = new Random();
-
-
+    private boolean waterdamage;
 
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
@@ -195,13 +197,20 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
+        setWaterProof(waterproof);
         setBattery(battery);
+        if ((isSubmergedInWater() || isInLava()) && !isWaterproof()) {
+            setWaterDamage(true);
+        }
         if (battery < 0.000001) setBattery(0);
         if (battery > 32186.88f) setBattery(32186.88f);
         if (forcedb == 0 && forcedF == 0) bonePos = this.getPos();
         BlockPos pos = this.getBlockPos();
         if (world.getReceivedRedstonePower(pos) > 0) {
             setBattery(battery+0.22352f);
+        }
+        if (isWaterDamaged()) {
+            setBattery(0);
         }
     }
 
@@ -229,6 +238,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         ItemStack gray_dye = new ItemStack(Items.GRAY_DYE);
         ItemStack purple_dye = new ItemStack(Items.PURPLE_DYE);
         ItemStack shears = new ItemStack(Items.SHEARS);
+        ItemStack wax = new ItemStack(Items.HONEYCOMB);
 
         if (player.getStackInHand(hand).isItemEqual(black_dye) && pressingShift) {
             setColor("black");
@@ -333,6 +343,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             player.getStackInHand(hand).setDamage(damage - 1);
             return super.interactMob(player, hand);
         }
+        if (player.getStackInHand(hand).isItemEqual(wax) && pressingShift) {
+            waterproof = true;
+            int count = player.getStackInHand(hand).getCount();
+            player.getStackInHand(hand).setCount(count-1);
+            return super.interactMob(player, hand);
+        }
 
         if (!this.hasPassengers() && !pressingShift) {
             player.startRiding(this);
@@ -344,6 +360,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 PacketByteBuf buf = PacketByteBufs.create();
                 System.out.println("getbat"+getBattery());
                 buf.writeFloat(getBattery());
+                buf.writeBoolean(isWaterproof());
+                if (isWaterDamaged()) {
+                    buf.writeInt(1);
+                }
+                else {
+                    buf.writeInt(0);
+                }
+
                 ServerPlayNetworking.send((ServerPlayerEntity) player, OneWheel.BATTERY , buf);
                 OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
             }
@@ -361,6 +385,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public void initDataTracker() {
         this.dataTracker.startTracking(nbtcolor, "ow");
         this.dataTracker.startTracking(nbtbattery, 32186.88f);
+        this.dataTracker.startTracking(nbtwaterproof, false);
+        this.dataTracker.startTracking(nbtwaterdamage, false);
         super.initDataTracker();
     }
 
@@ -650,6 +676,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 ow.setCount(1);
                 ow.getOrCreateNbt().putString("color", getColor());
                 ow.getOrCreateNbt().putFloat("battery", 32186.88f-getBattery());
+                ow.getOrCreateNbt().putBoolean("waterproof", isWaterproof());
+                ow.getOrCreateNbt().putBoolean("waterdamage", isWaterDamaged());
                 player.setStackInHand(player.getActiveHand() , ow);
                 this.discard();
             }
@@ -764,7 +792,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         this.battery = battery;
         this.dataTracker.set(nbtbattery, battery);
     }
-
+    public void setWaterProof(boolean yn) {
+        this.waterproof = yn;
+        this.dataTracker.set(nbtwaterproof, waterproof);
+    }
+    public void setWaterDamage(boolean yn) {
+        this.waterdamage = yn;
+        this.dataTracker.set(nbtwaterdamage, waterdamage);
+    }
     public String getColor() {
         color = this.dataTracker.get(nbtcolor);
         if (color.equals("")) {
@@ -775,7 +810,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float getBattery() {
         return this.dataTracker.get(nbtbattery);
     }
-
+    public boolean isWaterproof() {
+        return this.dataTracker.get(nbtwaterproof);
+    }
+    public boolean isWaterDamaged() {
+        return this.dataTracker.get(nbtwaterdamage);
+    }
 
     @Nullable
     public Entity getControllingPassenger() {
