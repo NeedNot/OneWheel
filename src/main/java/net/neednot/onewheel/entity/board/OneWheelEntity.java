@@ -68,12 +68,13 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public boolean offset;
     public float fdecay = 1f;
     public float bdecay = 1f;
-    public float battery = 32186.88f;
+    public float battery = 0;
     public int odds = 350;
     public float prevprevf;
     public float needSpeed = 1.11f;
 
-    private static final TrackedData<String> nbtdata = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
+    private static final TrackedData<String> nbtcolor = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
+    private static final TrackedData<Float> nbtbattery = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.FLOAT);
 
     private AnimationFactory factory = new AnimationFactory(this);
 
@@ -177,12 +178,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             event.getController().setAnimation(dismount);
             return PlayState.CONTINUE;
         }
-        if (mount) {
+        if (mount && battery > 0) {
             event.getController().setAnimation(mounta);
             mount = false;
             return PlayState.CONTINUE;
         }
-        if (f == 0 && !name.contains("mount")) {
+        if (f == 0 && !name.contains("mount") && battery > 0) {
             event.getController().setAnimation(flat);
             return PlayState.CONTINUE;
         }
@@ -194,11 +195,13 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
+        setBattery(battery);
+        if (battery < 0.000001) setBattery(0);
+        if (battery > 32186.88f) setBattery(32186.88f);
         if (forcedb == 0 && forcedF == 0) bonePos = this.getPos();
-        this.setHealth((battery/32186.88f)*20);
         BlockPos pos = this.getBlockPos();
         if (world.getReceivedRedstonePower(pos) > 0) {
-            battery += 0.0022352f;
+            setBattery(battery+0.22352f);
         }
     }
 
@@ -334,9 +337,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         if (!this.hasPassengers() && !pressingShift) {
             player.startRiding(this);
             mount = true;
+
             needSpeed = 1.11f;
             if (!world.isClient) {
                 ServerWorld serverWorld = (ServerWorld) world;
+                PacketByteBuf buf = PacketByteBufs.create();
+                System.out.println("getbat"+getBattery());
+                buf.writeFloat(getBattery());
+                ServerPlayNetworking.send((ServerPlayerEntity) player, OneWheel.BATTERY , buf);
                 OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
             }
             return super.interactMob(player, hand);
@@ -351,7 +359,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
     @Override
     public void initDataTracker() {
-        this.dataTracker.startTracking(nbtdata, "ow");
+        this.dataTracker.startTracking(nbtcolor, "ow");
+        this.dataTracker.startTracking(nbtbattery, 32186.88f);
         super.initDataTracker();
     }
 
@@ -373,12 +382,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             breakingf = false;
         try {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
-            pressingForward = player.input.pressingForward;
-            pressingBack = player.input.pressingBack;
-            pressingLeft = player.input.pressingLeft;
-            pressingRight = player.input.pressingRight;
+            pressingForward = player.input.pressingForward && battery > 0;
+            pressingBack = player.input.pressingBack && battery > 0;
+            pressingLeft = player.input.pressingLeft && battery > 0;
+            pressingRight = player.input.pressingRight && battery > 0;
             pressingShift = player.isSneaking();
-            pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed() && battery > 0;
+            pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed();
         } catch (Exception e) { }
 
         if (this.isAlive()) {
@@ -535,7 +544,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 }
 
                 if (breakingb || breakingf) {
-                    float recharge = ((f-prevF)*0.00082849355f)/20;
+                    float recharge = ((f-prevprevf)*0.00082849355f);
                     if (f > 0) {
                         battery -= recharge;
                     } else if (f < 0) {
@@ -561,7 +570,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 if (deg0.getType().equals(HitResult.Type.BLOCK)) {
                     f *= 0.98;
                 }
-
                 Vec3d vec3d = new Vec3d(0, 0, (f*0.28f)*0.9785f);
 
                 super.travel(vec3d);
@@ -641,6 +649,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 ItemStack ow = new ItemStack(OneWheel.oneWheel);
                 ow.setCount(1);
                 ow.getOrCreateNbt().putString("color", getColor());
+                ow.getOrCreateNbt().putFloat("battery", 32186.88f-getBattery());
                 player.setStackInHand(player.getActiveHand() , ow);
                 this.discard();
             }
@@ -737,25 +746,34 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putString("color", color);
+        nbt.putFloat("battery", battery);
     }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
         setColor(nbt.getString("color"));
+        setBattery(nbt.getFloat("battery"));
     }
 
     public void setColor(String color) {
         this.color = color;
-        this.dataTracker.set(nbtdata, color);
+        this.dataTracker.set(nbtcolor, color);
+    }
+    public void setBattery(float battery) {
+        this.battery = battery;
+        this.dataTracker.set(nbtbattery, battery);
     }
 
     public String getColor() {
-        color = this.dataTracker.get(nbtdata);
+        color = this.dataTracker.get(nbtcolor);
         if (color.equals("")) {
             return "ow";
         }
         return color;
+    }
+    public float getBattery() {
+        return this.dataTracker.get(nbtbattery);
     }
 
 

@@ -14,6 +14,7 @@ import net.minecraft.util.Identifier;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.board.OneWheelRender;
 import net.neednot.onewheel.entity.player.OneWheelPlayerRender;
+import net.neednot.onewheel.packet.BatteryPacket;
 import net.neednot.onewheel.packet.FallPacket;
 import org.checkerframework.checker.units.qual.A;
 
@@ -29,21 +30,41 @@ public class OneWheelClient implements ClientModInitializer {
                 if (entity instanceof OneWheelEntity) {
                     OneWheelEntity ow = (OneWheelEntity) entity;
 
-                    //speed mph spite
+                    //battery png
+                    RenderSystem.setShaderTexture(0, new Identifier("onewheel", "textures/ui/noprogress.png"));
+                    DrawableHelper.drawTexture(matrixStack, 10, 30, 0, 0, 0, 128,16,128,16);
+
+                    float ratio = 0;
+                    if (ow.battery != 0) {
+                        ratio = (float) (Math.abs(ow.battery)/32186.88f);
+                    }
+                    int width = (int) (128*ratio);
+                    RenderSystem.setShaderTexture(0, new Identifier("onewheel", "textures/ui/progress.png"));
+                    DrawableHelper.drawTexture(matrixStack, 10, 30, 0, 0, 0, width,16, 128,16);
+
+                    //battery mph string
+                    String percent = String.format("%.2f", (ow.battery/32186.88f)*100) +"%";
+                    int x = (128/2)-24;
+                    if (percent.length() == 8) {
+                        x = (128/2)-21;
+                    }
+                    MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, percent, x+10, 40, 0x53A1D2);
+
+                    //speed mph png
                     RenderSystem.setShaderTexture(0, new Identifier("onewheel", "textures/ui/noprogress.png"));
                     DrawableHelper.drawTexture(matrixStack, 10, 10, 0, 0, 0, 128,16,128,16);
 
-                    float ratio = 0;
+                    ratio = 0;
                     if (ow.f != 0) {
                        ratio = (float) (Math.abs(ow.f)/1.1111);
                     }
-                    int width = (int) (128*ratio);
+                    width = (int) (128*ratio);
                     RenderSystem.setShaderTexture(0, new Identifier("onewheel", "textures/ui/progress.png"));
                     DrawableHelper.drawTexture(matrixStack, 10, 10, 0, 0, 0, width,16, 128,16);
 
                     //speed mph string
                     String speed = String.format("%.2f", Math.abs(ow.f*27)) +" MPH";
-                    int x = (128/2)-24;
+                    x = (128/2)-24;
                     if (speed.length() == 8) {
                         x = (128/2)-21;
                     }
@@ -52,6 +73,7 @@ public class OneWheelClient implements ClientModInitializer {
             }
         }));
         FallPacket.registerPacket();
+        BatteryPacket.registerPacket();
         EntityRendererRegistry.register(OneWheel.OWPE, OneWheelPlayerRender::new);
         EntityRendererRegistry.register(OneWheel.OW, OneWheelRender::new);
     }

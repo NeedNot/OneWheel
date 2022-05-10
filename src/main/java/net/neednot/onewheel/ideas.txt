@@ -5,6 +5,7 @@ add battery indicator & battery nbt
 hide items and show armor
 fix head delays
 add water damage
+add player board animations
 
 slow down if you hit a wall - done
 add translate text - done

@@ -29,6 +29,7 @@ public class OneWheel implements ModInitializer {
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger("onewheel");
 	public static Identifier PACKET_ID = new Identifier("onewheel", "player_fall_packet");
+	public static Identifier BATTERY = new Identifier("onewheel", "onewheel_battery_packet");
 
 	public static final EntityType<OneWheelEntity> OW = Registry.register(
 			Registry.ENTITY_TYPE,
