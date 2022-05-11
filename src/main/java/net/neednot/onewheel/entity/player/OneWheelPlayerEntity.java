@@ -26,6 +26,12 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     private AnimationFactory factory = new AnimationFactory(this);
     public AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.player.nosedivef", false);
     public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.player.nosediveb", false);
+    public AnimationBuilder mount = new AnimationBuilder().addAnimation("animation.player.mount", false);
+    public AnimationBuilder tiltf = new AnimationBuilder().addAnimation("animation.player.tiltf", false).addAnimation("animation.player.holdb", true);
+    public AnimationBuilder tiltb = new AnimationBuilder().addAnimation("animation.player.tiltb", false).addAnimation("animation.player.holdf", true);
+    public AnimationBuilder pushbackf = new AnimationBuilder().addAnimation("animation.player.pushbackf", false).addAnimation("animation.player.holdPushbackf", true);
+    public AnimationBuilder pushbackb = new AnimationBuilder().addAnimation("animation.player.pushbackb", false).addAnimation("animation.player.holdPushbackb", true);
+    public AnimationBuilder flat = new AnimationBuilder().addAnimation("animation.player.flat", true);
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
@@ -42,9 +48,39 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                     event.getController().setAnimation(nosediveb);
                     return PlayState.CONTINUE;
                 }
+                if (ow.playerMount) {
+                    ow.playerMount = false;
+                    event.getController().setAnimation(mount);
+                    return PlayState.CONTINUE;
+                }
+                if (ow.playerTiltF) {
+                    event.getController().setAnimation(tiltf);
+                    return PlayState.CONTINUE;
+                }
+                if (ow.playerTiltB) {
+                    event.getController().setAnimation(tiltb);
+                    return PlayState.CONTINUE;
+                }
+                if (ow.playerPushbackf) {
+                    ow.playerPushbackf = false;
+                    System.out.println(event.getController().getCurrentAnimation().animationName);
+                    event.getController().setAnimation(pushbackf);
+                    return PlayState.CONTINUE;
+                }
+                if (ow.playerPushbackb) {
+                    ow.playerPushbackb = false;
+                    System.out.println(event.getController().getCurrentAnimation().animationName);
+                    event.getController().setAnimation(pushbackb);
+                    return PlayState.CONTINUE;
+                }
+                if (ow.playerFlat) {
+                    ow.playerFlat = false;
+                    event.getController().setAnimation(flat);
+                    return PlayState.CONTINUE;
+                }
             }
         }
-        return PlayState.STOP;
+        return PlayState.CONTINUE;
     }
 
     public OneWheelPlayerEntity(EntityType<? extends AnimalEntity> type, World worldIn) {

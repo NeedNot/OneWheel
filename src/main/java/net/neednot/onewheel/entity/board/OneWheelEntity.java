@@ -77,6 +77,13 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float needSpeed = 1.11f;
     public boolean waterproof;
 
+    public boolean playerMount;
+    public boolean playerTiltF;
+    public boolean playerTiltB;
+    public boolean playerPushbackf;
+    public boolean playerPushbackb;
+    public boolean playerFlat;
+
     private static final TrackedData<String> nbtcolor = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
     private static final TrackedData<Float> nbtbattery = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.FLOAT);
     private static final TrackedData<Boolean> nbtwaterproof = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -140,6 +147,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         } catch (NullPointerException e) {
             name = "null";
         }
+        playerTiltB = false;
+        playerTiltF = false;
         if (noseDivingf && !(f == 0)) {
             event.getController().setAnimationSpeed(2.5);
             event.getController().setAnimation(nosedivef);
@@ -153,10 +162,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
         if (f > 0.66f) {
             event.getController().setAnimation(pushbackf);
+            playerPushbackf = true;
             return PlayState.CONTINUE;
         }
         if (f < -0.66f) {
             event.getController().setAnimation(pushbackb);
+            playerPushbackb = true;
             return PlayState.CONTINUE;
         }
 
@@ -168,14 +179,15 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             event.getController().setAnimation(holdb);
             return PlayState.CONTINUE;
         }
-
         if (f < 0.66f && f > 0) {
             event.getController().setAnimation(tiltf);
+            playerTiltF = true;
             return PlayState.CONTINUE;
         }
 
         if (f > -0.66f && f < 0) {
             event.getController().setAnimation(tiltb);
+            playerTiltB = true;
             return PlayState.CONTINUE;
         }
 
@@ -185,10 +197,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         }
         if (mount && battery > 0) {
             event.getController().setAnimation(mounta);
+            playerMount = true;
             mount = false;
             return PlayState.CONTINUE;
         }
         if (f == 0 && !name.contains("mount") && battery > 0) {
+            playerFlat = true;
             event.getController().setAnimation(flat);
             return PlayState.CONTINUE;
         }
@@ -701,7 +715,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         }
         if (this.hasPassenger(passenger) && (forcedF == 0 && forcedb == 0)) {
             float f = 0.0F;
-            float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset()+0.15f);
+            float g = (float)((this.isRemoved() ? 0.009999999776482582D : this.getMountedHeightOffset()) + passenger.getHeightOffset()+0.18f);
             if (this.getPassengerList().size() > 1) {
                 int i = this.getPassengerList().indexOf(passenger);
                 if (i == 0) {
