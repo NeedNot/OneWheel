@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
@@ -19,6 +20,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -29,6 +31,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.neednot.onewheel.OneWheel;
+import net.neednot.onewheel.ui.WarningScreen;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -199,8 +202,13 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         super.tick();
         setWaterProof(waterproof);
         setBattery(battery);
-        if ((isSubmergedInWater() || isInLava()) && !isWaterproof()) {
+        if ((isSubmergedInWater() || isInLava()) && !isWaterproof() && !isWaterDamaged()) {
             setWaterDamage(true);
+            if (this.hasPassengers()) {
+                if (this.getControllingPassenger() instanceof ClientPlayerEntity) {
+                    MinecraftClient.getInstance().setScreen(new WarningScreen());
+                }
+            }
         }
         if (battery < 0.000001) setBattery(0);
         if (battery > 32186.88f) setBattery(32186.88f);
@@ -353,7 +361,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         if (!this.hasPassengers() && !pressingShift) {
             player.startRiding(this);
             mount = true;
-
+            if (isWaterDamaged()) {
+                MinecraftClient.getInstance().setScreen(new WarningScreen());
+            }
             needSpeed = 1.11f;
             if (!world.isClient) {
                 ServerWorld serverWorld = (ServerWorld) world;
@@ -680,9 +690,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 ow.getOrCreateNbt().putBoolean("waterdamage", isWaterDamaged());
                 player.setStackInHand(player.getActiveHand() , ow);
                 this.discard();
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -775,6 +786,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         super.writeCustomDataToNbt(nbt);
         nbt.putString("color", color);
         nbt.putFloat("battery", battery);
+        nbt.putBoolean("waterproof", isWaterproof());
+        nbt.putBoolean("waterdamage", isWaterDamaged());
     }
 
     @Override
@@ -782,6 +795,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         super.readCustomDataFromNbt(nbt);
         setColor(nbt.getString("color"));
         setBattery(nbt.getFloat("battery"));
+        setWaterProof(nbt.getBoolean("waterproof"));
+        setWaterDamage(nbt.getBoolean("waterdamage"));
     }
 
     public void setColor(String color) {
