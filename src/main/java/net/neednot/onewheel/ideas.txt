@@ -3,9 +3,9 @@ fender - on hold
 
 hide items and show armor
 fix head delays
-add player board animations
-fix wheel colors
 
+fix wheel colors - done
+add player board animations - done
 add water damage - done
 add battery indicator & battery nbt
 slow down if you hit a wall - done
