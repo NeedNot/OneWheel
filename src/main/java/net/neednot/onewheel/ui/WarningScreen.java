@@ -1,6 +1,7 @@
 package net.neednot.onewheel.ui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.MultilineText;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
@@ -33,7 +34,6 @@ public class WarningScreen extends Screen {
             this.client.setScreen((Screen)null);
             this.client.mouse.lockCursor();
         }));
-        GameOptions gameOptions = this.client.options;
         this.movementText = MultilineText.create(this.textRenderer,new TranslatableText("onewheel.warning.water.problem"), new TranslatableText("onewheel.warning.water.reason"));
         this.fullWrappedText = MultilineText.create(this.textRenderer, new TranslatableText("onewheel.warning.water.fix"), 218);
         this.fullWrappedText2 = MultilineText.create(this.textRenderer, new TranslatableText("onewheel.warning.water.warranty"), 218);

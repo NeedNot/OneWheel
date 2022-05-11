@@ -204,11 +204,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         setBattery(battery);
         if ((isSubmergedInWater() || isInLava()) && !isWaterproof() && !isWaterDamaged()) {
             setWaterDamage(true);
-            if (this.hasPassengers()) {
-                if (this.getControllingPassenger() instanceof ClientPlayerEntity) {
-                    MinecraftClient.getInstance().setScreen(new WarningScreen());
-                }
-            }
         }
         if (battery < 0.000001) setBattery(0);
         if (battery > 32186.88f) setBattery(32186.88f);
@@ -362,7 +357,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             player.startRiding(this);
             mount = true;
             if (isWaterDamaged()) {
-                MinecraftClient.getInstance().setScreen(new WarningScreen());
+                if (world.isClient) {
+                    MinecraftClient.getInstance().setScreen(new WarningScreen());
+                }
             }
             needSpeed = 1.11f;
             if (!world.isClient) {
