@@ -60,6 +60,7 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
                 if (fakeyaw < 0) {
                     if (bone.getName().equals("player")) {
                         bone.setPositionZ(-3);
+                        bone.setPositionY(-1f);
                         bone.setRotationX((yaw * 0.005f));
                     }
                     if (bone.getName().equals("right_lower")) {
@@ -83,6 +84,7 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
                         if (yaw != 0.0f) {
                             bone.setPositionZ(0);
                         }
+                        bone.setPositionY(-1f);
                         bone.setRotationX((yaw * (muti / 5)));
                     }
                     if (bone.getName().equals("right_lower")) {

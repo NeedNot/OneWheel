@@ -83,6 +83,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public boolean playerPushbackf;
     public boolean playerPushbackb;
     public boolean playerFlat;
+    public boolean playerBreakingF;
+    public boolean playerBreakingB;
+    public boolean playerDeadMount;
 
     private static final TrackedData<String> nbtcolor = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
     private static final TrackedData<Float> nbtbattery = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.FLOAT);
@@ -172,10 +175,12 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         }
 
         if (breakingf) {
+            playerBreakingF = true;
             event.getController().setAnimation(holdf);
             return PlayState.CONTINUE;
         }
         if (breakingb) {
+            playerBreakingB = true;
             event.getController().setAnimation(holdb);
             return PlayState.CONTINUE;
         }
@@ -195,11 +200,15 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             event.getController().setAnimation(dismount);
             return PlayState.CONTINUE;
         }
-        if (mount && battery > 0) {
-            event.getController().setAnimation(mounta);
-            playerMount = true;
-            mount = false;
-            return PlayState.CONTINUE;
+        if (mount) {
+            if (battery > 0) {
+                event.getController().setAnimation(mounta);
+                playerMount = true;
+                mount = false;
+                playerDeadMount = false;
+                return PlayState.CONTINUE;
+            }
+            playerDeadMount = true;
         }
         if (f == 0 && !name.contains("mount") && battery > 0) {
             playerFlat = true;

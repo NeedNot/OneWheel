@@ -32,6 +32,9 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     public AnimationBuilder pushbackf = new AnimationBuilder().addAnimation("animation.player.pushbackf", false).addAnimation("animation.player.holdPushbackf", true);
     public AnimationBuilder pushbackb = new AnimationBuilder().addAnimation("animation.player.pushbackb", false).addAnimation("animation.player.holdPushbackb", true);
     public AnimationBuilder flat = new AnimationBuilder().addAnimation("animation.player.flat", true);
+    public AnimationBuilder breakingF = new AnimationBuilder().addAnimation("animation.player.breakf", false);
+    public AnimationBuilder breakingB = new AnimationBuilder().addAnimation("animation.player.breakb", false);
+    public AnimationBuilder deadmount = new AnimationBuilder().addAnimation("animation.player.deadmount", true);
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
@@ -53,6 +56,10 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                     event.getController().setAnimation(mount);
                     return PlayState.CONTINUE;
                 }
+                if (ow.playerDeadMount) {
+                    event.getController().setAnimation(deadmount);
+                    return PlayState.CONTINUE;
+                }
                 if (ow.playerTiltF) {
                     event.getController().setAnimation(tiltf);
                     return PlayState.CONTINUE;
@@ -61,9 +68,18 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                     event.getController().setAnimation(tiltb);
                     return PlayState.CONTINUE;
                 }
+                if (ow.playerBreakingF) {
+                    ow.playerBreakingF = false;
+                    event.getController().setAnimation(breakingF);
+                    return PlayState.CONTINUE;
+                }
+                if (ow.playerBreakingB) {
+                    ow.playerBreakingB = false;
+                    event.getController().setAnimation(breakingB);
+                    return PlayState.CONTINUE;
+                }
                 if (ow.playerPushbackf) {
                     ow.playerPushbackf = false;
-                    System.out.println(event.getController().getCurrentAnimation().animationName);
                     event.getController().setAnimation(pushbackf);
                     return PlayState.CONTINUE;
                 }
