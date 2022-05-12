@@ -5,6 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
@@ -114,6 +115,12 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                 ClientPlayerEntity player = MinecraftClient.getInstance().player;
                 OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
                 setLeftHanded(player.getMainArm().equals(Arm.LEFT));
+                equipStack(EquipmentSlot.MAINHAND, player.getMainHandStack());
+                equipStack(EquipmentSlot.OFFHAND, player.getOffHandStack());
+                equipStack(EquipmentSlot.HEAD, player.getEquippedStack(EquipmentSlot.HEAD));
+                equipStack(EquipmentSlot.CHEST, player.getEquippedStack(EquipmentSlot.CHEST));
+                equipStack(EquipmentSlot.LEGS, player.getEquippedStack(EquipmentSlot.LEGS));
+                equipStack(EquipmentSlot.FEET, player.getEquippedStack(EquipmentSlot.FEET));
                 if (ow.forcedb == 25 || ow.forcedF == 25) {
                     this.setHealth(player.getHealth());
                     this.damage(DamageSource.FALL , 5f);

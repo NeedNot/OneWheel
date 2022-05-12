@@ -9,6 +9,7 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.PlayerModelPart;
+import net.minecraft.client.render.entity.feature.*;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
@@ -41,9 +42,20 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
     private void setModelPose(AbstractClientPlayerEntity player , CallbackInfo ci) {
         PlayerEntityModel<AbstractClientPlayerEntity> playerEntityModel = (PlayerEntityModel)this.getModel();
         if (MinecraftClient.getInstance().player.hasVehicle() && MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
+            removeFeatures();
             playerEntityModel.setVisible(false);
 //            playerEntityModel.head.visible = true;
 //            playerEntityModel.hat.visible = true;
         }
+    }
+    public void removeFeatures() {
+        features.removeIf((feature)->feature instanceof ArmorFeatureRenderer);
+        features.removeIf((feature)->feature instanceof PlayerHeldItemFeatureRenderer);
+        features.removeIf((feature)->feature instanceof StuckArrowsFeatureRenderer);
+        features.removeIf((feature)->feature instanceof CapeFeatureRenderer);
+        features.removeIf((feature)->feature instanceof ElytraFeatureRenderer);
+        features.removeIf((feature)->feature instanceof ShoulderParrotFeatureRenderer);
+        features.removeIf((feature)->feature instanceof StuckStingersFeatureRenderer);
+
     }
 }
