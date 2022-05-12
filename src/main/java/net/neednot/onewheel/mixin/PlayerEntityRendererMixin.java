@@ -41,18 +41,8 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
     @Inject(at = @At("TAIL"), method = "setModelPose")
     private void setModelPose(AbstractClientPlayerEntity player , CallbackInfo ci) {
         PlayerEntityModel<AbstractClientPlayerEntity> playerEntityModel = (PlayerEntityModel)this.getModel();
-        if (MinecraftClient.getInstance().player.hasVehicle() && MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
+        if (player.hasVehicle() &&player.getVehicle() instanceof OneWheelEntity) {
             playerEntityModel.setVisible(false);
         }
-    }
-    public void removeFeatures() {
-        //features.removeIf((feature)->feature instanceof ArmorFeatureRenderer);
-        //features.removeIf((feature)->feature instanceof PlayerHeldItemFeatureRenderer);
-        //features.removeIf((feature)->feature instanceof StuckArrowsFeatureRenderer);
-        //features.removeIf((feature)->feature instanceof CapeFeatureRenderer);
-        //features.removeIf((feature)->feature instanceof ElytraFeatureRenderer);
-        //features.removeIf((feature)->feature instanceof ShoulderParrotFeatureRenderer);
-        //features.removeIf((feature)->feature instanceof StuckStingersFeatureRenderer);
-
     }
 }

@@ -1,8 +1,9 @@
 flight fins let you jump - on hold
 fender - on hold
 
+make player show in inv - failed
+
 hide items and show armor
-make player show in inv
 
 fix head delays - done
 fix wheel colors - done
