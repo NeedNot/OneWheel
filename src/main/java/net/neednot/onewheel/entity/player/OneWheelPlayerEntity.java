@@ -9,6 +9,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Arm;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
@@ -112,6 +113,7 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
             } else {
                 ClientPlayerEntity player = MinecraftClient.getInstance().player;
                 OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
+                setLeftHanded(player.getMainArm().equals(Arm.LEFT));
                 if (ow.forcedb == 25 || ow.forcedF == 25) {
                     this.setHealth(player.getHealth());
                     this.damage(DamageSource.FALL , 5f);

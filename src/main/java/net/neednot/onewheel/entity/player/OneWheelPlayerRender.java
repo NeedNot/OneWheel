@@ -1,19 +1,33 @@
 package net.neednot.onewheel.entity.player;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ShieldItem;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
-import software.bernie.geckolib3.core.IAnimatable;
+import org.jetbrains.annotations.Nullable;
+import software.bernie.example.client.DefaultBipedBoneIdents;
+import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
-import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
+import software.bernie.geckolib3.geo.render.built.GeoCube;
+import software.bernie.geckolib3.renderers.geo.ExtendedGeoEntityRenderer;
 
-public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity> {
+import java.util.List;
+
+public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlayerEntity> {
     float yaw = 90;
     float realyaw;
     boolean isRiding;
@@ -55,6 +69,7 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
 
                 if (bone.getName().equals("player")) {
                     if (ow.forcedb > 0 || ow.forcedF > 0) {
+                        stack.scale(0.9375f, 0.9375f, 0.9375f);
                         ow.bonePos = new Vec3d(bone.getPositionX()/12, bone.getPositionY()/16, bone.getPositionZ()/-12).rotateY((float) Math.toRadians(Math.abs(oyaw-90))).add(ow.getPos());
                     }
                 }
@@ -129,10 +144,147 @@ public class OneWheelPlayerRender extends GeoEntityRenderer<OneWheelPlayerEntity
     @Override
     public void renderLate(OneWheelPlayerEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
         this.realyaw = MathHelper.wrapDegrees(animatable.bodyYaw);
+        stackIn.scale(0.9375f,0.9375f,0.9375f);
         super.renderLate(animatable, stackIn, ticks, renderTypeBuffer, bufferIn, packedLightIn, packedOverlayIn, red,
                 green, blue, partialTicks);
     }
 
+    @Override
+    protected boolean isArmorBone(GeoBone bone) {
+        return true;
+    }
+
+    //armor stuff
+    @Override
+    protected ItemStack getArmorForBone(String boneName, OneWheelPlayerEntity currentEntity) {
+        switch (boneName) {
+            case "armorLeftArms":
+            case "armorRightArms":
+            case "armorTorso":
+                return chestplate;
+            case "armorHead":
+                return helmet;
+            case "armorLegR":
+            case "armorLeggings":
+            case "armorLowerLegR":
+            case "armorLegL":
+                return leggings;
+//            case "armorLowerLegR":
+//                return boots;
+
+        }
+        return null;
+    }
+
+    @Override
+    protected EquipmentSlot getEquipmentSlotForArmorBone(String boneName, OneWheelPlayerEntity currentEntity) {
+        switch (boneName) {
+            case "armorRightArms":
+            case "armorLeftArms":
+            case "armorTorso":
+                return EquipmentSlot.CHEST;
+            case "armorHead":
+                return EquipmentSlot.HEAD;
+            case "armorLegR":
+            case "armorLeggings":
+            case "armorLowerLegR":
+            case "armorLegL":
+                return EquipmentSlot.LEGS;
+//            case "armorLowerLegR":
+//                return EquipmentSlot.FEET;
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    protected ModelPart getArmorPartForBone(String name, BipedEntityModel<?> armorModel) {
+        switch (name) {
+            case "armorRightArms":
+                return armorModel.rightArm;
+            case "armorLeftArms":
+                return armorModel.leftArm;
+            case "armorHead":
+                return armorModel.head;
+            case "armorTorso":
+            case "armorLeggings":
+                return armorModel.body;
+            case "armorLegR":
+            case "armorLowerLegR":
+                return armorModel.rightLeg;
+            case "armorLegL":
+                return armorModel.leftLeg;
+            default:
+                return null;
+        }
+    }
+
+    @Nullable
+    @Override
+    protected Identifier getTextureForBone(String boneName , OneWheelPlayerEntity currentEntity) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    protected ItemStack getHeldItemForBone(String boneName , OneWheelPlayerEntity currentEntity) {
+        switch (boneName) {
+            case "left_arms":
+                return currentEntity.isLeftHanded() ? mainHand : offHand;
+            case "right_arms":
+                return currentEntity.isLeftHanded() ? offHand : mainHand;
+        }
+        return null;
+    }
+
+    @Override
+    protected ModelTransformation.Mode getCameraTransformForItemAtBone(ItemStack boneItem, String boneName) {
+        switch (boneName) {
+            case "left_arms":
+            case "right_arms":
+                return ModelTransformation.Mode.THIRD_PERSON_RIGHT_HAND;
+            default:
+                return ModelTransformation.Mode.NONE;
+        }
+    }
+
+    @Nullable
+    @Override
+    protected BlockState getHeldBlockForBone(String boneName , OneWheelPlayerEntity currentEntity) {
+        return null;
+    }
+
+    protected void preRenderItem(MatrixStack stack, ItemStack item, String boneName, OneWheelPlayerEntity currentEntity, IBone bone) {
+        if(item == this.mainHand || item == this.offHand) {
+            stack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(-90.0F));
+            boolean shieldFlag = item.getItem() instanceof ShieldItem;
+            if(item == this.mainHand) {
+                if(shieldFlag) {
+                    stack.translate(0.0, 0.125, -0.25);
+                }
+            } else {
+                if(shieldFlag) {
+                    stack.translate(0, 0.125, 0.25);
+                    stack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void preRenderBlock(BlockState block , String boneName , OneWheelPlayerEntity currentEntity) {
+
+    }
+
+    @Override
+    protected void postRenderItem(MatrixStack matrixStack , ItemStack item , String boneName , OneWheelPlayerEntity currentEntity , IBone bone) {
+
+    }
+
+    @Override
+    protected void postRenderBlock(BlockState block , String boneName , OneWheelPlayerEntity currentEntity) {
+
+    }
     public float invert(float amount) {
         return amount *=-1;
     }
