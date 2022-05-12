@@ -2,6 +2,7 @@ package net.neednot.onewheel.entity.board;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -449,7 +450,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
         if (this.isAlive()) {
             yawVelocity = 0.0F;
-            if (forcedb == 25 || forcedF == 25 && !player.isSubmergedInWater()) {
+            if (forcedb == 25 || forcedF == 25 && playerShouldDie(player)) {
                 Entity livingEntity = this.getControllingPassenger();
                 livingEntity.damage(CrashDamageSource.CRASH, 20);
             }
@@ -676,6 +677,24 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             prevbd = bdecay;
             prevfd = fdecay;
         }
+    }
+
+    private boolean playerShouldDie(ClientPlayerEntity player) {
+
+        Vec3d vec3d = player.getPos();
+        BlockHitResult result = world.raycast(new RaycastContext(vec3d, vec3d.subtract(0, 2, 0), RaycastContext.ShapeType.VISUAL, RaycastContext.FluidHandling.WATER, this));
+        boolean inWater = false;
+        boolean offGround = true;
+        if (result.getType().equals(HitResult.Type.BLOCK)) {
+            if (world.getBlockState(result.getBlockPos()).getBlock().getName().toString().contains("water")) {
+                inWater = true;
+            }
+            offGround = false;
+        }
+        if (inWater || offGround) {
+            return false;
+        }
+        return true;
     }
 
     private float ratio(float v, float ratio) {
