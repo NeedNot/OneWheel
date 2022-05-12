@@ -5,6 +5,8 @@ make player show in inv - failed
 
 hide items and show armor
 
+after 1.0 release made servers work
+
 fix head delays - done
 fix wheel colors - done
 add player board animations - done

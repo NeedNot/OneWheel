@@ -13,9 +13,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
-import net.neednot.onewheel.entity.board.OneWheelRender;
 import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
-import net.neednot.onewheel.entity.player.OneWheelPlayerRender;
 import net.neednot.onewheel.item.ItemRegister;
 import net.neednot.onewheel.item.OneWheelItem;
 import net.neednot.onewheel.packet.FallPacket;
@@ -33,12 +31,12 @@ public class OneWheel implements ModInitializer {
 
 	public static final EntityType<OneWheelEntity> OW = Registry.register(
 			Registry.ENTITY_TYPE,
-			new Identifier("future_motion", "onewheel"),
+			new Identifier("onewheel", "onewheel"),
 			FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, OneWheelEntity::new).dimensions(EntityDimensions.fixed(0.75f, 0.55f)).build()
 	);
 	public static final EntityType<OneWheelPlayerEntity> OWPE = Registry.register(
 			Registry.ENTITY_TYPE,
-			new Identifier("future_motion", "onewheelplayer"),
+			new Identifier("onewheel", "onewheelplayer"),
 			FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, OneWheelPlayerEntity::new).dimensions(EntityDimensions.fixed(0.75f, 0.55f)).build()
 	);
 

@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
@@ -434,30 +433,32 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 //            breakingb = false;
 //            breakingf = false;
 //        }
-            breakingb = false;
-            breakingf = false;
-        try {
-            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        breakingb = false;
+        breakingf = false;
+
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        if (player != null) {
             pressingForward = player.input.pressingForward && battery > 0;
             pressingBack = player.input.pressingBack && battery > 0;
             pressingLeft = player.input.pressingLeft && battery > 0;
             pressingRight = player.input.pressingRight && battery > 0;
             pressingShift = player.isSneaking();
             pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed();
-        } catch (Exception e) { }
+        }
+
 
         if (this.isAlive()) {
             yawVelocity = 0.0F;
-            if (forcedb == 25 || forcedF == 25) {
-                Entity player = this.getControllingPassenger();
-                player.damage(DamageSource.CACTUS, 20);
+            if (forcedb == 25 || forcedF == 25 && !player.isSubmergedInWater()) {
+                Entity livingEntity = this.getControllingPassenger();
+                livingEntity.damage(CrashDamageSource.CRASH, 20);
             }
             if (forcedF > 30 || forcedb > 30 || f == 0) {
                 if (this.hasPassengers() && (forcedF > 30 || forcedb > 30)) {
-                    PlayerEntity player = (PlayerEntity) this.getControllingPassenger();
-                    player.dismountVehicle();
-                    updatePassengerForDismount((LivingEntity) player);
-                    player.setInvisible(false);
+                    Entity livingEntity = this.getControllingPassenger();
+                    livingEntity.dismountVehicle();
+                    updatePassengerForDismount((LivingEntity) livingEntity);
+                    livingEntity.setInvisible(false);
                 }
                 forcedb = 0;
                 forcedF = 0;

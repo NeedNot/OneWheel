@@ -4,6 +4,8 @@
   "package": "net.neednot.onewheel.mixin" ,
   "compatibilityLevel": "JAVA_17" ,
   "mixins": [
+  ] ,
+  "client": [
     "ArmorFeatureRendererMixin" ,
     "BipedEntityModelMixin" ,
     "PlayerEntityRendererMixin" ,
@@ -14,8 +16,6 @@
     "ShoulderParrotFeatureRendererMixin",
     "StuckStingersFeatureRendererMixin",
     "HeadFeatureRendererMixin"
-  ] ,
-  "client": [
   ] ,
   "injectors": {
     "defaultRequire": 1
