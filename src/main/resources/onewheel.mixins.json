@@ -12,7 +12,8 @@
     "CapeFeatureRendererMixin",
     "ElytraFeatureRendererMixin",
     "ShoulderParrotFeatureRendererMixin",
-    "StuckStingersFeatureRendererMixin"
+    "StuckStingersFeatureRendererMixin",
+    "HeadFeatureRendererMixin"
   ] ,
   "client": [
   ] ,
