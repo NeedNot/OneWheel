@@ -1,14 +1,21 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "net.neednot.onewheel.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "required": true ,
+  "minVersion": "0.8" ,
+  "package": "net.neednot.onewheel.mixin" ,
+  "compatibilityLevel": "JAVA_17" ,
   "mixins": [
-    "PlayerEntityRendererMixin",
-    "BipedEntityModelMixin"
-  ],
+    "ArmorFeatureRendererMixin" ,
+    "BipedEntityModelMixin" ,
+    "PlayerEntityRendererMixin" ,
+    "PlayerHeldItemFeatureRendererMixin",
+    "StuckArrowsFeatureRendererMixin",
+    "CapeFeatureRendererMixin",
+    "ElytraFeatureRendererMixin",
+    "ShoulderParrotFeatureRendererMixin",
+    "StuckStingersFeatureRendererMixin"
+  ] ,
   "client": [
-  ],
+  ] ,
   "injectors": {
     "defaultRequire": 1
   }
