@@ -30,7 +30,7 @@ import java.util.List;
 public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlayerEntity> {
     float yaw = 90;
     float realyaw;
-    boolean isRiding;
+    boolean canRender;
     public OneWheelPlayerRender(EntityRendererFactory.Context renderManager) {
         super(renderManager, new OneWheelPlayerModel());
     }
@@ -124,8 +124,8 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                 }
             }
         }
-        if (!MinecraftClient.getInstance().options.getPerspective().isFirstPerson()) {
-            super.renderRecursively(bone, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        if (canRender) {
+            super.renderRecursively(bone , stack , bufferIn , packedLightIn , packedOverlayIn , red , green , blue , alpha);
         }
     }
 
@@ -145,8 +145,19 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
     public void renderLate(OneWheelPlayerEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
         this.realyaw = MathHelper.wrapDegrees(animatable.bodyYaw);
         stackIn.scale(0.9375f,0.9375f,0.9375f);
-        super.renderLate(animatable, stackIn, ticks, renderTypeBuffer, bufferIn, packedLightIn, packedOverlayIn, red,
-                green, blue, partialTicks);
+        if (animatable.assignedPlayer != null) {
+            canRender = false;
+            if (animatable.assignedPlayer.getUuidAsString().equals(MinecraftClient.getInstance().player.getUuidAsString())) {
+                MinecraftClient player = MinecraftClient.getInstance();
+                if (!player.options.getPerspective().isFirstPerson()) {
+                    canRender = true;
+                }
+            }
+            else {
+                canRender = true;
+            }
+        }
+        super.renderLate(animatable , stackIn , ticks , renderTypeBuffer , bufferIn , packedLightIn , packedOverlayIn , red , green , blue , partialTicks);
     }
 
     @Override

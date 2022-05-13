@@ -1,25 +1,21 @@
 package net.neednot.onewheel.entity.player;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
-import net.neednot.onewheel.packet.AssignPlayerPacket;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -28,6 +24,8 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
+
+import java.util.UUID;
 
 public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
 
@@ -44,9 +42,17 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     public AnimationBuilder breakingB = new AnimationBuilder().addAnimation("animation.player.breakb", false);
     public AnimationBuilder deadmount = new AnimationBuilder().addAnimation("animation.player.deadmount", true);
 
+    private int fails;
+
+    public static final TrackedData<String> SYNCEDPLAYER = DataTracker.registerData(OneWheelPlayerEntity.class, TrackedDataHandlerRegistry.STRING);
+
     public PlayerEntity assignedPlayer;
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
+        if (assignedPlayer == null) {
+            setAssignedPlayer();
+            return PlayState.STOP;
+        }
         if (assignedPlayer.hasVehicle()) {
             if (assignedPlayer.getVehicle() instanceof OneWheelEntity) {
                 OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
@@ -112,23 +118,14 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         super(type, worldIn);
         this.ignoreCameraFrustum = true;
     }
-    public void setAssignedPlayer(PlayerEntity player) {
-
-        this.assignedPlayer = MinecraftClient.getInstance().player;
-        if (!world.isClient) {
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeUuid(player.getUuid());
-            buf.writeInt(getId());
-            ServerPlayNetworking.send((ServerPlayerEntity) player, AssignPlayerPacket.PACKET_ID, buf);
-        }
-        else {
-            System.out.println("i got it");
-        }
+    @Override
+    public void initDataTracker() {
+        dataTracker.startTracking(SYNCEDPLAYER, null);
+        super.initDataTracker();
     }
     @Override
     public void tick() {
         super.tick();
-        System.out.println(getUuid());
         if (assignedPlayer != null) {
             if (!assignedPlayer.hasVehicle()) {
                 this.discard();
@@ -158,9 +155,28 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                 }
             }
         }
+        else {
+            fails += 1;
+            if (fails > 2) {
+                this.discard();
+            }
+            setAssignedPlayer();
+        }
     }
+
+    public void setAssignedPlayer() {
+        if (dataTracker.get(SYNCEDPLAYER) != null) {
+            UUID uuid = UUID.fromString(dataTracker.get(SYNCEDPLAYER));
+            assignedPlayer = world.getPlayerByUuid(uuid);
+        }
+    }
+
     @Override
     public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
+        if (assignedPlayer == null) {
+            setAssignedPlayer();
+            return;
+        }
         OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
         this.setYaw(assignedPlayer.getYaw());
         this.bodyYaw = this.getYaw();
@@ -173,6 +189,10 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
 
     @Override
     public void updatePosition(double x, double y, double z) {
+        if (assignedPlayer == null) {
+            setAssignedPlayer();
+            return;
+        }
         OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
         if (ow.forcedb == 0 && ow.forcedF == 0) {
             super.updatePosition(assignedPlayer.getX() , assignedPlayer.getY() , assignedPlayer.getZ());

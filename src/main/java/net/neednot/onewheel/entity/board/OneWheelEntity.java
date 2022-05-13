@@ -406,7 +406,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
                 ServerPlayNetworking.send((ServerPlayerEntity) player, OneWheel.BATTERY , buf);
                 OneWheelPlayerEntity oneWheelPlayer = (OneWheelPlayerEntity) OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
-                oneWheelPlayer.setAssignedPlayer((PlayerEntity) getControllingPassenger());
+                //oneWheelPlayer.setAssignedPlayer((PlayerEntity) getControllingPassenger());
+                oneWheelPlayer.getDataTracker().set(OneWheelPlayerEntity.SYNCEDPLAYER , getControllingPassenger().getUuidAsString());
             }
             return super.interactMob(player, hand);
         }

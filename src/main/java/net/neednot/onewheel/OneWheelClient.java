@@ -1,26 +1,16 @@
 package net.neednot.onewheel;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.Identifier;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.board.OneWheelRender;
 import net.neednot.onewheel.entity.player.OneWheelPlayerRender;
 import net.neednot.onewheel.item.ItemRegister;
-import net.neednot.onewheel.packet.AssignPlayerPacket;
 import net.neednot.onewheel.packet.BatteryPacket;
 import net.neednot.onewheel.packet.FallPacket;
-import org.checkerframework.checker.units.qual.A;
-
-import java.util.*;
 
 public class OneWheelClient implements ClientModInitializer {
 
@@ -51,7 +41,6 @@ public class OneWheelClient implements ClientModInitializer {
                 }
             }
         }));
-        AssignPlayerPacket.registerPacket();
         FallPacket.registerPacket();
         BatteryPacket.registerPacket();
         EntityRendererRegistry.register(OneWheel.OWPE, OneWheelPlayerRender::new);
