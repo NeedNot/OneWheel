@@ -1,5 +1,6 @@
 package net.neednot.onewheel.entity.board;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
@@ -18,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -31,6 +33,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.neednot.onewheel.OneWheel;
+import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
+import net.neednot.onewheel.packet.InputPacket;
 import net.neednot.onewheel.ui.WarningScreen;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -42,6 +46,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 
@@ -247,6 +252,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
+        pressingShift = player.isSneaking();
         ItemStack black_dye = new ItemStack(Items.BLACK_DYE);
         ItemStack red_dye = new ItemStack(Items.RED_DYE);
         ItemStack blue_dye = new ItemStack(Items.BLUE_DYE);
@@ -380,9 +386,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             player.startRiding(this);
             mount = true;
             if (isWaterDamaged()) {
-                if (world.isClient) {
-                    MinecraftClient.getInstance().setScreen(new WarningScreen());
-                }
+//                if (world.isClient) {
+//                    MinecraftClient.getInstance().setScreen(new WarningScreen());
+//                }
             }
             needSpeed = 1.11f;
             if (!world.isClient) {
@@ -399,7 +405,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 }
 
                 ServerPlayNetworking.send((ServerPlayerEntity) player, OneWheel.BATTERY , buf);
-                OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
+                OneWheelPlayerEntity oneWheelPlayer = (OneWheelPlayerEntity) OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
+                oneWheelPlayer.setAssignedPlayer((PlayerEntity) getControllingPassenger());
             }
             return super.interactMob(player, hand);
         }
@@ -422,38 +429,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
     @Override
     public void travel(Vec3d pos) {
-        //ghosting
-//        if (breakingb || breakingf) {
-//            time += 1;
-//            System.out.println(time);
-//        }
-//        else {
-//            time = 0;
-//        }
-//        if (f == 0) {
-//            breakingb = false;
-//            breakingf = false;
-//        }
         breakingb = false;
         breakingf = false;
 
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null) {
-            pressingForward = player.input.pressingForward && battery > 0;
-            pressingBack = player.input.pressingBack && battery > 0;
-            pressingLeft = player.input.pressingLeft && battery > 0;
-            pressingRight = player.input.pressingRight && battery > 0;
-            pressingShift = player.isSneaking();
-            pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed();
-        }
-
-
         if (this.isAlive()) {
             yawVelocity = 0.0F;
-            if (forcedb == 25 || forcedF == 25 && playerShouldDie(player)) {
-                Entity livingEntity = this.getControllingPassenger();
-                livingEntity.damage(CrashDamageSource.CRASH, 20);
-            }
             if (forcedF > 30 || forcedb > 30 || f == 0) {
                 if (this.hasPassengers() && (forcedF > 30 || forcedb > 30)) {
                     Entity livingEntity = this.getControllingPassenger();
@@ -467,6 +447,30 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 noseDivingb = false;
             }
             if (this.hasPassengers()) {
+                Entity livingEntity = this.getControllingPassenger();
+                if (forcedb == 25 || forcedF == 25 && playerShouldDie(livingEntity)) {
+                    livingEntity.damage(CrashDamageSource.CRASH, 20);
+                }
+                if (world.isClient() && this.getControllingPassenger().isPlayer()) {
+                    ClientPlayerEntity player = MinecraftClient.getInstance().player;
+                    if (player.getUuidAsString().equals(this.getControllingPassenger().getUuidAsString())) {
+                        pressingForward = player.input.pressingForward && battery > 0;
+                        pressingBack = player.input.pressingBack && battery > 0;
+                        pressingLeft = player.input.pressingLeft && battery > 0;
+                        pressingRight = player.input.pressingRight && battery > 0;
+                        pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed();
+
+                        PacketByteBuf buf = PacketByteBufs.create();
+
+                        buf.writeBoolean(pressingForward);
+                        buf.writeBoolean(pressingBack);
+                        buf.writeBoolean(pressingLeft);
+                        buf.writeBoolean(pressingRight);
+                        buf.writeBoolean(pressingCtrl);
+
+                        ClientPlayNetworking.send(InputPacket.PACKET_ID, buf);
+                    }
+                }
                 ghost = false;
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
@@ -679,7 +683,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         }
     }
 
-    private boolean playerShouldDie(ClientPlayerEntity player) {
+    private boolean playerShouldDie(Entity player) {
 
         Vec3d vec3d = player.getPos();
         BlockHitResult result = world.raycast(new RaycastContext(vec3d, vec3d.subtract(0, 2, 0), RaycastContext.ShapeType.VISUAL, RaycastContext.FluidHandling.WATER, this));

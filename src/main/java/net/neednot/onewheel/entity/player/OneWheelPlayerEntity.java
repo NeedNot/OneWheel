@@ -1,5 +1,7 @@
 package net.neednot.onewheel.entity.player;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -9,11 +11,15 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
+import net.neednot.onewheel.packet.AssignPlayerPacket;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -38,11 +44,12 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     public AnimationBuilder breakingB = new AnimationBuilder().addAnimation("animation.player.breakb", false);
     public AnimationBuilder deadmount = new AnimationBuilder().addAnimation("animation.player.deadmount", true);
 
+    public PlayerEntity assignedPlayer;
+
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player.hasVehicle()) {
-            if (player.getVehicle() instanceof OneWheelEntity) {
-                OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
+        if (assignedPlayer.hasVehicle()) {
+            if (assignedPlayer.getVehicle() instanceof OneWheelEntity) {
+                OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
                 if (ow.forcedF > 10) {
                     event.getController().animationSpeed = 4;
                     event.getController().setAnimation(nosedivef);
@@ -105,31 +112,44 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         super(type, worldIn);
         this.ignoreCameraFrustum = true;
     }
+    public void setAssignedPlayer(PlayerEntity player) {
+
+        this.assignedPlayer = MinecraftClient.getInstance().player;
+        if (!world.isClient) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeUuid(player.getUuid());
+            buf.writeInt(getId());
+            ServerPlayNetworking.send((ServerPlayerEntity) player, AssignPlayerPacket.PACKET_ID, buf);
+        }
+        else {
+            System.out.println("i got it");
+        }
+    }
     @Override
     public void tick() {
         super.tick();
-        if (MinecraftClient.getInstance().player != null) {
-            if (!MinecraftClient.getInstance().player.hasVehicle()) {
+        System.out.println(getUuid());
+        if (assignedPlayer != null) {
+            if (!assignedPlayer.hasVehicle()) {
                 this.discard();
             } else {
-                ClientPlayerEntity player = MinecraftClient.getInstance().player;
-                OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
-                setLeftHanded(player.getMainArm().equals(Arm.LEFT));
-                equipStack(EquipmentSlot.MAINHAND, player.getMainHandStack());
-                equipStack(EquipmentSlot.OFFHAND, player.getOffHandStack());
-                equipStack(EquipmentSlot.HEAD, player.getEquippedStack(EquipmentSlot.HEAD));
-                equipStack(EquipmentSlot.CHEST, player.getEquippedStack(EquipmentSlot.CHEST));
-                equipStack(EquipmentSlot.LEGS, player.getEquippedStack(EquipmentSlot.LEGS));
-                equipStack(EquipmentSlot.FEET, player.getEquippedStack(EquipmentSlot.FEET));
+                OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
+                setLeftHanded(assignedPlayer.getMainArm().equals(Arm.LEFT));
+                equipStack(EquipmentSlot.MAINHAND, assignedPlayer.getMainHandStack());
+                equipStack(EquipmentSlot.OFFHAND, assignedPlayer.getOffHandStack());
+                equipStack(EquipmentSlot.HEAD, assignedPlayer.getEquippedStack(EquipmentSlot.HEAD));
+                equipStack(EquipmentSlot.CHEST, assignedPlayer.getEquippedStack(EquipmentSlot.CHEST));
+                equipStack(EquipmentSlot.LEGS, assignedPlayer.getEquippedStack(EquipmentSlot.LEGS));
+                equipStack(EquipmentSlot.FEET, assignedPlayer.getEquippedStack(EquipmentSlot.FEET));
                 if (ow.forcedb == 25 || ow.forcedF == 25) {
-                    this.setHealth(player.getHealth());
+                    this.setHealth(assignedPlayer.getHealth());
                     this.damage(DamageSource.FALL , 5f);
                 }
                 if (ow.forcedb == 0 && ow.forcedF == 0) {
-                    this.headYaw = player.headYaw - 90;
-                    this.bodyYaw = player.bodyYaw - 90;
-                    this.setYaw(player.getYaw() - 90);
-                    this.setPos(player.getX() , player.getY() - 0.1f , player.getZ());
+                    this.headYaw = assignedPlayer.headYaw - 90;
+                    this.bodyYaw = assignedPlayer.bodyYaw - 90;
+                    this.setYaw(assignedPlayer.getYaw() - 90);
+                    this.setPos(assignedPlayer.getX() , assignedPlayer.getY() - 0.1f , assignedPlayer.getZ());
                 } else {
                     this.headYaw = ow.headYaw - 90;
                     this.bodyYaw = ow.bodyYaw - 90;
@@ -141,9 +161,8 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     }
     @Override
     public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
-        this.setYaw(player.getYaw());
+        OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
+        this.setYaw(assignedPlayer.getYaw());
         this.bodyYaw = this.getYaw();
         this.headYaw = this.getYaw();
         if (ow.forcedb > 0|| ow.forcedF > 0) {
@@ -154,15 +173,14 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
 
     @Override
     public void updatePosition(double x, double y, double z) {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
+        OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
         if (ow.forcedb == 0 && ow.forcedF == 0) {
-            super.updatePosition(player.getX() , player.getY() , player.getZ());
+            super.updatePosition(assignedPlayer.getX() , assignedPlayer.getY() , assignedPlayer.getZ());
         }
         else {
             super.updatePosition(ow.getX() , ow.getY() , ow.getZ());
         }
-        super.updatePosition(player.getX() , player.getY() , player.getZ());
+        super.updatePosition(assignedPlayer.getX() , assignedPlayer.getY() , assignedPlayer.getZ());
     }
 
     @Override

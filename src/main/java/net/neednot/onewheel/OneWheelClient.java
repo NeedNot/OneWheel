@@ -14,6 +14,8 @@ import net.minecraft.util.Identifier;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.board.OneWheelRender;
 import net.neednot.onewheel.entity.player.OneWheelPlayerRender;
+import net.neednot.onewheel.item.ItemRegister;
+import net.neednot.onewheel.packet.AssignPlayerPacket;
 import net.neednot.onewheel.packet.BatteryPacket;
 import net.neednot.onewheel.packet.FallPacket;
 import org.checkerframework.checker.units.qual.A;
@@ -24,6 +26,7 @@ public class OneWheelClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        ItemRegister.registerOneWheelItem();
         HudRenderCallback.EVENT.register(((matrixStack, tickDelta) -> {
             Entity entity;
             int scaledwidth;
@@ -48,6 +51,7 @@ public class OneWheelClient implements ClientModInitializer {
                 }
             }
         }));
+        AssignPlayerPacket.registerPacket();
         FallPacket.registerPacket();
         BatteryPacket.registerPacket();
         EntityRendererRegistry.register(OneWheel.OWPE, OneWheelPlayerRender::new);
