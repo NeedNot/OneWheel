@@ -120,8 +120,11 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     }
     @Override
     public void initDataTracker() {
-        dataTracker.startTracking(SYNCEDPLAYER, null);
+        dataTracker.startTracking(SYNCEDPLAYER, "null");
         super.initDataTracker();
+    }
+    public void setSyncedplayer(String string) {
+        dataTracker.set(SYNCEDPLAYER, string);
     }
     @Override
     public void tick() {
@@ -165,7 +168,7 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     }
 
     public void setAssignedPlayer() {
-        if (dataTracker.get(SYNCEDPLAYER) != null) {
+        if (!dataTracker.get(SYNCEDPLAYER).equals("null")) {
             UUID uuid = UUID.fromString(dataTracker.get(SYNCEDPLAYER));
             assignedPlayer = world.getPlayerByUuid(uuid);
         }

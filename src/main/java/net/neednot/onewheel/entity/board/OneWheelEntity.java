@@ -403,11 +403,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 else {
                     buf.writeInt(0);
                 }
-
                 ServerPlayNetworking.send((ServerPlayerEntity) player, OneWheel.BATTERY , buf);
-                OneWheelPlayerEntity oneWheelPlayer = (OneWheelPlayerEntity) OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
-                //oneWheelPlayer.setAssignedPlayer((PlayerEntity) getControllingPassenger());
-                oneWheelPlayer.getDataTracker().set(OneWheelPlayerEntity.SYNCEDPLAYER , getControllingPassenger().getUuidAsString());
+                OneWheelPlayerEntity ow = (OneWheelPlayerEntity) OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
+                ow.setPosition(getControllingPassenger().getPos());
+                ow.setSyncedplayer(getControllingPassenger().getUuidAsString());
             }
             return super.interactMob(player, hand);
         }
@@ -794,22 +793,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
     @Override
     public Vec3d updatePassengerForDismount(LivingEntity passenger) {
-        if (passenger instanceof ClientPlayerEntity) {
-            ClientPlayerEntity player = (ClientPlayerEntity) passenger;
-        }
         passenger.setInvisible(false);
-//        double d = 3;
-//        float f = -MathHelper.sin(this.getYaw() * 0.017453292F);
-//        float g = MathHelper.cos(this.getYaw() * 0.017453292F);
-//        float h = Math.max(Math.abs(f), Math.abs(g));
-//        Vec3d vec3d = new Vec3d(this.getX(), this.getY(), this.getZ()).add(new Vec3d((double)f * d / (double)h, 0.0d, (double)g * d / (double)h));
-//
-//        d = -1;
-//        f = -MathHelper.sin(this.getYaw()+90 * 0.017453292F);
-//        g = MathHelper.cos(this.getYaw()+90 * 0.017453292F);
-//        h = Math.max(Math.abs(f), Math.abs(g));
-//        return vec3d.add(new Vec3d((double)f * d / (double)h, 0.0D, (double)g * d / (double)h));
-        //return new Vec3d(this.getX()+x, this.getBoundingBox().maxY, this.getZ()+z);
         if (forcedF > 0 || forcedb > 0) {
             return bonePos;
         }

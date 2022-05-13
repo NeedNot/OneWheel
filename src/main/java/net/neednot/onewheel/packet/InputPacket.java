@@ -5,7 +5,7 @@ import net.minecraft.util.Identifier;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 
 public class InputPacket {
-    public static Identifier PACKET_ID = new Identifier("onewheel", "player_input_controls");
+    public static Identifier PACKET_ID = new Identifier("onewheel", "player_input_controls_packet");
 
     public static void registerPacket() {
         ServerPlayNetworking.registerGlobalReceiver(PACKET_ID,
