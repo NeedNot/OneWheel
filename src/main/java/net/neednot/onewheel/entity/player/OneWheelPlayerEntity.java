@@ -129,8 +129,10 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
+        System.out.println("my id is"+uuid);
         if (assignedPlayer != null) {
             if (!assignedPlayer.hasVehicle()) {
+                System.out.println("discarding");
                 this.discard();
             } else {
                 OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();

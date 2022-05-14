@@ -23,8 +23,8 @@ public abstract class CapeFeatureRendererMixin extends FeatureRenderer<AbstractC
 
     @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/network/AbstractClientPlayerEntity;FFFFFF)V", cancellable = true)
     public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, AbstractClientPlayerEntity abstractClientPlayerEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-        if (MinecraftClient.getInstance().player.hasVehicle()) {
-            if (MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
+        if (abstractClientPlayerEntity.hasVehicle()) {
+            if (abstractClientPlayerEntity.getVehicle() instanceof OneWheelEntity) {
                 ci.cancel();
             }
         }

@@ -4,8 +4,11 @@ fender - on hold
 make player show in inv - failed
 
 hide items and show armor
-
+fix player from falling from the sky
 after 1.0 release made servers work
+make turn sharper with increasing yaw velocity
+fix player not showing in tree
+fix screen
 
 fix head delays - done
 fix wheel colors - done

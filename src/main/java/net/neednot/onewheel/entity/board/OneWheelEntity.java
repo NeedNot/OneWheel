@@ -614,11 +614,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     }
                 }
                 this.setMovementSpeed(1);
-//                if (!MinecraftClient.getInstance().options.sprintKey.isPressed()) {
-//                    f = prevF;
-//                    bdecay = prevbd;
-//                    fdecay = prevfd;
-//                }
 
                 HitResult deg15 = blockRaycast(45);
                 if (deg15.getType().equals(HitResult.Type.BLOCK)) {

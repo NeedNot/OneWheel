@@ -41,7 +41,7 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
     @Inject(at = @At("TAIL"), method = "setModelPose")
     private void setModelPose(AbstractClientPlayerEntity player , CallbackInfo ci) {
         PlayerEntityModel<AbstractClientPlayerEntity> playerEntityModel = (PlayerEntityModel)this.getModel();
-        if (player.hasVehicle() &&player.getVehicle() instanceof OneWheelEntity) {
+        if (player.hasVehicle() && player.getVehicle() instanceof OneWheelEntity) {
             playerEntityModel.setVisible(false);
         }
     }

@@ -1,6 +1,10 @@
 package net.neednot.onewheel.entity.player;
 
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import net.fabricmc.loader.impl.game.GameProvider;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.PlayerSkinProvider;
+import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
@@ -20,7 +24,7 @@ public class OneWheelPlayerModel extends AnimatedGeoModel<OneWheelPlayerEntity> 
     @Override
     public Identifier getTextureLocation(OneWheelPlayerEntity object)
     {
-        return MinecraftClient.getInstance().player.getSkinTexture();
+        return DefaultSkinHelper.getTexture(object.assignedPlayer.getUuid());
     }
 
     @Override
