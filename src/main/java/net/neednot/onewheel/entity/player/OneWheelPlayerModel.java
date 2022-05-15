@@ -24,6 +24,7 @@ public class OneWheelPlayerModel extends AnimatedGeoModel<OneWheelPlayerEntity> 
     @Override
     public Identifier getTextureLocation(OneWheelPlayerEntity object)
     {
+        if (object.assignedPlayer == null) return DefaultSkinHelper.getTexture(MinecraftClient.getInstance().player.getUuid());
         return DefaultSkinHelper.getTexture(object.assignedPlayer.getUuid());
     }
 

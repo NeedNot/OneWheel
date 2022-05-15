@@ -24,6 +24,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -35,6 +36,7 @@ import net.minecraft.world.World;
 import net.neednot.onewheel.OneWheel;
 import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
 import net.neednot.onewheel.packet.InputPacket;
+import net.neednot.onewheel.packet.SpawnFakePlayerPacket;
 import net.neednot.onewheel.ui.WarningScreen;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -45,10 +47,7 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 public class OneWheelEntity extends AnimalEntity implements IAnimatable {
@@ -407,6 +406,21 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 OneWheelPlayerEntity ow = (OneWheelPlayerEntity) OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
                 ow.setPosition(getControllingPassenger().getPos());
                 ow.setSyncedplayer(getControllingPassenger().getUuidAsString());
+
+                PacketByteBuf buf1 = PacketByteBufs.create();
+                buf1.writeString(getControllingPassenger().getUuidAsString());
+                buf1.writeInt(ow.getId());
+                System.out.println("id is "+ow.getId());
+                ServerPlayNetworking.send((ServerPlayerEntity) player, OneWheel.FAKE_PLAYER_PACKET, buf1);
+
+                PlayerEntity assignedPlayer = (PlayerEntity) getControllingPassenger();
+                setLeftHanded(assignedPlayer.getMainArm().equals(Arm.LEFT));
+                ow.equipStack(EquipmentSlot.MAINHAND, assignedPlayer.getMainHandStack());
+                ow.equipStack(EquipmentSlot.OFFHAND, assignedPlayer.getOffHandStack());
+                ow.equipStack(EquipmentSlot.HEAD, assignedPlayer.getEquippedStack(EquipmentSlot.HEAD));
+                ow.equipStack(EquipmentSlot.CHEST, assignedPlayer.getEquippedStack(EquipmentSlot.CHEST));
+                ow.equipStack(EquipmentSlot.LEGS, assignedPlayer.getEquippedStack(EquipmentSlot.LEGS));
+                ow.equipStack(EquipmentSlot.FEET, assignedPlayer.getEquippedStack(EquipmentSlot.FEET));
             }
             return super.interactMob(player, hand);
         }

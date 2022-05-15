@@ -33,11 +33,6 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
         super(ctx , model , shadowRadius);
     }
 
-    @Override
-    public Identifier getTexture(AbstractClientPlayerEntity abstractClientPlayerEntity) {
-        return abstractClientPlayerEntity.getSkinTexture();
-    }
-
     @Inject(at = @At("TAIL"), method = "setModelPose")
     private void setModelPose(AbstractClientPlayerEntity player , CallbackInfo ci) {
         PlayerEntityModel<AbstractClientPlayerEntity> playerEntityModel = (PlayerEntityModel)this.getModel();
