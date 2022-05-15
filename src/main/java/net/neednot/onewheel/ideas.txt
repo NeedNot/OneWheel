@@ -9,6 +9,8 @@ after 1.0 release made servers work
 make turn sharper with increasing yaw velocity
 fix player not showing in tree
 fix screen
+fix magenta and brown not working
+toggle outerlayers
 
 fix head delays - done
 fix wheel colors - done

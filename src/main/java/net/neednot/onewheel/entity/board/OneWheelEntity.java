@@ -2,6 +2,7 @@ package net.neednot.onewheel.entity.board;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -411,7 +412,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 buf1.writeString(getControllingPassenger().getUuidAsString());
                 buf1.writeInt(ow.getId());
                 System.out.println("id is "+ow.getId());
-                ServerPlayNetworking.send((ServerPlayerEntity) player, OneWheel.FAKE_PLAYER_PACKET, buf1);
+                for (ServerPlayerEntity player1 : PlayerLookup.tracking((Entity) this)) {
+                    ServerPlayNetworking.send(player1, OneWheel.FAKE_PLAYER_PACKET, buf1);
+                }
+
 
                 PlayerEntity assignedPlayer = (PlayerEntity) getControllingPassenger();
                 setLeftHanded(assignedPlayer.getMainArm().equals(Arm.LEFT));
