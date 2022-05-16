@@ -136,8 +136,11 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         if (world.isClient()) System.out.println("ticking");
         if (assignedPlayer != null) {
             if (!assignedPlayer.hasVehicle()) {
-                System.out.println("discarding");
-                this.discard();
+                fails += 1;
+                if (fails > 2) {
+                    System.out.println("discarding");
+                    this.discard();
+                }
             } else if (assignedPlayer.getVehicle() instanceof OneWheelEntity) {
                 OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
 

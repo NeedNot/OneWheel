@@ -738,7 +738,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         Entity entity = source.getSource();
         if (entity instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entity;
-            if (player.getMainHandStack().isEmpty()) {
+            if (player.getMainHandStack().isEmpty() && !hasPassengers()) {
                 ItemStack ow = new ItemStack(OneWheel.oneWheel);
                 ow.setCount(1);
                 ow.getOrCreateNbt().putString("color", getColor());
