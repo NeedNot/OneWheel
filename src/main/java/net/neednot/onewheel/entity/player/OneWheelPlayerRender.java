@@ -3,10 +3,12 @@ package net.neednot.onewheel.entity.player;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
@@ -14,6 +16,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -60,6 +63,15 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                 if (bone.getName().equals("left_legs")) {
                     bone.setRotationZ(-0.349066f);
                 }
+
+                //outer layers
+                if (bone.getName().equals("headwear")) bone.setHidden(!player.isPartVisible(PlayerModelPart.HAT));
+                if (bone.getName().equals("jacket")) bone.setHidden(!player.isPartVisible(PlayerModelPart.JACKET));
+                if (bone.getName().equals("left_sleeve")) bone.setHidden(!player.isPartVisible(PlayerModelPart.LEFT_SLEEVE));
+                if (bone.getName().equals("right_sleeve")) bone.setHidden(!player.isPartVisible(PlayerModelPart.RIGHT_SLEEVE));
+                if (bone.getName().equals("left_pants")) bone.setHidden(!player.isPartVisible(PlayerModelPart.LEFT_PANTS_LEG));
+                if (bone.getName().equals("right_pants")) bone.setHidden(!player.isPartVisible(PlayerModelPart.RIGHT_PANTS_LEG));
+
                 float yaw = ow.yawVelocity;
                 float oyaw = invert(360 - (MathHelper.wrapDegrees(ow.getYaw()))) % 360;
                 float speed = ow.f;

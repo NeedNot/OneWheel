@@ -22,6 +22,7 @@ public class WarningScreen extends Screen {
     private MultilineText fullWrappedText;
     private MultilineText fullWrappedText2;
 
+
     public WarningScreen() {
         super(new TranslatableText("onewheel.warning.water.title"));
         this.movementText = MultilineText.EMPTY;

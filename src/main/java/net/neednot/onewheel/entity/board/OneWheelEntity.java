@@ -39,6 +39,7 @@ import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
 import net.neednot.onewheel.packet.InputPacket;
 import net.neednot.onewheel.packet.SpawnFakePlayerPacket;
 import net.neednot.onewheel.ui.WarningScreen;
+import net.neednot.onewheel.util.ScreenSetter;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -387,9 +388,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             player.startRiding(this);
             mount = true;
             if (isWaterDamaged()) {
-//                if (world.isClient) {
-//                    MinecraftClient.getInstance().setScreen(new WarningScreen());
-//                }
+                if (world.isClient()) {
+                    ScreenSetter.setWarningScreen();
+                }
             }
             needSpeed = 1.11f;
             if (!world.isClient) {
