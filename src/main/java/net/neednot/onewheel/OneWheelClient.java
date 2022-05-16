@@ -9,9 +9,7 @@ import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.board.OneWheelRender;
 import net.neednot.onewheel.entity.player.OneWheelPlayerRender;
 import net.neednot.onewheel.item.ItemRegister;
-import net.neednot.onewheel.packet.BatteryPacket;
-import net.neednot.onewheel.packet.FallPacket;
-import net.neednot.onewheel.packet.SpawnFakePlayerPacket;
+import net.neednot.onewheel.packet.*;
 
 public class OneWheelClient implements ClientModInitializer {
 
@@ -42,6 +40,7 @@ public class OneWheelClient implements ClientModInitializer {
                 }
             }
         }));
+        PlayerAnimToClient.registerPacket();
         SpawnFakePlayerPacket.registerPacket();
         FallPacket.registerPacket();
         BatteryPacket.registerPacket();

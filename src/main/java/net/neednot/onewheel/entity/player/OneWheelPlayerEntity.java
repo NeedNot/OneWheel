@@ -1,9 +1,11 @@
 package net.neednot.onewheel.entity.player;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -11,12 +13,13 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Arm;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
+import net.neednot.onewheel.packet.PlayerAnimToServerPacket;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -26,22 +29,24 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
 
     private AnimationFactory factory = new AnimationFactory(this);
-    public AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.player.nosedivef", false);
-    public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.player.nosediveb", false);
-    public AnimationBuilder mount = new AnimationBuilder().addAnimation("animation.player.mount", false);
-    public AnimationBuilder tiltf = new AnimationBuilder().addAnimation("animation.player.tiltf", false).addAnimation("animation.player.holdb", true);
-    public AnimationBuilder tiltb = new AnimationBuilder().addAnimation("animation.player.tiltb", false).addAnimation("animation.player.holdf", true);
-    public AnimationBuilder pushbackf = new AnimationBuilder().addAnimation("animation.player.pushbackf", false).addAnimation("animation.player.holdPushbackf", true);
-    public AnimationBuilder pushbackb = new AnimationBuilder().addAnimation("animation.player.pushbackb", false).addAnimation("animation.player.holdPushbackb", true);
-    public AnimationBuilder flat = new AnimationBuilder().addAnimation("animation.player.flat", true);
-    public AnimationBuilder breakingF = new AnimationBuilder().addAnimation("animation.player.breakf", false);
-    public AnimationBuilder breakingB = new AnimationBuilder().addAnimation("animation.player.breakb", false);
-    public AnimationBuilder deadmount = new AnimationBuilder().addAnimation("animation.player.deadmount", true);
+    public static AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.player.nosedivef", false);
+    public static AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.player.nosediveb", false);
+    public static AnimationBuilder mount = new AnimationBuilder().addAnimation("animation.player.mount", false);
+    public static AnimationBuilder tiltf = new AnimationBuilder().addAnimation("animation.player.tiltf", false).addAnimation("animation.player.holdb", true);
+    public static AnimationBuilder tiltb = new AnimationBuilder().addAnimation("animation.player.tiltb", false).addAnimation("animation.player.holdf", true);
+    public static AnimationBuilder pushbackf = new AnimationBuilder().addAnimation("animation.player.pushbackf", false).addAnimation("animation.player.holdPushbackf", true);
+    public static AnimationBuilder pushbackb = new AnimationBuilder().addAnimation("animation.player.pushbackb", false).addAnimation("animation.player.holdPushbackb", true);
+    public static AnimationBuilder flat = new AnimationBuilder().addAnimation("animation.player.flat", true);
+    public static AnimationBuilder breakingF = new AnimationBuilder().addAnimation("animation.player.breakf", false);
+    public static AnimationBuilder breakingB = new AnimationBuilder().addAnimation("animation.player.breakb", false);
+    public static AnimationBuilder deadmount = new AnimationBuilder().addAnimation("animation.player.deadmount", true);
 
     private int fails;
 
@@ -49,65 +54,117 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
 
     public PlayerEntity assignedPlayer;
 
+    public AnimationBuilder playAnimation;
+
+    public static final Map<Integer, AnimationBuilder> getMap() {
+        Map<Integer, AnimationBuilder> map = new HashMap<>();
+        map.put(0, nosedivef);
+        map.put(1, nosediveb);
+        map.put(2, mount);
+        map.put(3, tiltf);
+        map.put(4, tiltb);
+        map.put(5, pushbackf);
+        map.put(6, pushbackb);
+        map.put(7, flat);
+        map.put(8, breakingF);
+        map.put(9, breakingB);
+        map.put(10, deadmount);
+        return map;
+    }
+
+    public static AnimationBuilder getAnimation(int anim) {
+        return getMap().get(anim);
+    }
+    public Integer getKey(Map<Integer, AnimationBuilder> map, AnimationBuilder value) {
+        for (Map.Entry<Integer, AnimationBuilder> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return 2;
+    }
+
+    private void sendAnimPacket(AnimationBuilder animationBuilder) {
+        int anim = getKey(getMap(), animationBuilder);
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(anim);
+        buf.writeInt(getId());
+        ClientPlayNetworking.send(PlayerAnimToServerPacket.PACKET_ID, buf);
+    }
+
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         if (assignedPlayer == null) return PlayState.STOP;
-        if (assignedPlayer.hasVehicle()) {
+        if (assignedPlayer.hasVehicle() && assignedPlayer.getUuidAsString().equals(MinecraftClient.getInstance().player.getUuidAsString())) {
             if (assignedPlayer.getVehicle() instanceof OneWheelEntity) {
                 OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
                 if (ow.forcedF > 10) {
                     event.getController().animationSpeed = 4;
                     event.getController().setAnimation(nosedivef);
+                    sendAnimPacket(nosedivef);
                     return PlayState.CONTINUE;
                 }
                 if (ow.forcedb > 10) {
                     event.getController().animationSpeed = 4;
                     event.getController().setAnimation(nosediveb);
+                    sendAnimPacket(nosediveb);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerMount) {
                     ow.playerMount = false;
                     event.getController().setAnimation(mount);
+                    sendAnimPacket(mount);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerDeadMount) {
                     event.getController().setAnimation(deadmount);
+                    sendAnimPacket(deadmount);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerTiltF) {
                     event.getController().setAnimation(tiltf);
+                    sendAnimPacket(tiltf);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerTiltB) {
                     event.getController().setAnimation(tiltb);
+                    sendAnimPacket(tiltb);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerBreakingF) {
                     ow.playerBreakingF = false;
                     event.getController().setAnimation(breakingF);
+                    sendAnimPacket(breakingF);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerBreakingB) {
                     ow.playerBreakingB = false;
                     event.getController().setAnimation(breakingB);
+                    sendAnimPacket(breakingB);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerPushbackf) {
                     ow.playerPushbackf = false;
                     event.getController().setAnimation(pushbackf);
+                    sendAnimPacket(pushbackf);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerPushbackb) {
                     ow.playerPushbackb = false;
-                    System.out.println(event.getController().getCurrentAnimation().animationName);
                     event.getController().setAnimation(pushbackb);
+                    sendAnimPacket(pushbackb);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerFlat) {
                     ow.playerFlat = false;
                     event.getController().setAnimation(flat);
+                    sendAnimPacket(flat);
                     return PlayState.CONTINUE;
                 }
             }
+        }
+        else if (playAnimation != null) {
+            if (playAnimation.equals(nosediveb)||playAnimation.equals(nosedivef)) event.getController().animationSpeed = 4;
+            event.getController().setAnimation(playAnimation);
         }
         return PlayState.CONTINUE;
     }
