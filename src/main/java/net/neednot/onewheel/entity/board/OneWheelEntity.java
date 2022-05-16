@@ -416,16 +416,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 for (ServerPlayerEntity player1 : PlayerLookup.tracking((Entity) this)) {
                     ServerPlayNetworking.send(player1, OneWheel.FAKE_PLAYER_PACKET, buf1);
                 }
-
-
-                PlayerEntity assignedPlayer = (PlayerEntity) getControllingPassenger();
-                setLeftHanded(assignedPlayer.getMainArm().equals(Arm.LEFT));
-                ow.equipStack(EquipmentSlot.MAINHAND, assignedPlayer.getMainHandStack());
-                ow.equipStack(EquipmentSlot.OFFHAND, assignedPlayer.getOffHandStack());
-                ow.equipStack(EquipmentSlot.HEAD, assignedPlayer.getEquippedStack(EquipmentSlot.HEAD));
-                ow.equipStack(EquipmentSlot.CHEST, assignedPlayer.getEquippedStack(EquipmentSlot.CHEST));
-                ow.equipStack(EquipmentSlot.LEGS, assignedPlayer.getEquippedStack(EquipmentSlot.LEGS));
-                ow.equipStack(EquipmentSlot.FEET, assignedPlayer.getEquippedStack(EquipmentSlot.FEET));
             }
             return super.interactMob(player, hand);
         }

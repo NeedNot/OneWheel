@@ -6,6 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -13,9 +14,11 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Arm;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
@@ -55,6 +58,7 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     public PlayerEntity assignedPlayer;
 
     public AnimationBuilder playAnimation;
+    private Iterable<ItemStack> prevArmor;
 
     public static final Map<Integer, AnimationBuilder> getMap() {
         Map<Integer, AnimationBuilder> map = new HashMap<>();
@@ -187,7 +191,6 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
-        if (world.isClient()) System.out.println("ticking");
         if (assignedPlayer != null) {
             if (!assignedPlayer.hasVehicle()) {
                 fails += 1;
@@ -197,6 +200,17 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                 }
             } else if (assignedPlayer.getVehicle() instanceof OneWheelEntity) {
                 OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
+
+                if (!assignedPlayer.getItemsEquipped().equals(prevArmor)) {
+                    prevArmor = assignedPlayer.getItemsEquipped();
+                    equipStack(EquipmentSlot.MAINHAND, assignedPlayer.getMainHandStack());
+                    equipStack(EquipmentSlot.OFFHAND, assignedPlayer.getOffHandStack());
+                    equipStack(EquipmentSlot.HEAD, assignedPlayer.getEquippedStack(EquipmentSlot.HEAD));
+                    equipStack(EquipmentSlot.CHEST, assignedPlayer.getEquippedStack(EquipmentSlot.CHEST));
+                    equipStack(EquipmentSlot.LEGS, assignedPlayer.getEquippedStack(EquipmentSlot.LEGS));
+                    equipStack(EquipmentSlot.FEET, assignedPlayer.getEquippedStack(EquipmentSlot.FEET));
+                    setLeftHanded(assignedPlayer.getMainArm().equals(Arm.LEFT));
+                }
 
                 if (ow.forcedb == 25 || ow.forcedF == 25) {
                     this.setHealth(assignedPlayer.getHealth());
