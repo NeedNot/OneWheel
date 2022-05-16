@@ -67,6 +67,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public int forcedF;
     public int forcedb;
     public float yawVelocity;
+    public float fakeYawVelocity;
     public float f = 0.0F;
     public float prevF;
     public float prevbd;

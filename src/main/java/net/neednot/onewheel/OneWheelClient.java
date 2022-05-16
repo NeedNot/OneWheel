@@ -40,7 +40,7 @@ public class OneWheelClient implements ClientModInitializer {
                 }
             }
         }));
-        PlayerAnimToClient.registerPacket();
+        PlayerAnimToClientPacket.registerPacket();
         SpawnFakePlayerPacket.registerPacket();
         FallPacket.registerPacket();
         BatteryPacket.registerPacket();

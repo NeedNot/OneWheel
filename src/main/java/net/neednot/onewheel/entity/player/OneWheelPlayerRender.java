@@ -64,6 +64,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                 float oyaw = invert(360 - (MathHelper.wrapDegrees(ow.getYaw()))) % 360;
                 float speed = ow.f;
                 float fakeyaw = yaw;
+                if (!player.getUuidAsString().equals(MinecraftClient.getInstance().player.getUuidAsString())) fakeyaw = ow.fakeYawVelocity;
                 if (speed < 0) {
                     fakeyaw = invert(yaw);
                 }
