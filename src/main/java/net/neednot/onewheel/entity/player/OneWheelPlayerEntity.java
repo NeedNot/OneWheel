@@ -89,6 +89,7 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeInt(anim);
         buf.writeInt(getId());
+        buf.writeFloat(((OneWheelEntity) assignedPlayer.getVehicle()).yawVelocity);
         ClientPlayNetworking.send(PlayerAnimToServerPacket.PACKET_ID, buf);
     }
 
@@ -160,6 +161,7 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                     sendAnimPacket(flat);
                     return PlayState.CONTINUE;
                 }
+                sendAnimPacket(null);
             }
         }
         else if (playAnimation != null) {
@@ -167,11 +169,6 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
             event.getController().setAnimation(playAnimation);
         }
         return PlayState.CONTINUE;
-    }
-
-    public void onSpawnPacket(EntitySpawnS2CPacket packet) {
-
-        super.onSpawnPacket(packet);
     }
 
     public OneWheelPlayerEntity(EntityType<? extends AnimalEntity> type, World worldIn) {
