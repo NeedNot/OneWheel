@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.util.Identifier;
@@ -31,36 +32,36 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
     float yaw = 90;
     float realyaw;
     boolean canRender;
+    PlayerEntity player;
+    OneWheelEntity ow;
     public OneWheelPlayerRender(EntityRendererFactory.Context renderManager) {
         super(renderManager, new OneWheelPlayerModel());
     }
     @Override
     public void renderRecursively(GeoBone bone, MatrixStack stack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        if (MinecraftClient.getInstance().player.hasVehicle()) {
-            if (bone.getName().equals("heads")) {
-                ClientPlayerEntity player = MinecraftClient.getInstance().player;
-                OneWheelEntity ow = (OneWheelEntity) player.getVehicle();
-                float yaw = MathHelper.wrapDegrees(player.getYaw()-ow.getYaw()+90);
-                yaw = MathHelper.clamp(yaw, -90, 90);
-                bone.setRotationY(invert((float) Math.toRadians((double) yaw)));
-                bone.setRotationX(invertif((float) Math.toRadians((double) player.getPitch())));
-            }
-            if (bone.getName().equals("right_arms")) {
-                bone.setRotationZ(0.785398f);
-            }
-            if (bone.getName().equals("left_arms")) {
-                bone.setRotationZ(-0.785398f);
-            }
-            if (bone.getName().equals("right_legs")) {
-                bone.setRotationZ(0.349066f);
-            }
-            if (bone.getName().equals("left_legs")) {
-                bone.setRotationZ(-0.349066f);
-            }
-            if (MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
-                OneWheelEntity ow = (OneWheelEntity) MinecraftClient.getInstance().player.getVehicle();
+        if (player != null) {
+            if (player.hasVehicle()) {
+                if (bone.getName().equals("heads")) {
+                    float yaw = MathHelper.wrapDegrees(player.getYaw() - ow.getYaw() + 90);
+                    yaw = MathHelper.clamp(yaw , -90 , 90);
+                    System.out.println(yaw);
+                    bone.setRotationY(invert((float) Math.toRadians((double) yaw)));
+                    bone.setRotationX(invertif((float) Math.toRadians((double) player.getPitch())));
+                }
+                if (bone.getName().equals("right_arms")) {
+                    bone.setRotationZ(0.785398f);
+                }
+                if (bone.getName().equals("left_arms")) {
+                    bone.setRotationZ(-0.785398f);
+                }
+                if (bone.getName().equals("right_legs")) {
+                    bone.setRotationZ(0.349066f);
+                }
+                if (bone.getName().equals("left_legs")) {
+                    bone.setRotationZ(-0.349066f);
+                }
                 float yaw = ow.yawVelocity;
-                float oyaw = invert(360-(MathHelper.wrapDegrees(ow.getYaw())))%360;
+                float oyaw = invert(360 - (MathHelper.wrapDegrees(ow.getYaw()))) % 360;
                 float speed = ow.f;
                 float fakeyaw = yaw;
                 if (speed < 0) {
@@ -69,8 +70,8 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
 
                 if (bone.getName().equals("player")) {
                     if (ow.forcedb > 0 || ow.forcedF > 0) {
-                        stack.scale(0.9375f, 0.9375f, 0.9375f);
-                        ow.bonePos = new Vec3d(bone.getPositionX()/12, bone.getPositionY()/16, bone.getPositionZ()/-12).rotateY((float) Math.toRadians(Math.abs(oyaw-90))).add(ow.getPos());
+                        stack.scale(0.9375f , 0.9375f , 0.9375f);
+                        ow.bonePos = new Vec3d(bone.getPositionX() / 12 , bone.getPositionY() / 16 , bone.getPositionZ() / -12).rotateY((float) Math.toRadians(Math.abs(oyaw - 90))).add(ow.getPos());
                     }
                 }
                 if (fakeyaw < 0) {
@@ -137,7 +138,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
     }
 
     private float invertif(float toRadians) {
-        if (!MinecraftClient.getInstance().options.getPerspective().isFirstPerson()) {
+        if ((!MinecraftClient.getInstance().options.getPerspective().isFirstPerson() && MinecraftClient.getInstance().player.getUuid().equals(player.getUuid()) || !MinecraftClient.getInstance().player.getUuid().equals(player.getUuid()))) {
             return toRadians *= -1;
         } return toRadians;
     }
@@ -147,6 +148,8 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
         stackIn.scale(0.9375f,0.9375f,0.9375f);
         if (animatable.assignedPlayer != null) {
             canRender = false;
+            player = animatable.assignedPlayer;
+            ow = (OneWheelEntity) player.getVehicle();
             if (animatable.assignedPlayer.getUuidAsString().equals(MinecraftClient.getInstance().player.getUuidAsString())) {
                 MinecraftClient player = MinecraftClient.getInstance();
                 if (!player.options.getPerspective().isFirstPerson()) {
