@@ -13,12 +13,12 @@ public class BoardAnimToClientPacket {
                     int anim = buf.readInt();
                     int anim1 = buf.readInt();
                     int id = buf.readInt();
-                    float yaw = buf.readFloat();
+                    float speed = buf.readFloat();
                     client.execute(() -> {
                         OneWheelEntity entity = (OneWheelEntity) client.world.getEntityById(id);
                         entity.playAnimation = OneWheelEntity.getAnimation(anim);
                         entity.playAnimation1 = OneWheelEntity.getAnimation(anim1);
-                        entity.fakeYawVelocity = yaw;
+                        entity.fakeSpeed = speed;
                     });
                 });
     }

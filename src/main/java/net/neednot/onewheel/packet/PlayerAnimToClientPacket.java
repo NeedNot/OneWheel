@@ -15,10 +15,14 @@ public class PlayerAnimToClientPacket {
                     int id = buf.readInt();
                     float yaw = buf.readFloat();
                     client.execute(() -> {
-                        OneWheelPlayerEntity entity = (OneWheelPlayerEntity) client.world.getEntityById(id);
-                        entity.playAnimation = OneWheelPlayerEntity.getAnimation(anim);
-                        if (entity.assignedPlayer.getVehicle() != null) {
-                            ((OneWheelEntity) entity.assignedPlayer.getVehicle()).fakeYawVelocity = yaw;
+                        if (client.world.getEntityById(id) instanceof OneWheelPlayerEntity) {
+                            OneWheelPlayerEntity entity = (OneWheelPlayerEntity) client.world.getEntityById(id);
+                            if (entity != null) {
+                                entity.playAnimation = OneWheelPlayerEntity.getAnimation(anim);
+                                if (entity.assignedPlayer.getVehicle() != null) {
+                                    ((OneWheelEntity) entity.assignedPlayer.getVehicle()).fakeYawVelocity = yaw;
+                                }
+                            }
                         }
                     });
                 });

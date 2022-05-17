@@ -14,6 +14,7 @@ public class OneWheelPlayerModel extends AnimatedGeoModel<OneWheelPlayerEntity> 
     @Override
     public Identifier getModelLocation(OneWheelPlayerEntity object)
     {
+        if (object.assignedPlayer == null) return new Identifier("player" , "geo/alex.geo.json");
         if (((AbstractClientPlayerEntity) object.assignedPlayer).getModel().equals("default")) {
             return new Identifier("player" , "geo/player.geo.json");
         }

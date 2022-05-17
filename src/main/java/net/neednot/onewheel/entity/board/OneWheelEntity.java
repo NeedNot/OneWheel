@@ -36,10 +36,7 @@ import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.neednot.onewheel.OneWheel;
 import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
-import net.neednot.onewheel.packet.BoardAnimToServerPacket;
-import net.neednot.onewheel.packet.InputPacket;
-import net.neednot.onewheel.packet.PlayerAnimToServerPacket;
-import net.neednot.onewheel.packet.SpawnFakePlayerPacket;
+import net.neednot.onewheel.packet.*;
 import net.neednot.onewheel.ui.WarningScreen;
 import net.neednot.onewheel.util.ScreenSetter;
 import org.jetbrains.annotations.Nullable;
@@ -71,6 +68,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public int forcedb;
     public float yawVelocity;
     public float fakeYawVelocity;
+    public float fakeSpeed;
     public float f = 0.0F;
     public float prevF;
     public float prevbd;
@@ -166,7 +164,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         buf.writeInt(anim);
         buf.writeInt(anim1);
         buf.writeInt(getId());
-        buf.writeFloat(yawVelocity);
+        buf.writeFloat(f);
         ClientPlayNetworking.send(BoardAnimToServerPacket.PACKET_ID, buf);
     }
 
@@ -187,9 +185,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 return PlayState.CONTINUE;
             }
         }
-        else {
-            event.getController().setAnimationSpeed(Math.abs(f*2.3f));
+        else if (playAnimation != null && !playAnimation.equals(idle)) {
+            event.getController().setAnimationSpeed(Math.abs(fakeSpeed*2.3f));
             event.getController().setAnimation(playAnimation);
+            System.out.println("spinning"+fakeSpeed);
+            return PlayState.CONTINUE;
         }
         return PlayState.STOP;
     }
@@ -206,93 +206,96 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         String name = "";
         playerTiltB = false;
         playerTiltF = false;
-        if (getControllingPassenger() != null) if (getControllingPassenger().getUuid().equals(MinecraftClient.getInstance().player.getUuid())){
-            event.getController().setAnimation(playAnimation1);
-            return PlayState.CONTINUE;
-        }
-        if (noseDivingf && !(f == 0)) {
-            event.getController().setAnimationSpeed(2.5);
-            event.getController().setAnimation(nosedivef);
-            sendAnimPacket(nosedivef);
-            return PlayState.CONTINUE;
-        }
-        if (noseDivingb && !(f == 0)) {
-            event.getController().setAnimationSpeed(2.5);
-            event.getController().setAnimation(nosediveb);
-            sendAnimPacket(nosediveb);
-            return PlayState.CONTINUE;
-        }
-
-        if (f > 0.66f) {
-            event.getController().setAnimation(pushbackf);
-            playerPushbackf = true;
-            sendAnimPacket(pushbackf);
-            return PlayState.CONTINUE;
-        }
-        if (f < -0.66f) {
-            event.getController().setAnimation(pushbackb);
-            playerPushbackb = true;
-            sendAnimPacket(pushbackb);
-            return PlayState.CONTINUE;
-        }
-
-        if (breakingf) {
-            playerBreakingF = true;
-            event.getController().setAnimation(holdf);
-            sendAnimPacket(holdf);
-            return PlayState.CONTINUE;
-        }
-        if (breakingb) {
-            playerBreakingB = true;
-            event.getController().setAnimation(holdb);
-            sendAnimPacket(holdb);
-            return PlayState.CONTINUE;
-        }
-        if (f < 0.66f && f > 0) {
-            event.getController().setAnimation(tiltf);
-            playerTiltF = true;
-            sendAnimPacket(tiltf);
-            return PlayState.CONTINUE;
-        }
-
-        if (f > -0.66f && f < 0) {
-            event.getController().setAnimation(tiltb);
-            playerTiltB = true;
-            sendAnimPacket(tiltb);
-            return PlayState.CONTINUE;
-        }
-
-        if (!this.hasPassengers()) {
-            event.getController().setAnimation(dismount);
-            sendAnimPacket(dismount);
-            return PlayState.CONTINUE;
-        }
-        if (mount) {
-            if (battery > 0) {
-                event.getController().setAnimation(mounta);
-                sendAnimPacket(mounta);
-                playerMount = true;
-                mount = false;
-                playerDeadMount = false;
+        if (this.hasPassengers() && MinecraftClient.getInstance().player.getUuid().equals(getControllingPassenger().getUuid())) {
+            if (event.getController().getCurrentAnimation() != null) name = event.getController().getCurrentAnimation().animationName;
+            if (noseDivingf && !(f == 0)) {
+                event.getController().setAnimationSpeed(2.5);
+                event.getController().setAnimation(nosedivef);
+                sendAnimPacket(nosedivef);
                 return PlayState.CONTINUE;
             }
-            playerDeadMount = true;
-        }
-        if (f == 0 && !name.contains("mount") && battery > 0) {
-            playerFlat = true;
-            event.getController().setAnimation(flat);
-            sendAnimPacket(flat);
-            return PlayState.CONTINUE;
-        }
+            if (noseDivingb && !(f == 0)) {
+                event.getController().setAnimationSpeed(2.5);
+                event.getController().setAnimation(nosediveb);
+                sendAnimPacket(nosediveb);
+                return PlayState.CONTINUE;
+            }
 
+            if (f > 0.66f) {
+                event.getController().setAnimation(pushbackf);
+                playerPushbackf = true;
+                sendAnimPacket(pushbackf);
+                return PlayState.CONTINUE;
+            }
+            if (f < -0.66f) {
+                event.getController().setAnimation(pushbackb);
+                playerPushbackb = true;
+                sendAnimPacket(pushbackb);
+                return PlayState.CONTINUE;
+            }
 
+            if (breakingf) {
+                playerBreakingF = true;
+                event.getController().setAnimation(holdf);
+                sendAnimPacket(holdf);
+                return PlayState.CONTINUE;
+            }
+            if (breakingb) {
+                playerBreakingB = true;
+                event.getController().setAnimation(holdb);
+                sendAnimPacket(holdb);
+                return PlayState.CONTINUE;
+            }
+            if (f < 0.66f && f > 0) {
+                event.getController().setAnimation(tiltf);
+                playerTiltF = true;
+                sendAnimPacket(tiltf);
+                return PlayState.CONTINUE;
+            }
+
+            if (f > -0.66f && f < 0) {
+                event.getController().setAnimation(tiltb);
+                playerTiltB = true;
+                sendAnimPacket(tiltb);
+                return PlayState.CONTINUE;
+            }
+            if (mount) {
+                if (battery > 0) {
+                    event.getController().setAnimation(mounta);
+                    playerMount = true;
+                    mount = false;
+                    playerDeadMount = false;
+                    sendAnimPacket(mounta);
+                    return PlayState.CONTINUE;
+                }
+                playerDeadMount = true;
+            }
+            if (f == 0 && !name.contains("mount") && battery > 0) {
+                playerFlat = true;
+                event.getController().setAnimation(flat);
+                sendAnimPacket(flat);
+                return PlayState.CONTINUE;
+            }
+        } else if (playAnimation1 != null) {
+            if (playAnimation1.equals(nosediveb)||playAnimation1.equals(nosedivef)) event.getController().animationSpeed = 2.5;
+            event.getController().setAnimation(playAnimation1);
+        }
         return PlayState.CONTINUE;
     }
 
     @Override
     public void tick() {
         super.tick();
-        System.out.println(getUuid());
+        if (!this.hasPassengers() && !world.isClient()) {
+            PacketByteBuf buf1 = PacketByteBufs.create();
+            buf1.writeInt(4);
+            buf1.writeInt(4);
+            buf1.writeInt(getId());
+            buf1.writeFloat(f);
+            for (ServerPlayerEntity player1 : PlayerLookup.tracking(this)) {
+                ServerPlayNetworking.send(player1, BoardAnimToClientPacket.PACKET_ID, buf1);
+            }
+        }
         setWaterProof(waterproof);
         setBattery(battery);
         if ((isSubmergedInWater() || isInLava()) && !isWaterproof() && !isWaterDamaged()) {

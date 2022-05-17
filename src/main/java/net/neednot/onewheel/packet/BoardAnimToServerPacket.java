@@ -17,18 +17,16 @@ public class BoardAnimToServerPacket {
                     int animationBuilder = buf.readInt();
                     int animationBuilder1 = buf.readInt();
                     int id = buf.readInt();
-                    float yaw = buf.readFloat();
+                    float speed = buf.readFloat();
                     minecraftServer.execute(() -> {
                         PacketByteBuf buf1 = PacketByteBufs.create();
                         buf1.writeInt(animationBuilder);
                         buf1.writeInt(animationBuilder1);
                         buf1.writeInt(id);
-                        buf1.writeFloat(1);
-                        System.out.println(yaw);
-                        //buf1.writeFloat(yaw);
+                        buf1.writeFloat(speed);
                         Entity entity = serverPlayer.getWorld().getEntityById(id);
                         for (ServerPlayerEntity player1 : PlayerLookup.tracking(entity)) {
-                            ServerPlayNetworking.send(player1, PlayerAnimToClientPacket.PACKET_ID, buf1);
+                            ServerPlayNetworking.send(player1, BoardAnimToClientPacket.PACKET_ID, buf1);
                         }
                     });
                 });

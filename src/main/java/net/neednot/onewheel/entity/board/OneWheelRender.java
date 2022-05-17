@@ -50,8 +50,13 @@ public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
     @Override
     public void renderLate(OneWheelEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
         this.yaw = animatable.yawVelocity;
-        if (animatable.getControllingPassenger() != null) if (animatable.getControllingPassenger().getUuid().equals(MinecraftClient.getInstance().player.getUuid())) yaw = animatable.fakeYawVelocity;
         this.speed = animatable.f;
+        if (animatable.getControllingPassenger() != null) {
+            if (!animatable.getControllingPassenger().getUuid().equals(MinecraftClient.getInstance().player.getUuid())) {
+                yaw = animatable.fakeYawVelocity;
+                speed = animatable.fakeSpeed;
+            }
+        }
         super.renderLate(animatable, stackIn, ticks, renderTypeBuffer, bufferIn, packedLightIn, packedOverlayIn, red,
                 green, blue, partialTicks);
     }
