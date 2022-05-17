@@ -24,6 +24,7 @@ public class BoardAnimToServerPacket {
                         buf1.writeInt(animationBuilder1);
                         buf1.writeInt(id);
                         buf1.writeFloat(1);
+                        System.out.println(yaw);
                         //buf1.writeFloat(yaw);
                         Entity entity = serverPlayer.getWorld().getEntityById(id);
                         for (ServerPlayerEntity player1 : PlayerLookup.tracking(entity)) {

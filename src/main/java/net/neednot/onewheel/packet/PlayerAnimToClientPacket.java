@@ -12,14 +12,14 @@ public class PlayerAnimToClientPacket {
         ClientPlayNetworking.registerGlobalReceiver(PACKET_ID,
                 (client, handler, buf, responseSender) -> {
                     int anim = buf.readInt();
-                    int anim1 = buf.readInt();
                     int id = buf.readInt();
                     float yaw = buf.readFloat();
                     client.execute(() -> {
-                        OneWheelEntity entity = (OneWheelEntity) client.world.getEntityById(id);
-                        entity.playAnimation = OneWheelEntity.getAnimation(anim);
-                        entity.playAnimation1 = OneWheelEntity.getAnimation(anim1);
-                        entity.fakeYawVelocity = yaw;
+                        OneWheelPlayerEntity entity = (OneWheelPlayerEntity) client.world.getEntityById(id);
+                        entity.playAnimation = OneWheelPlayerEntity.getAnimation(anim);
+                        if (entity.assignedPlayer.getVehicle() != null) {
+                            ((OneWheelEntity) entity.assignedPlayer.getVehicle()).fakeYawVelocity = yaw;
+                        }
                     });
                 });
     }
