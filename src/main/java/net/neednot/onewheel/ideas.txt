@@ -7,6 +7,7 @@ hide items and show armor
 after 1.0 release made servers work
 make turn sharper with increasing yaw velocity
 fix player skins
+add onewheel animations
 
 fix screen - done
 fix player not showing in tree - done

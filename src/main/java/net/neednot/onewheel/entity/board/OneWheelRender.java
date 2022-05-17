@@ -1,5 +1,6 @@
 package net.neednot.onewheel.entity.board;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -9,15 +10,19 @@ import net.neednot.onewheel.entity.board.OneWheelModel;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 
+import java.util.Objects;
+
 public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
     float yaw;
     float x = 0f;
     float speed;
+    OneWheelEntity ow;
     public OneWheelRender(EntityRendererFactory.Context renderManager) {
         super(renderManager, new OneWheelModel());
     }
     @Override
     public void renderRecursively(GeoBone bone, MatrixStack stack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+
         if (bone.getName().equals("onewheel")) {
             float muti;
             if (speed < 0) {
@@ -45,6 +50,7 @@ public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
     @Override
     public void renderLate(OneWheelEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
         this.yaw = animatable.yawVelocity;
+        if (animatable.getControllingPassenger() != null) if (animatable.getControllingPassenger().getUuid().equals(MinecraftClient.getInstance().player.getUuid())) yaw = animatable.fakeYawVelocity;
         this.speed = animatable.f;
         super.renderLate(animatable, stackIn, ticks, renderTypeBuffer, bufferIn, packedLightIn, packedOverlayIn, red,
                 green, blue, partialTicks);

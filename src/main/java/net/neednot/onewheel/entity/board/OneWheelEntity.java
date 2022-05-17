@@ -36,7 +36,9 @@ import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.neednot.onewheel.OneWheel;
 import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
+import net.neednot.onewheel.packet.BoardAnimToServerPacket;
 import net.neednot.onewheel.packet.InputPacket;
+import net.neednot.onewheel.packet.PlayerAnimToServerPacket;
 import net.neednot.onewheel.packet.SpawnFakePlayerPacket;
 import net.neednot.onewheel.ui.WarningScreen;
 import net.neednot.onewheel.util.ScreenSetter;
@@ -101,42 +103,93 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
     private AnimationFactory factory = new AnimationFactory(this);
 
-    public AnimationBuilder forward = new AnimationBuilder().addAnimation("animation.ow.forward" , true);
-    public AnimationBuilder backward = new AnimationBuilder().addAnimation("animation.ow.backward" , true);
-    public AnimationBuilder tiltf = new AnimationBuilder().addAnimation("animation.ow.tiltf" , false).addAnimation("animation.ow.holdb", true);
-    public AnimationBuilder tiltb = new AnimationBuilder().addAnimation("animation.ow.tiltb" , false).addAnimation("animation.ow.holdf", true);
-    public AnimationBuilder idle = new AnimationBuilder().addAnimation("animation.ow.idle" , true);
-    public AnimationBuilder mounta = new AnimationBuilder().addAnimation("animation.ow.mount" , false);
-    public AnimationBuilder flat = new AnimationBuilder().addAnimation("animation.ow.flat", true);
-    public AnimationBuilder holdf = new AnimationBuilder().addAnimation("animation.ow.holdf", true);
-    public AnimationBuilder holdb = new AnimationBuilder().addAnimation("animation.ow.holdb", true);
-    public AnimationBuilder dismount = new AnimationBuilder().addAnimation("animation.ow.dismount" , false).addAnimation("animation.ow.idle", true);
-    public AnimationBuilder pushbackf = new AnimationBuilder().addAnimation("animation.ow.pushbackf", false).addAnimation("animation.ow.holdf", true);
-    public AnimationBuilder pushbackb = new AnimationBuilder().addAnimation("animation.ow.pushbackb", false).addAnimation("animation.ow.holdb", true);
-    public AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.ow.nosedivef", true);
-    public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.ow.nosediveb", true);
+    public static AnimationBuilder forward = new AnimationBuilder().addAnimation("animation.ow.forward" , true);
+    public static AnimationBuilder backward = new AnimationBuilder().addAnimation("animation.ow.backward" , true);
+    public static AnimationBuilder tiltf = new AnimationBuilder().addAnimation("animation.ow.tiltf" , false).addAnimation("animation.ow.holdb", true);
+    public static AnimationBuilder tiltb = new AnimationBuilder().addAnimation("animation.ow.tiltb" , false).addAnimation("animation.ow.holdf", true);
+    public static AnimationBuilder idle = new AnimationBuilder().addAnimation("animation.ow.idle" , true);
+    public static AnimationBuilder mounta = new AnimationBuilder().addAnimation("animation.ow.mount" , false);
+    public static AnimationBuilder flat = new AnimationBuilder().addAnimation("animation.ow.flat", true);
+    public static AnimationBuilder holdf = new AnimationBuilder().addAnimation("animation.ow.holdf", true);
+    public static AnimationBuilder holdb = new AnimationBuilder().addAnimation("animation.ow.holdb", true);
+    public static AnimationBuilder dismount = new AnimationBuilder().addAnimation("animation.ow.dismount" , false).addAnimation("animation.ow.idle", true);
+    public static AnimationBuilder pushbackf = new AnimationBuilder().addAnimation("animation.ow.pushbackf", false).addAnimation("animation.ow.holdf", true);
+    public static AnimationBuilder pushbackb = new AnimationBuilder().addAnimation("animation.ow.pushbackb", false).addAnimation("animation.ow.holdb", true);
+    public static AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.ow.nosedivef", true);
+    public static AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.ow.nosediveb", true);
+
+    public AnimationBuilder playAnimation;
+    public AnimationBuilder playAnimation1;
+
     public Vec3d bonePos = this.getPos();
     public Random rand = new Random();
     private boolean waterdamage;
 
+    public static final Map<Integer, AnimationBuilder> getMap() {
+        Map<Integer, AnimationBuilder> map = new HashMap<>();
+        map.put(0, forward);
+        map.put(1, backward);
+        map.put(2, tiltf);
+        map.put(3, tiltb);
+        map.put(4, idle);
+        map.put(5, mounta);
+        map.put(6, flat);
+        map.put(7, holdf);
+        map.put(8, holdb);
+        map.put(9, dismount);
+        map.put(10, pushbackf);
+        map.put(11, pushbackb);
+        map.put(12, nosediveb);
+        map.put(13, nosedivef);
+        return map;
+    }
+
+    public static AnimationBuilder getAnimation(int anim) {
+        return getMap().get(anim);
+    }
+    public Integer getKey(Map<Integer, AnimationBuilder> map, AnimationBuilder value) {
+        for (Map.Entry<Integer, AnimationBuilder> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return 4;
+    }
+
+    private AnimationBuilder holder;
+
+    private void sendAnimPacket(AnimationBuilder animationBuilder1) {
+        AnimationBuilder animationBuilder = holder;
+        int anim = getKey(getMap(), animationBuilder);
+        int anim1 = getKey(getMap(), animationBuilder1);
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(anim);
+        buf.writeInt(anim1);
+        buf.writeInt(getId());
+        buf.writeFloat(yawVelocity);
+        ClientPlayNetworking.send(BoardAnimToServerPacket.PACKET_ID, buf);
+    }
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         event.getController().transitionLengthTicks = 0F;
-
-        if (this.hasPassengers()) {
+        holder = null;
+        if (this.hasPassengers() && MinecraftClient.getInstance().player.getUuid().equals(getControllingPassenger().getUuid())) {
             if (f > 0) {
                 event.getController().setAnimationSpeed(f*2.3f);
                 event.getController().setAnimation(forward);
+                holder = forward;
                 return PlayState.CONTINUE;
             }
             if (f < 0) {
                 event.getController().setAnimationSpeed(Math.abs(f*2.3f));
                 event.getController().setAnimation(backward);
+                holder = backward;
                 return PlayState.CONTINUE;
             }
         }
         else {
-            return PlayState.STOP;
+            event.getController().setAnimationSpeed(Math.abs(f*2.3f));
+            event.getController().setAnimation(playAnimation);
         }
         return PlayState.STOP;
     }
@@ -150,66 +203,74 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 //    }
 
     private <E extends IAnimatable> PlayState tilt(AnimationEvent<E> event) {
-        String name;
-        try {
-            name = event.getController().getCurrentAnimation().animationName;
-            //System.out.println("tilt "+name);
-        } catch (NullPointerException e) {
-            name = "null";
-        }
+        String name = "";
         playerTiltB = false;
         playerTiltF = false;
+        if (getControllingPassenger() != null) if (getControllingPassenger().getUuid().equals(MinecraftClient.getInstance().player.getUuid())){
+            event.getController().setAnimation(playAnimation1);
+            return PlayState.CONTINUE;
+        }
         if (noseDivingf && !(f == 0)) {
             event.getController().setAnimationSpeed(2.5);
             event.getController().setAnimation(nosedivef);
+            sendAnimPacket(nosedivef);
             return PlayState.CONTINUE;
         }
         if (noseDivingb && !(f == 0)) {
             event.getController().setAnimationSpeed(2.5);
             event.getController().setAnimation(nosediveb);
+            sendAnimPacket(nosediveb);
             return PlayState.CONTINUE;
         }
 
         if (f > 0.66f) {
             event.getController().setAnimation(pushbackf);
             playerPushbackf = true;
+            sendAnimPacket(pushbackf);
             return PlayState.CONTINUE;
         }
         if (f < -0.66f) {
             event.getController().setAnimation(pushbackb);
             playerPushbackb = true;
+            sendAnimPacket(pushbackb);
             return PlayState.CONTINUE;
         }
 
         if (breakingf) {
             playerBreakingF = true;
             event.getController().setAnimation(holdf);
+            sendAnimPacket(holdf);
             return PlayState.CONTINUE;
         }
         if (breakingb) {
             playerBreakingB = true;
             event.getController().setAnimation(holdb);
+            sendAnimPacket(holdb);
             return PlayState.CONTINUE;
         }
         if (f < 0.66f && f > 0) {
             event.getController().setAnimation(tiltf);
             playerTiltF = true;
+            sendAnimPacket(tiltf);
             return PlayState.CONTINUE;
         }
 
         if (f > -0.66f && f < 0) {
             event.getController().setAnimation(tiltb);
             playerTiltB = true;
+            sendAnimPacket(tiltb);
             return PlayState.CONTINUE;
         }
 
         if (!this.hasPassengers()) {
             event.getController().setAnimation(dismount);
+            sendAnimPacket(dismount);
             return PlayState.CONTINUE;
         }
         if (mount) {
             if (battery > 0) {
                 event.getController().setAnimation(mounta);
+                sendAnimPacket(mounta);
                 playerMount = true;
                 mount = false;
                 playerDeadMount = false;
@@ -220,6 +281,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         if (f == 0 && !name.contains("mount") && battery > 0) {
             playerFlat = true;
             event.getController().setAnimation(flat);
+            sendAnimPacket(flat);
             return PlayState.CONTINUE;
         }
 
@@ -230,6 +292,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
+        System.out.println(getUuid());
         setWaterProof(waterproof);
         setBattery(battery);
         if ((isSubmergedInWater() || isInLava()) && !isWaterproof() && !isWaterDamaged()) {

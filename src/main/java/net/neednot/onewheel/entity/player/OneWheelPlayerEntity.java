@@ -243,6 +243,12 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     }
 
     @Override
+    public boolean damage(DamageSource source, float amount) {
+        if (assignedPlayer.isCreative()) return false;
+        return true;
+    }
+
+    @Override
     public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
         if (assignedPlayer == null) {
             super.updatePositionAndAngles(x, y, z, yaw, pitch);
