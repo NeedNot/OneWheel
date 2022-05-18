@@ -20,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -81,6 +82,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float battery = 0;
     public int odds = 350;
     public float prevprevf;
+    public float prevyawv;
     public float needSpeed = 1.11f;
     public boolean waterproof;
 
@@ -208,6 +210,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         playerTiltF = false;
         if (this.hasPassengers() && MinecraftClient.getInstance().player.getUuid().equals(getControllingPassenger().getUuid())) {
             if (event.getController().getCurrentAnimation() != null) name = event.getController().getCurrentAnimation().animationName;
+            event.getController().setAnimationSpeed(1);
             if (noseDivingf && !(f == 0)) {
                 event.getController().setAnimationSpeed(2.5);
                 event.getController().setAnimation(nosedivef);
@@ -550,11 +553,15 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 ghost = false;
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
-                    this.yawVelocity -= 1.5F;
+                    this.yawVelocity -= 0.2F-prevyawv;
+                    if (yawVelocity < -2)yawVelocity = -2;
+                    if (yawVelocity > -1)yawVelocity = -1;
                 }
 
                 if (pressingRight) {
-                    this.yawVelocity += 1.5F;
+                    this.yawVelocity += 0.2F+prevyawv;
+                    if (yawVelocity > 2) yawVelocity = 2;
+                    if (yawVelocity < 1) yawVelocity = 1;
                 }
 
                 if (pressingRight != pressingLeft && !pressingForward && !pressingBack) {
@@ -655,11 +662,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                         f = 0.0f;
                     }
                     if (pressingLeft) {
-                        this.yawVelocity -= 4.5F;
+                        this.yawVelocity = -6F;
                     }
 
                     if (pressingRight) {
-                        this.yawVelocity += 4.5F;
+                        this.yawVelocity = 6F;
                     }
                     if (f == 0) {
                         noseDivingf = false;
@@ -748,6 +755,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     //}
                 //}
             }
+            prevyawv = yawVelocity;
             prevF = f;
             prevbd = bdecay;
             prevfd = fdecay;

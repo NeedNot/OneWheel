@@ -5,10 +5,13 @@ make player show in inv - failed
 
 hide items and show armor
 after 1.0 release made servers work
-make turn sharper with increasing yaw velocity
-fix player skins
-add onewheel animations
+make entities show when spawned far away
+fix players not placed in the correct spot after fall
+add 180s
 
+make turn sharper with increasing yaw velocity - done
+fix player skins - done
+add onewheel animations - done
 fix screen - done
 fix player not showing in tree - done
 fix magenta and brown not working - done

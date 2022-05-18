@@ -34,6 +34,7 @@ import java.util.List;
 public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlayerEntity> {
     float yaw = 90;
     float realyaw;
+    float prevyaw;
     boolean canRender;
     PlayerEntity player;
     OneWheelEntity ow;
@@ -63,6 +64,8 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                 if (bone.getName().equals("left_legs")) {
                     bone.setRotationZ(-0.349066f);
                 }
+
+                if (bone.getName().contains("armor")) bone.setHidden(true);
 
                 //outer layers
                 if (bone.getName().equals("headwear")) bone.setHidden(!player.isPartVisible(PlayerModelPart.HAT));
