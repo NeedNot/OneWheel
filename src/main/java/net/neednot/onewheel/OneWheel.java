@@ -45,6 +45,7 @@ public class OneWheel implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		DirectionPacket.registerPacket();
 		NoseDivePosPacket.registerPacket();
 		InputPacket.registerPacket();
 		BoardAnimToServerPacket.registerPacket();

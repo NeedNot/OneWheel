@@ -1,5 +1,7 @@
 package net.neednot.onewheel.entity.player;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
@@ -16,12 +18,14 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
+import net.neednot.onewheel.packet.DirectionPacket;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.example.client.DefaultBipedBoneIdents;
 import software.bernie.geckolib3.core.processor.IBone;
@@ -35,6 +39,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
     float yaw = 90;
     float realyaw;
     float prevyaw;
+    float prevPlayerYaw;
     boolean canRender;
     PlayerEntity player;
     OneWheelEntity ow;
@@ -87,6 +92,14 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                     if (ow.forcedb > 0 || ow.forcedF > 0) {
                         stack.scale(0.9375f , 0.9375f , 0.9375f);
                         ow.bonePos = new Vec3d(bone.getPositionX() / 12 , bone.getPositionY() / 16 , bone.getPositionZ() / -12).rotateY((float) Math.toRadians(Math.abs(oyaw - 90))).add(ow.getPos());
+                    }
+                    if (!ow.isRightFoot) bone.setRotationY((float) Math.toRadians(180));
+                    if (ow.player180) {
+                        PacketByteBuf buf = PacketByteBufs.create();
+                        buf.writeFloat(prevPlayerYaw);
+                        buf.writeFloat(bone.getRotationY());
+                        prevPlayerYaw = bone.getPositionY();
+                        ClientPlayNetworking.send(DirectionPacket.PACKET_ID, buf);
                     }
                 }
                 if (fakeyaw < 0 && (!ow.noseDivingb && !ow.noseDivingf)) {
