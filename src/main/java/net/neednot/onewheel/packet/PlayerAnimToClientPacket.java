@@ -19,7 +19,7 @@ public class PlayerAnimToClientPacket {
                             OneWheelPlayerEntity entity = (OneWheelPlayerEntity) client.world.getEntityById(id);
                             if (entity != null) {
                                 entity.playAnimation = OneWheelPlayerEntity.getAnimation(anim);
-                                if (entity.assignedPlayer.getVehicle() != null) {
+                                if (entity.assignedPlayer != null) if (entity.assignedPlayer.getVehicle() != null) {
                                     ((OneWheelEntity) entity.assignedPlayer.getVehicle()).fakeYawVelocity = yaw;
                                 }
                             }

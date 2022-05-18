@@ -22,6 +22,7 @@ import net.minecraft.util.Arm;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
+import net.neednot.onewheel.packet.InputPacket;
 import net.neednot.onewheel.packet.PlayerAnimToServerPacket;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -165,7 +166,12 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                     sendAnimPacket(flat);
                     return PlayState.CONTINUE;
                 }
-                sendAnimPacket(null);
+                if (age > 50) {
+                    sendAnimPacket(flat);
+                }
+                else {
+                    sendAnimPacket(null);
+                }
             }
         }
         else if (playAnimation != null) {
@@ -194,6 +200,10 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         if (assignedPlayer != null) {
             if (!assignedPlayer.hasVehicle()) {
                 fails += 1;
+                if (fails == 1) {
+                    PacketByteBuf buf = PacketByteBufs.create();
+                    buf.writeInt(getId());
+                }
                 if (fails > 2) {
                     System.out.println("discarding");
                     this.discard();
@@ -231,7 +241,11 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         } else {
             fails += 1;
             System.out.println(fails);
-            if (fails > 2) this.discard();
+            if (fails > 5) this.discard();
+            if (fails == 1) {
+                setAssignedPlayer();
+                playAnimation = flat;
+            }
         }
     }
 

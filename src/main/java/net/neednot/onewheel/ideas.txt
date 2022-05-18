@@ -5,9 +5,9 @@ make player show in inv - failed
 
 hide items and show armor
 after 1.0 release made servers work
-make entities show when spawned far away
 add 180s
 
+make entities show when spawned far away - done
 fix players not placed in the correct spot after fall on server - done
 make turn sharper with increasing yaw velocity - done
 fix player skins - done
