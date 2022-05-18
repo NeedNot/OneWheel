@@ -51,7 +51,6 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
     public static AnimationBuilder breakingF = new AnimationBuilder().addAnimation("animation.player.breakf", false);
     public static AnimationBuilder breakingB = new AnimationBuilder().addAnimation("animation.player.breakb", false);
     public static AnimationBuilder deadmount = new AnimationBuilder().addAnimation("animation.player.deadmount", true);
-    public static AnimationBuilder halfspin = new AnimationBuilder().addAnimation("animation.player.180", false);
 
     private int fails;
 
@@ -61,7 +60,6 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
 
     public AnimationBuilder playAnimation;
     private Iterable<ItemStack> prevArmor;
-    private int halfspinTicks;
 
     public static final Map<Integer, AnimationBuilder> getMap() {
         Map<Integer, AnimationBuilder> map = new HashMap<>();
@@ -76,7 +74,6 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         map.put(8, breakingF);
         map.put(9, breakingB);
         map.put(10, deadmount);
-        map.put(11, halfspin);
         return map;
     }
 
@@ -103,47 +100,9 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         if (assignedPlayer == null) return PlayState.STOP;
-
-        AnimationBuilder tiltfr = tiltf;
-        AnimationBuilder tiltbr = tiltb;
-        AnimationBuilder pushbackfr = pushbackf;
-        AnimationBuilder pushbackbr = pushbackb;
-        AnimationBuilder breakingFr = breakingF;
-        AnimationBuilder breakingBr = breakingB;
-        boolean pressingLeft;
-        boolean pressingRight;
-        if (!(assignedPlayer.getVehicle() instanceof OneWheelEntity)) return PlayState.STOP;
-        OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
-        pressingLeft = ow.pressingLeft;
-        pressingRight = ow.pressingRight;
-//        if (!ow.isRightFoot) {
-//            pressingLeft = ow.pressingRight;
-//            pressingRight = ow.pressingLeft;
-//            tiltfr = tiltb;
-//            tiltbr = tiltf;
-//            pushbackfr = pushbackb;
-//            pushbackbr = pushbackf;
-//            breakingFr = breakingB;
-//            breakingBr = breakingF;
-//        }
-
         if (assignedPlayer.hasVehicle() && assignedPlayer.getUuidAsString().equals(MinecraftClient.getInstance().player.getUuidAsString())) {
             if (assignedPlayer.getVehicle() instanceof OneWheelEntity) {
-                event.getController().transitionLengthTicks = 0;
-                if (ow.player180 && !pressingLeft && !pressingRight) {
-                    event.getController().transitionLengthTicks = 10;
-                    event.getController().setAnimation(halfspin);
-                    halfspinTicks += 1;
-                    System.out.println(halfspinTicks);
-                    if (halfspinTicks > 200) {
-                        ow.player180 = false; halfspinTicks = 0;
-                        ow.isRightFoot = !ow.isRightFoot;
-                        event.getController().setAnimation(flat);
-                    }
-                    else {
-                        return PlayState.CONTINUE;
-                    }
-                }
+                OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
                 if (ow.forcedF > 10) {
                     event.getController().animationSpeed = 4;
                     event.getController().setAnimation(nosedivef);
@@ -168,37 +127,37 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerTiltF) {
-                    event.getController().setAnimation(tiltfr);
-                    sendAnimPacket(tiltfr);
+                    event.getController().setAnimation(tiltf);
+                    sendAnimPacket(tiltf);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerTiltB) {
-                    event.getController().setAnimation(tiltbr);
-                    sendAnimPacket(tiltbr);
+                    event.getController().setAnimation(tiltb);
+                    sendAnimPacket(tiltb);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerBreakingF) {
                     ow.playerBreakingF = false;
-                    event.getController().setAnimation(breakingFr);
-                    sendAnimPacket(breakingFr);
+                    event.getController().setAnimation(breakingF);
+                    sendAnimPacket(breakingF);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerBreakingB) {
                     ow.playerBreakingB = false;
-                    event.getController().setAnimation(breakingBr);
-                    sendAnimPacket(breakingBr);
+                    event.getController().setAnimation(breakingB);
+                    sendAnimPacket(breakingB);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerPushbackf) {
                     ow.playerPushbackf = false;
-                    event.getController().setAnimation(pushbackfr);
-                    sendAnimPacket(pushbackfr);
+                    event.getController().setAnimation(pushbackf);
+                    sendAnimPacket(pushbackf);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerPushbackb) {
                     ow.playerPushbackb = false;
-                    event.getController().setAnimation(pushbackbr);
-                    sendAnimPacket(pushbackbr);
+                    event.getController().setAnimation(pushbackb);
+                    sendAnimPacket(pushbackb);
                     return PlayState.CONTINUE;
                 }
                 if (ow.playerFlat) {

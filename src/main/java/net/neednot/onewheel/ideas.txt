@@ -4,8 +4,7 @@ fender - on hold
 make player show in inv - failed
 
 hide items and show armor
-after 1.0 release make servers work
-switch foot
+after 1.0 release made servers work
 add 180s
 
 make entities show when spawned far away - done

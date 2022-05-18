@@ -95,10 +95,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public boolean playerBreakingF;
     public boolean playerBreakingB;
     public boolean playerDeadMount;
-    public boolean player180;
-
-    public float spin;
-    public boolean isRightFoot;
 
     private static final TrackedData<String> nbtcolor = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.STRING);
     private static final TrackedData<Float> nbtbattery = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.FLOAT);
@@ -128,7 +124,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public Vec3d bonePos = this.getPos();
     public Random rand = new Random();
     private boolean waterdamage;
-    public boolean pressingSpace;
 
     public static final Map<Integer, AnimationBuilder> getMap() {
         Map<Integer, AnimationBuilder> map = new HashMap<>();
@@ -539,18 +534,16 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             if (this.hasPassengers()) {
                 Entity livingEntity = this.getControllingPassenger();
                 if (forcedb == 25 || forcedF == 25 && playerShouldDie(livingEntity)) {
-                    livingEntity.damage(CrashDamageSource.CRASH, 10);
+                    livingEntity.damage(CrashDamageSource.CRASH, 20);
                 }
                 if (world.isClient() && this.getControllingPassenger().isPlayer()) {
                     ClientPlayerEntity player = MinecraftClient.getInstance().player;
                     if (player.getUuidAsString().equals(this.getControllingPassenger().getUuidAsString())) {
                         pressingForward = player.input.pressingForward && battery > 0;
                         pressingBack = player.input.pressingBack && battery > 0;
-                        pressingLeft = player.input.pressingLeft && battery > 0 && !player180;
-                        pressingRight = player.input.pressingRight && battery > 0 && !player180;
+                        pressingLeft = player.input.pressingLeft && battery > 0;
+                        pressingRight = player.input.pressingRight && battery > 0;
                         pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed();
-                        pressingSpace = MinecraftClient.getInstance().options.jumpKey.isPressed();
-                        if (pressingSpace) player180 = true;
 
                         PacketByteBuf buf = PacketByteBufs.create();
 
@@ -895,12 +888,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public void setPlayerYaw(Entity entity) {
         entity.setBodyYaw(this.getYaw());
         float f = MathHelper.wrapDegrees(entity.getYaw() - this.getYaw()+90);
-        float g = MathHelper.clamp(f , -90 , 90F);
+        float g = MathHelper.clamp(f, -90, 90F);
         entity.prevYaw += g - f;
         entity.setYaw(entity.getYaw() + g - f);
         entity.setHeadYaw(entity.getYaw());
 
-        spin = 0;
     }
 
     @Override
