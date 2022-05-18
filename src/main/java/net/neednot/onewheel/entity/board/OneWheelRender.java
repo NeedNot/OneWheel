@@ -39,7 +39,6 @@ public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
         if (bone.getName().equals("wheel")) {
             if (this.yaw == 6.0f) {
                 bone.setRotationX(x += 0.01f);
-                System.out.println(bone.getRotationX());
             }
             if (this.yaw == -6.0f) {
                 bone.setRotationX(x -= 0.01f);

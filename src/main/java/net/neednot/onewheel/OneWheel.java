@@ -16,10 +16,7 @@ import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
 import net.neednot.onewheel.item.ItemRegister;
 import net.neednot.onewheel.item.OneWheelItem;
-import net.neednot.onewheel.packet.BoardAnimToServerPacket;
-import net.neednot.onewheel.packet.FallPacket;
-import net.neednot.onewheel.packet.InputPacket;
-import net.neednot.onewheel.packet.PlayerAnimToServerPacket;
+import net.neednot.onewheel.packet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +45,7 @@ public class OneWheel implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		NoseDivePosPacket.registerPacket();
 		InputPacket.registerPacket();
 		BoardAnimToServerPacket.registerPacket();
 		PlayerAnimToServerPacket.registerPacket();

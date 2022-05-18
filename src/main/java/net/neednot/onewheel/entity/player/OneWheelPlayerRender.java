@@ -48,7 +48,6 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                 if (bone.getName().equals("heads")) {
                     float yaw = MathHelper.wrapDegrees(player.getYaw() - ow.getYaw() + 90);
                     yaw = MathHelper.clamp(yaw , -90 , 90);
-                    System.out.println(yaw);
                     bone.setRotationY(invert((float) Math.toRadians((double) yaw)));
                     bone.setRotationX(invertif((float) Math.toRadians((double) player.getPitch())));
                 }
@@ -90,7 +89,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                         ow.bonePos = new Vec3d(bone.getPositionX() / 12 , bone.getPositionY() / 16 , bone.getPositionZ() / -12).rotateY((float) Math.toRadians(Math.abs(oyaw - 90))).add(ow.getPos());
                     }
                 }
-                if (fakeyaw < 0) {
+                if (fakeyaw < 0 && (!ow.noseDivingb && !ow.noseDivingf)) {
                     if (bone.getName().equals("player")) {
                         bone.setPositionZ(-3);
                         bone.setPositionY(-1f);
@@ -105,7 +104,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                         bone.setRotationX(invert(0.436332f));
                     }
                 }
-                if (fakeyaw > 0) {
+                if (fakeyaw > 0 && (!ow.noseDivingb && !ow.noseDivingf)) {
                     if (bone.getName().equals("player")) {
 
                         float muti = 0;

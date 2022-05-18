@@ -190,7 +190,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         else if (playAnimation != null && !playAnimation.equals(idle)) {
             event.getController().setAnimationSpeed(Math.abs(fakeSpeed*2.3f));
             event.getController().setAnimation(playAnimation);
-            System.out.println("spinning"+fakeSpeed);
             return PlayState.CONTINUE;
         }
         return PlayState.STOP;
@@ -289,6 +288,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
+        if ((noseDivingf || noseDivingb) && world.isClient()) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            Vec3d pos = getControllingPassenger().getPos();
+            buf.writeDouble(pos.x);
+            buf.writeDouble(pos.y);
+            buf.writeDouble(pos.z);
+            ClientPlayNetworking.send(NoseDivePosPacket.PACKET_ID, buf);
+        }
         if (!this.hasPassengers() && !world.isClient()) {
             PacketByteBuf buf1 = PacketByteBufs.create();
             buf1.writeInt(4);
@@ -465,7 +472,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             if (!world.isClient) {
                 ServerWorld serverWorld = (ServerWorld) world;
                 PacketByteBuf buf = PacketByteBufs.create();
-                System.out.println("getbat"+getBattery());
                 buf.writeFloat(getBattery());
                 buf.writeBoolean(isWaterproof());
                 if (isWaterDamaged()) {
