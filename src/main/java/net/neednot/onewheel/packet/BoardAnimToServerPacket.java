@@ -25,8 +25,10 @@ public class BoardAnimToServerPacket {
                         buf1.writeInt(id);
                         buf1.writeFloat(speed);
                         Entity entity = serverPlayer.getWorld().getEntityById(id);
-                        for (ServerPlayerEntity player1 : PlayerLookup.tracking(entity)) {
-                            ServerPlayNetworking.send(player1, BoardAnimToClientPacket.PACKET_ID, buf1);
+                        if (entity != null) {
+                            for (ServerPlayerEntity player1 : PlayerLookup.tracking(entity)) {
+                                ServerPlayNetworking.send(player1 , BoardAnimToClientPacket.PACKET_ID , buf1);
+                            }
                         }
                     });
                 });

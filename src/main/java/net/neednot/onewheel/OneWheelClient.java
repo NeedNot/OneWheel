@@ -1,10 +1,13 @@
 package net.neednot.onewheel;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.board.OneWheelRender;
 import net.neednot.onewheel.entity.player.OneWheelPlayerRender;

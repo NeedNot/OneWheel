@@ -33,13 +33,16 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.RaycastContext;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.neednot.onewheel.OneWheel;
 import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
 import net.neednot.onewheel.packet.*;
 import net.neednot.onewheel.ui.WarningScreen;
 import net.neednot.onewheel.util.ScreenSetter;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -472,6 +475,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             if (!world.isClient) {
                 ServerWorld serverWorld = (ServerWorld) world;
                 PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeInt(getId());
                 buf.writeFloat(getBattery());
                 buf.writeBoolean(isWaterproof());
                 if (isWaterDamaged()) {
@@ -497,6 +501,40 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         }
 
         return super.interactMob(player, hand);
+    }
+
+    public void reloadPlayer(ServerWorld world, OneWheelEntity entity) {
+        if (!world.isClient && entity.hasPassengers()) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeInt(entity.getId());
+            buf.writeFloat(getBattery());
+            buf.writeBoolean(isWaterproof());
+
+            setBattery(getBattery());
+            System.out.println(getBattery());
+            setWaterProof(isWaterproof());
+            setWaterDamage(isWaterDamaged());
+
+            if (isWaterDamaged()) {
+                buf.writeInt(1);
+            }
+            else {
+                buf.writeInt(0);
+            }
+            ServerPlayerEntity player = (ServerPlayerEntity) getControllingPassenger();
+            ServerPlayNetworking.send(player, OneWheel.BATTERY , buf);
+            OneWheelPlayerEntity ow = (OneWheelPlayerEntity) OneWheel.OWPE.spawnFromItemStack(world, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
+            ow.setPosition(getControllingPassenger().getPos());
+            ow.setSyncedplayer(getControllingPassenger().getUuidAsString());
+
+            PacketByteBuf buf1 = PacketByteBufs.create();
+            buf1.writeString(getControllingPassenger().getUuidAsString());
+            buf1.writeInt(ow.getId());
+            System.out.println("id is "+ow.getId());
+            for (ServerPlayerEntity player1 : PlayerLookup.tracking((Entity) this)) {
+                ServerPlayNetworking.send(player1, OneWheel.FAKE_PLAYER_PACKET, buf1);
+            }
+        }
     }
 
     @Override
