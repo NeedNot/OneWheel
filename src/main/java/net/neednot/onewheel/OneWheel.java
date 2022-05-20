@@ -5,27 +5,39 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
+import net.minecraft.block.Block;
+import net.minecraft.block.Material;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.ServerTask;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.thread.TaskExecutor;
+import net.neednot.onewheel.block.WorkBench;
+import net.neednot.onewheel.block.WorkBenchEntity;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
 import net.neednot.onewheel.item.FenderItem;
 import net.neednot.onewheel.item.ItemRegister;
 import net.neednot.onewheel.item.OneWheelItem;
 import net.neednot.onewheel.packet.*;
+import net.neednot.onewheel.ui.WorkBenchScreenHandler;
 import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -42,9 +54,18 @@ public class OneWheel implements ModInitializer {
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger("onewheel");
+
+	public static final Block WORKBENCH = new WorkBench(FabricBlockSettings.of(Material.METAL).strength(4.0f));
+
+	public static final Identifier BENCH = new Identifier("onewheel", "workbench");
+
+	public static BlockEntityType<WorkBenchEntity> WORK_BENCH_ENTITY;
+
 	public static Identifier PACKET_ID = new Identifier("onewheel", "player_fall_packet");
 	public static Identifier BATTERY = new Identifier("onewheel", "onewheel_battery_packet");
 	public static Identifier FAKE_PLAYER_PACKET = new Identifier("onewheel", "fake_player_spawn_packet");
+
+	public static ScreenHandlerType<WorkBenchScreenHandler> WORK_BENCH_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(BENCH, WorkBenchScreenHandler::new);
 
 	public static final EntityType<OneWheelEntity> OW = Registry.register(
 			Registry.ENTITY_TYPE,
@@ -91,6 +112,9 @@ public class OneWheel implements ModInitializer {
 		InputPacket.registerPacket();
 		BoardAnimToServerPacket.registerPacket();
 		PlayerAnimToServerPacket.registerPacket();
+		WORK_BENCH_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, BENCH, FabricBlockEntityTypeBuilder.create(WorkBenchEntity::new, WORKBENCH).build(null));
+		Registry.register(Registry.BLOCK, new Identifier("onewheel", "workbench"), WORKBENCH);
+		Registry.register(Registry.ITEM, new Identifier("onewheel", "workbench"), new BlockItem(WORKBENCH, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
 		FabricDefaultAttributeRegistry.register(OW, OneWheelEntity.createMobAttributes());
 		Registry.register(Registry.ITEM, new Identifier("onewheel", "onewheel"), oneWheel);
 		Registry.register(Registry.ITEM, new Identifier("onewheel", "fender"), fender);
