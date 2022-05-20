@@ -111,7 +111,7 @@ public class OneWheelItem extends Item {
             color = Formatting.GREEN;
         }
         // formatted red text
-        tooltip.add( new TranslatableText("item.onewheel.battery").append(" "+String.valueOf(percent)+"%").formatted(color));
+        tooltip.add( new TranslatableText("item.onewheel.batterytip").append(" "+String.valueOf(percent)+"%").formatted(color));
     }
 
     @Override

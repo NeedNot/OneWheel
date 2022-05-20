@@ -26,16 +26,10 @@ public class WorkBenchScreenHandler extends ScreenHandler {
     private final Inventory inventory;
     private Map<Integer, Item> map() {
         Map<Integer, Item> map = new HashMap<>();
-        map.put(0, Items.STICK);
-        map.put(1, Items.APPLE);
-        map.put(2, Items.APPLE);
-        map.put(3, Items.APPLE);
-        map.put(4, Items.APPLE);
-        map.put(5, Items.APPLE);
-        map.put(6, Items.APPLE);
-        map.put(7, Items.APPLE);
-        map.put(8, Items.APPLE);
-        map.put(9, OneWheel.oneWheel.asItem());
+        map.put(0, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+        map.put(1, OneWheel.deck.asItem());
+        map.put(2, OneWheel.battery.asItem());
+        map.put(3, OneWheel.wheel.asItem());
         return map;
     }
     Inventory output;
@@ -44,14 +38,14 @@ public class WorkBenchScreenHandler extends ScreenHandler {
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
     //sync this empty inventory with the inventory on the server.
     public WorkBenchScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(10));
+        this(syncId, playerInventory, new SimpleInventory(5));
     }
 
     //This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
     //and can therefore directly provide it as an argument. This inventory will then be synced to the client.
     public WorkBenchScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
         super(OneWheel.WORK_BENCH_SCREEN_HANDLER, syncId);
-        checkSize(inventory, 10);
+        checkSize(inventory, 5);
         this.inventory = inventory;
         //this.output = new CraftingResultInventory();
 
@@ -64,7 +58,7 @@ public class WorkBenchScreenHandler extends ScreenHandler {
             @Override
             public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack) {
                 if (!inventory.getStack(0).isEmpty()) {
-                    output.setStack(9, new ItemStack(OneWheel.oneWheel.asItem()));
+                    inventory.setStack(4, new ItemStack(OneWheel.oneWheel.asItem()));
                 }
             }
 
@@ -75,16 +69,21 @@ public class WorkBenchScreenHandler extends ScreenHandler {
         });
         int i;
         int j;
-        for(i = 0; i < 3; ++i) {
+        for(i = 0; i < 1; ++i) {
             for(j = 0; j < 3; ++j) {
                 final int index = j+i*3;
-                this.addSlot(new Slot(inventory, j + i * 3, 30 + j * 18, 17 + i * 18) {
+                this.addSlot(new Slot(inventory, j + i * 3, 30 + j * 18, 35 + i * 18) {
                     public boolean canInsert(ItemStack stack) {
                         return stack.isOf(map().get(index));
                     }
                 });
             }
         }
+        this.addSlot(new Slot(inventory, 3, 30 + 1 * 18, 35 + 1 * 18){
+            public boolean canInsert(ItemStack stack) {
+                return stack.isOf(map().get(3));
+            }
+        });
 
         for(i = 0; i < 3; ++i) {
             for(j = 0; j < 9; ++j) {
@@ -96,7 +95,7 @@ public class WorkBenchScreenHandler extends ScreenHandler {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
         }
 
-        this.addSlot(new Slot(inventory, 9, 124, 35){
+        this.addSlot(new Slot(inventory, 4, 124, 35){
             public boolean canInsert(ItemStack stack) {
                 return stack.isOf(OneWheel.oneWheel.asItem());
             }

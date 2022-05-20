@@ -19,7 +19,7 @@ import net.neednot.onewheel.ui.ImplementedInventory;
 import net.neednot.onewheel.ui.WorkBenchScreenHandler;
 
 public class WorkBenchEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory {
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(10, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(5, ItemStack.EMPTY);
     public WorkBenchEntity(BlockPos pos, BlockState state) {
         super(OneWheel.WORK_BENCH_ENTITY, pos, state);
     }

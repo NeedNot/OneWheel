@@ -33,9 +33,7 @@ import net.neednot.onewheel.block.WorkBench;
 import net.neednot.onewheel.block.WorkBenchEntity;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
-import net.neednot.onewheel.item.FenderItem;
-import net.neednot.onewheel.item.ItemRegister;
-import net.neednot.onewheel.item.OneWheelItem;
+import net.neednot.onewheel.item.*;
 import net.neednot.onewheel.packet.*;
 import net.neednot.onewheel.ui.WorkBenchScreenHandler;
 import org.apache.logging.log4j.core.jmx.Server;
@@ -80,6 +78,9 @@ public class OneWheel implements ModInitializer {
 
 	public static final OneWheelItem oneWheel = new OneWheelItem(new Item.Settings().group(ItemGroup.TRANSPORTATION).maxCount(1));
 	public static final FenderItem fender = new FenderItem(new Item.Settings().group(ItemGroup.TRANSPORTATION).maxCount(1));
+	public static final BatteryItem battery = new BatteryItem(new Item.Settings().group(ItemGroup.TRANSPORTATION).maxCount(64));
+	public static final DeckItem deck = new DeckItem(new Item.Settings().group(ItemGroup.TRANSPORTATION).maxCount(1));
+	public static final WheelItem wheel = new WheelItem(new Item.Settings().group(ItemGroup.TRANSPORTATION).maxCount(1));
 
 	public Map<Entity, Integer> entity = new HashMap<>();
 	public int ticks;
@@ -118,6 +119,9 @@ public class OneWheel implements ModInitializer {
 		FabricDefaultAttributeRegistry.register(OW, OneWheelEntity.createMobAttributes());
 		Registry.register(Registry.ITEM, new Identifier("onewheel", "onewheel"), oneWheel);
 		Registry.register(Registry.ITEM, new Identifier("onewheel", "fender"), fender);
+		Registry.register(Registry.ITEM, new Identifier("onewheel", "battery"), battery);
+		Registry.register(Registry.ITEM, new Identifier("onewheel", "deck"), deck);
+		Registry.register(Registry.ITEM, new Identifier("onewheel", "wheel"), wheel);
 		FabricDefaultAttributeRegistry.register(OWPE, OneWheelPlayerEntity.createMobAttributes());
 	}
 }
