@@ -22,7 +22,6 @@ public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
     }
     @Override
     public void renderRecursively(GeoBone bone, MatrixStack stack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-
         if (bone.getName().equals("onewheel")) {
             float muti;
             if (speed < 0) {
@@ -35,6 +34,9 @@ public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
                 muti = 0.15f;
             }
             bone.setRotationZ(invert(this.yaw*muti));
+        }
+        if (ow != null) if (bone.getName().contains("fender")) {
+            bone.setHidden(!ow.hasFender());
         }
         if (bone.getName().equals("wheel")) {
             if (this.yaw == 6.0f) {
@@ -50,6 +52,7 @@ public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
     public void renderLate(OneWheelEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
         this.yaw = animatable.yawVelocity;
         this.speed = animatable.f;
+        ow = animatable;
         if (animatable.getControllingPassenger() != null) {
             if (!animatable.getControllingPassenger().getUuid().equals(MinecraftClient.getInstance().player.getUuid())) {
                 yaw = animatable.fakeYawVelocity;

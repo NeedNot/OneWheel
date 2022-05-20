@@ -3,6 +3,7 @@ package net.neednot.onewheel.item;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SpawnReason;
@@ -91,6 +92,9 @@ public class OneWheelItem extends Item {
                 tooltip.add(new TranslatableText("item.onewheel.color").append(" "+stack.getOrCreateNbt().getString("color")).formatted(color));
             }
         }
+        if (stack.getOrCreateNbt().getBoolean("fender")) {
+            tooltip.add(new TranslatableText("item.onewheel.hasfender").formatted(Formatting.GREEN));
+        }
         if (stack.getOrCreateNbt().getBoolean("waterdamage")) {
             tooltip.add(new TranslatableText("item.onewheel.damaged").formatted(Formatting.RED));
         }
@@ -120,6 +124,7 @@ public class OneWheelItem extends Item {
             ow.setBattery(32186.88f-(context.getPlayer().getStackInHand(context.getHand()).getOrCreateNbt().getFloat("battery")));
             ow.setWaterProof(context.getPlayer().getStackInHand(context.getHand()).getOrCreateNbt().getBoolean("waterproof"));
             ow.setWaterDamage(context.getPlayer().getStackInHand(context.getHand()).getOrCreateNbt().getBoolean("waterdamage"));
+            ow.setFender(context.getPlayer().getStackInHand(context.getHand()).getOrCreateNbt().getBoolean("fender"));
             context.getPlayer().getStackInHand(context.getHand()).setCount(0);
         }
         return ActionResult.SUCCESS;

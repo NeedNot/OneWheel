@@ -10,5 +10,7 @@
   "onewheel.warning.water.reason": "your Onewheel+ XR due to liquid.",
   "onewheel.warning.water.fix": "There is no fix to this issue, we recommend next time liquid proofing your Onewheel+ XR with honeycomb.",
   "onewheel.warning.water.warranty": "This damage is not covered by the warranty!",
-  "death.attack.crash": "%s fell of their Onewheel going too fast!"
+  "death.attack.crash": "%s fell of their Onewheel going too fast!",
+  "item.onewheel.fender": "Fender",
+  "item.onewheel.hasfender": "Fender"
 }

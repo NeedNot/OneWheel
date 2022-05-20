@@ -22,6 +22,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.thread.TaskExecutor;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
+import net.neednot.onewheel.item.FenderItem;
 import net.neednot.onewheel.item.ItemRegister;
 import net.neednot.onewheel.item.OneWheelItem;
 import net.neednot.onewheel.packet.*;
@@ -57,6 +58,7 @@ public class OneWheel implements ModInitializer {
 	);
 
 	public static final OneWheelItem oneWheel = new OneWheelItem(new Item.Settings().group(ItemGroup.TRANSPORTATION).maxCount(1));
+	public static final FenderItem fender = new FenderItem(new Item.Settings().group(ItemGroup.TRANSPORTATION).maxCount(1));
 
 	public Map<Entity, Integer> entity = new HashMap<>();
 	public int ticks;
@@ -91,6 +93,7 @@ public class OneWheel implements ModInitializer {
 		PlayerAnimToServerPacket.registerPacket();
 		FabricDefaultAttributeRegistry.register(OW, OneWheelEntity.createMobAttributes());
 		Registry.register(Registry.ITEM, new Identifier("onewheel", "onewheel"), oneWheel);
+		Registry.register(Registry.ITEM, new Identifier("onewheel", "fender"), fender);
 		FabricDefaultAttributeRegistry.register(OWPE, OneWheelPlayerEntity.createMobAttributes());
 	}
 }
