@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 
 public class WorkBenchScreen extends HandledScreen<WorkBenchScreenHandler> {
     //A path to the gui texture. In this example we use the texture from the dispenser
-    private static final Identifier TEXTURE = new Identifier("minecraft", "textures/gui/container/crafting_table.png");
+    private static final Identifier TEXTURE = new Identifier("onewheel", "textures/ui/workbench.png");
 
     public WorkBenchScreen(WorkBenchScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
