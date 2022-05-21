@@ -1,6 +1,7 @@
 package net.neednot.onewheel.ui;
 
 import net.minecraft.block.ChestBlock;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,18 +13,24 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.ShieldItem;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.CraftingResultSlot;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.neednot.onewheel.OneWheel;
+import net.neednot.onewheel.block.WorkBench;
+import net.neednot.onewheel.block.WorkBenchEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class WorkBenchScreenHandler extends ScreenHandler {
     private final Inventory inventory;
+
     private Map<Integer, Item> map() {
         Map<Integer, Item> map = new HashMap<>();
         map.put(0, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
@@ -33,7 +40,9 @@ public class WorkBenchScreenHandler extends ScreenHandler {
         return map;
     }
     Inventory output;
-    boolean placed;
+    public WorkBenchEntity workBenchEntity;
+    private BlockPos pos;
+    private boolean placed;
 
     //This constructor gets called on the client when the server wants it to open the screenHandler,
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
@@ -41,7 +50,6 @@ public class WorkBenchScreenHandler extends ScreenHandler {
     public WorkBenchScreenHandler(int syncId, PlayerInventory playerInventory) {
         this(syncId, playerInventory, new SimpleInventory(5));
     }
-
     //This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
     //and can therefore directly provide it as an argument. This inventory will then be synced to the client.
     public WorkBenchScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
@@ -52,7 +60,6 @@ public class WorkBenchScreenHandler extends ScreenHandler {
 
         //some inventories do custom logic when a player opens it.
         inventory.onOpen(playerInventory.player);
-
         //This will place the slot in the correct locations for a 3x3 Grid. The slots exist on both server and client!
         //This will not render the background of the slots however, this is the Screens job
         this.addListener(new ScreenHandlerListener() {
@@ -60,20 +67,28 @@ public class WorkBenchScreenHandler extends ScreenHandler {
             public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack) {
                 if (slotId == 40) {
                     if (!stack.isOf(Items.AIR) && isEmpty()) {
-                        for (int i = 0; i > 4; i++) {
-                            inventory.setStack(i, new ItemStack(map().get(i), inventory.getStack(i).getCount()+1));
+                        for (int i = 0; i < 4; i++) {
+                            inventory.setStack(i, new ItemStack(map().get(i).asItem()));
+                            //inventory.setStack(i, new ItemStack(map().get(i), inventory.getStack(i).getCount()+1));
+                            placed = true;
                         }
-                    } else {
-                        for (int i = 0; i > 4; i++) {
-                            inventory.setStack(i, new ItemStack(map().get(i), inventory.getStack(i).getCount()-1));
+                    } else if (placed) {
+                        for (int i = 0; i < 4; i++) {
+                            ItemStack item = inventory.getStack(i);
+                            item.decrement(1);
+                            inventory.setStack(i, item);
+                            placed = false;
                         }
                     }
                     return;
                 }
-                if (isComplete()) {
-                    inventory.setStack(4, new ItemStack(OneWheel.oneWheel.asItem()));
-                } else {
-                    inventory.setStack(4, ItemStack.EMPTY);
+                if (slotId < 4) {
+                    if (isComplete()) {
+                        inventory.setStack(4, new ItemStack(OneWheel.oneWheel.asItem()));
+                        placed = false;
+                    } else {
+                        inventory.setStack(4, ItemStack.EMPTY);
+                    }
                 }
             }
 
@@ -89,14 +104,14 @@ public class WorkBenchScreenHandler extends ScreenHandler {
                 final int index = j+i*3;
                 this.addSlot(new Slot(inventory, j + i * 3, 30 + j * 18, 35 + i * 18) {
                     public boolean canInsert(ItemStack stack) {
-                        return stack.isOf(map().get(index));
+                        return stack.isOf(map().get(index)) && inventory.getStack(4).isOf(Items.AIR);
                     }
                 });
             }
         }
         this.addSlot(new Slot(inventory, 3, 30 + 1 * 18, 35 + 1 * 18){
             public boolean canInsert(ItemStack stack) {
-                return stack.isOf(map().get(3));
+                return stack.isOf(map().get(3)) && inventory.getStack(4).isOf(Items.AIR);
             }
         });
 
@@ -112,7 +127,16 @@ public class WorkBenchScreenHandler extends ScreenHandler {
 
         this.addSlot(new Slot(inventory, 4, 124, 35){
             public boolean canInsert(ItemStack stack) {
-                return stack.isOf(OneWheel.oneWheel.asItem());
+                return stack.isOf(OneWheel.oneWheel.asItem()) && isEmpty();
+            }
+            public void onTakeItem(PlayerEntity player, ItemStack stack) {
+                for (int i = 0; i < 4; i++) {
+                    ItemStack item = inventory.getStack(i);
+                    item.decrement(1);
+                    inventory.setStack(i, item);
+                    placed = false;
+                }
+                super.onTakeItem(player, stack);
             }
         });
 
@@ -127,14 +151,15 @@ public class WorkBenchScreenHandler extends ScreenHandler {
 
     private boolean isEmpty() {
         for (int i = 0; i < 4; i++) {
-            if (!inventory.getStack(i).isOf(Items.AIR)) return true;
+            if (!inventory.getStack(i).isOf(Items.AIR)) return false;
         }
-        return false;
+        return true;
     }
 
 
     @Override
     public boolean canUse(PlayerEntity player) {
+        //workBenchEntity = (WorkBenchEntity) player.getWorld().getBlockEntity(pos);
         return this.inventory.canPlayerUse(player);
     }
 

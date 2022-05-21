@@ -5,6 +5,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.screen.*;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
@@ -53,6 +55,14 @@ public class WorkBench extends BlockWithEntity {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof WorkBenchEntity) {
+//                if (!((WorkBenchEntity) blockEntity).placed) {
+//                    ((WorkBenchEntity) blockEntity).setStack(4 , new ItemStack(Items.AIR));
+//                } else {
+//                    for (int i = 0; i < 4; i++) {
+//                        ((WorkBenchEntity) blockEntity).setStack(i , new ItemStack(Items.AIR));
+//                    }
+//                }
+                ((WorkBenchEntity) blockEntity).setStack(4 , new ItemStack(Items.AIR));
                 ItemScatterer.spawn(world, pos, (WorkBenchEntity)blockEntity);
                 // update comparators
                 world.updateComparators(pos,this);
