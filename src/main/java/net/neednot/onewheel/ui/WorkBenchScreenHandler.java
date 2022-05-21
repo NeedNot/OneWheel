@@ -33,6 +33,7 @@ public class WorkBenchScreenHandler extends ScreenHandler {
         return map;
     }
     Inventory output;
+    boolean placed;
 
     //This constructor gets called on the client when the server wants it to open the screenHandler,
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
@@ -57,8 +58,22 @@ public class WorkBenchScreenHandler extends ScreenHandler {
         this.addListener(new ScreenHandlerListener() {
             @Override
             public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack) {
-                if (!inventory.getStack(0).isEmpty()) {
+                if (slotId == 40) {
+                    if (!stack.isOf(Items.AIR) && isEmpty()) {
+                        for (int i = 0; i > 4; i++) {
+                            inventory.setStack(i, new ItemStack(map().get(i), inventory.getStack(i).getCount()+1));
+                        }
+                    } else {
+                        for (int i = 0; i > 4; i++) {
+                            inventory.setStack(i, new ItemStack(map().get(i), inventory.getStack(i).getCount()-1));
+                        }
+                    }
+                    return;
+                }
+                if (isComplete()) {
                     inventory.setStack(4, new ItemStack(OneWheel.oneWheel.asItem()));
+                } else {
+                    inventory.setStack(4, ItemStack.EMPTY);
                 }
             }
 
@@ -101,6 +116,20 @@ public class WorkBenchScreenHandler extends ScreenHandler {
             }
         });
 
+    }
+
+    private boolean isComplete() {
+        for (int i = 0; i < 4; i++) {
+            if (!inventory.getStack(i).isOf(map().get(i))) return false;
+        }
+        return true;
+    }
+
+    private boolean isEmpty() {
+        for (int i = 0; i < 4; i++) {
+            if (!inventory.getStack(i).isOf(Items.AIR)) return true;
+        }
+        return false;
     }
 
 
