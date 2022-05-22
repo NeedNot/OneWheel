@@ -55,14 +55,14 @@ public class WorkBench extends BlockWithEntity {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof WorkBenchEntity) {
-//                if (!((WorkBenchEntity) blockEntity).placed) {
-//                    ((WorkBenchEntity) blockEntity).setStack(4 , new ItemStack(Items.AIR));
-//                } else {
-//                    for (int i = 0; i < 4; i++) {
-//                        ((WorkBenchEntity) blockEntity).setStack(i , new ItemStack(Items.AIR));
-//                    }
-//                }
-                ((WorkBenchEntity) blockEntity).setStack(4 , new ItemStack(Items.AIR));
+                System.out.println(((WorkBenchEntity) blockEntity).placed);
+                if (!((WorkBenchEntity) blockEntity).placed) {
+                    ((WorkBenchEntity) blockEntity).setStack(4 , new ItemStack(Items.AIR));
+                } else {
+                    for (int i = 0; i < 4; i++) {
+                        ((WorkBenchEntity) blockEntity).setStack(i , new ItemStack(Items.AIR));
+                    }
+                }
                 ItemScatterer.spawn(world, pos, (WorkBenchEntity)blockEntity);
                 // update comparators
                 world.updateComparators(pos,this);

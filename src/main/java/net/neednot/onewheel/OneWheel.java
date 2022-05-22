@@ -63,7 +63,7 @@ public class OneWheel implements ModInitializer {
 	public static Identifier BATTERY = new Identifier("onewheel", "onewheel_battery_packet");
 	public static Identifier FAKE_PLAYER_PACKET = new Identifier("onewheel", "fake_player_spawn_packet");
 
-	public static ScreenHandlerType<WorkBenchScreenHandler> WORK_BENCH_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(BENCH, WorkBenchScreenHandler::new);
+	public static ScreenHandlerType<WorkBenchScreenHandler> WORK_BENCH_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(BENCH, WorkBenchScreenHandler::new);
 
 	public static final EntityType<OneWheelEntity> OW = Registry.register(
 			Registry.ENTITY_TYPE,
@@ -100,7 +100,9 @@ public class OneWheel implements ModInitializer {
 						ow.reloadPlayer(world, ow);
 						it.remove();
 					}
-					if (entry.getValue() > 6) it.remove();
+					if (entry != null) {
+						if (entry.getValue() > 6) it.remove();
+					}
 				}
 			}
 		}));

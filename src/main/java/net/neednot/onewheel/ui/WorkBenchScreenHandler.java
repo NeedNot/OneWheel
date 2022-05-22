@@ -1,5 +1,6 @@
 package net.neednot.onewheel.ui;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -18,6 +19,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.CraftingResultSlot;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.neednot.onewheel.OneWheel;
@@ -42,20 +44,20 @@ public class WorkBenchScreenHandler extends ScreenHandler {
     Inventory output;
     public WorkBenchEntity workBenchEntity;
     private BlockPos pos;
-    private boolean placed;
 
     //This constructor gets called on the client when the server wants it to open the screenHandler,
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
     //sync this empty inventory with the inventory on the server.
-    public WorkBenchScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(5));
+    public WorkBenchScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
+        this(syncId, playerInventory, new SimpleInventory(5), buf.readBlockPos());
     }
     //This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
     //and can therefore directly provide it as an argument. This inventory will then be synced to the client.
-    public WorkBenchScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
+    public WorkBenchScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, BlockPos pos) {
         super(OneWheel.WORK_BENCH_SCREEN_HANDLER, syncId);
         checkSize(inventory, 5);
         this.inventory = inventory;
+        this.workBenchEntity = (WorkBenchEntity) playerInventory.player.getWorld().getBlockEntity(pos);
         //this.output = new CraftingResultInventory();
 
         //some inventories do custom logic when a player opens it.
@@ -65,31 +67,32 @@ public class WorkBenchScreenHandler extends ScreenHandler {
         this.addListener(new ScreenHandlerListener() {
             @Override
             public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack) {
+                if (workBenchEntity == null) {
+                    workBenchEntity = (WorkBenchEntity) playerInventory.player.getWorld().getBlockEntity(pos);
+                }
                 if (slotId == 40) {
                     if (!stack.isOf(Items.AIR) && isEmpty()) {
                         for (int i = 0; i < 4; i++) {
                             inventory.setStack(i, new ItemStack(map().get(i).asItem()));
                             //inventory.setStack(i, new ItemStack(map().get(i), inventory.getStack(i).getCount()+1));
-                            placed = true;
+                            workBenchEntity.placed = true;
                         }
-                    } else if (placed) {
+                    } else if (workBenchEntity.placed) {
                         for (int i = 0; i < 4; i++) {
                             ItemStack item = inventory.getStack(i);
                             item.decrement(1);
                             inventory.setStack(i, item);
-                            placed = false;
+                            workBenchEntity.placed = false;
                         }
                     }
-                    return;
                 }
                 if (slotId < 4) {
-                    if (isComplete()) {
+                    if (isComplete() && !inventory.getStack(4).isOf(OneWheel.oneWheel)) {
                         inventory.setStack(4, new ItemStack(OneWheel.oneWheel.asItem()));
-                        placed = false;
-                    } else {
-                        inventory.setStack(4, ItemStack.EMPTY);
+                        workBenchEntity.placed = false;
                     }
                 }
+                return;
             }
 
             @Override
@@ -106,12 +109,26 @@ public class WorkBenchScreenHandler extends ScreenHandler {
                     public boolean canInsert(ItemStack stack) {
                         return stack.isOf(map().get(index)) && inventory.getStack(4).isOf(Items.AIR);
                     }
+                    public void onTakeItem(PlayerEntity player, ItemStack stack) {
+                        if (!isComplete()) {
+                            workBenchEntity.placed = false;
+                            inventory.setStack(4 , new ItemStack(Items.AIR));
+                        }
+                        super.onTakeItem(player, stack);
+                    }
                 });
             }
         }
         this.addSlot(new Slot(inventory, 3, 30 + 1 * 18, 35 + 1 * 18){
             public boolean canInsert(ItemStack stack) {
                 return stack.isOf(map().get(3)) && inventory.getStack(4).isOf(Items.AIR);
+            }
+            public void onTakeItem(PlayerEntity player, ItemStack stack) {
+                if (!isComplete()) {
+                    workBenchEntity.placed = false;
+                    inventory.setStack(4 , new ItemStack(Items.AIR));
+                }
+                super.onTakeItem(player, stack);
             }
         });
 
@@ -134,7 +151,7 @@ public class WorkBenchScreenHandler extends ScreenHandler {
                     ItemStack item = inventory.getStack(i);
                     item.decrement(1);
                     inventory.setStack(i, item);
-                    placed = false;
+                    workBenchEntity.placed = false;
                 }
                 super.onTakeItem(player, stack);
             }
@@ -155,7 +172,6 @@ public class WorkBenchScreenHandler extends ScreenHandler {
         }
         return true;
     }
-
 
     @Override
     public boolean canUse(PlayerEntity player) {
