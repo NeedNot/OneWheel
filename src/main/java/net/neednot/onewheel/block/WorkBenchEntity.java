@@ -51,12 +51,14 @@ public class WorkBenchEntity extends BlockEntity implements ExtendedScreenHandle
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
+        placed = nbt.getBoolean("placed");
         Inventories.readNbt(nbt, this.inventory);
     }
 
     @Override
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
+        nbt.putBoolean("placed", placed);
         Inventories.writeNbt(nbt, this.inventory);
     }
 

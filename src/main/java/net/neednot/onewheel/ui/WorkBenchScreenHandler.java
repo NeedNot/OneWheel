@@ -71,7 +71,7 @@ public class WorkBenchScreenHandler extends ScreenHandler {
                     workBenchEntity = (WorkBenchEntity) playerInventory.player.getWorld().getBlockEntity(pos);
                 }
                 if (slotId == 40) {
-                    if (!stack.isOf(Items.AIR) && isEmpty()) {
+                    if (!stack.isOf(Items.AIR) && (isEmpty() || workBenchEntity.placed)) {
                         for (int i = 0; i < 4; i++) {
                             inventory.setStack(i, new ItemStack(map().get(i).asItem()));
                             //inventory.setStack(i, new ItemStack(map().get(i), inventory.getStack(i).getCount()+1));
