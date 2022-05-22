@@ -14,6 +14,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.ShieldItem;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
@@ -73,8 +74,16 @@ public class WorkBenchScreenHandler extends ScreenHandler {
                 if (slotId == 40) {
                     if (!stack.isOf(Items.AIR) && (isEmpty() || workBenchEntity.placed)) {
                         for (int i = 0; i < 4; i++) {
-                            inventory.setStack(i, new ItemStack(map().get(i).asItem()));
-                            //inventory.setStack(i, new ItemStack(map().get(i), inventory.getStack(i).getCount()+1));
+                            ItemStack stack1 = new ItemStack(map().get(i).asItem());
+                            if (i == 1) {
+                                stack1.getOrCreateNbt().putBoolean("waterproof", stack.getOrCreateNbt().getBoolean("waterproof"));
+                                stack1.getOrCreateNbt().putString("color", stack.getOrCreateNbt().getString("color"));
+                                stack1.getOrCreateNbt().putBoolean("fender", stack.getOrCreateNbt().getBoolean("fender"));
+                                stack1.getOrCreateNbt().putBoolean("waterdamage", stack.getOrCreateNbt().getBoolean("waterdamage"));
+                            }
+                            if (i == 2) stack1.getOrCreateNbt().putFloat("battery", stack.getOrCreateNbt().getFloat("battery"));
+
+                            inventory.setStack(i, stack1);
                             workBenchEntity.placed = true;
                         }
                     } else if (workBenchEntity.placed) {
@@ -88,11 +97,15 @@ public class WorkBenchScreenHandler extends ScreenHandler {
                 }
                 if (slotId < 4) {
                     if (isComplete() && !inventory.getStack(4).isOf(OneWheel.oneWheel)) {
-                        inventory.setStack(4, new ItemStack(OneWheel.oneWheel.asItem()));
+                        ItemStack stack1 = new ItemStack(OneWheel.oneWheel.asItem());
+                        NbtCompound nbt = new NbtCompound();
+                        nbt.copyFrom(inventory.getStack(1).getOrCreateNbt());
+                        nbt.copyFrom(inventory.getStack(2).getOrCreateNbt());
+                        stack1.setNbt(nbt);
+                        inventory.setStack(4, stack1);
                         workBenchEntity.placed = false;
                     }
                 }
-                return;
             }
 
             @Override
@@ -200,6 +213,10 @@ public class WorkBenchScreenHandler extends ScreenHandler {
             } else {
                 slot.markDirty();
             }
+        }
+        if (!isComplete() && invSlot < 4) {
+            workBenchEntity.placed = false;
+            inventory.setStack(4 , new ItemStack(Items.AIR));
         }
         return newStack;
     }
