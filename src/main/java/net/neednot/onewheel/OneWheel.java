@@ -1,6 +1,7 @@
 package net.neednot.onewheel;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -14,6 +15,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -53,7 +55,7 @@ public class OneWheel implements ModInitializer {
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger("onewheel");
 
-	public static final Block WORKBENCH = new WorkBench(FabricBlockSettings.of(Material.METAL).strength(4.0f));
+	public static final Block WORKBENCH = new WorkBench(FabricBlockSettings.of(Material.METAL).strength(4.0f).nonOpaque());
 
 	public static final Identifier BENCH = new Identifier("onewheel", "workbench");
 

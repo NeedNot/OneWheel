@@ -1,6 +1,7 @@
 package net.neednot.onewheel;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -8,6 +9,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
@@ -48,6 +50,7 @@ public class OneWheelClient implements ClientModInitializer {
                 }
             }
         }));
+        BlockRenderLayerMap.INSTANCE.putBlock(OneWheel.WORKBENCH, RenderLayer.getCutout());
         ScreenRegistry.register(OneWheel.WORK_BENCH_SCREEN_HANDLER, WorkBenchScreen::new);
         GeoItemRenderer.registerItemRenderer(OneWheel.fender, new FenderRender());
         BoardAnimToClientPacket.registerPacket();
