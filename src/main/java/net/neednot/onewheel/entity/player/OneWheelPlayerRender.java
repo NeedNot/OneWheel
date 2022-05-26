@@ -3,8 +3,8 @@ package net.neednot.onewheel.entity.player;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.model.ModelPartBuilder;
+import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -16,20 +16,21 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
+import net.neednot.onewheel.util.BipedAccessor;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.example.client.DefaultBipedBoneIdents;
 import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
-import software.bernie.geckolib3.geo.render.built.GeoCube;
 import software.bernie.geckolib3.renderers.geo.ExtendedGeoEntityRenderer;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlayerEntity> {
     float yaw = 90;
@@ -38,6 +39,9 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
     boolean canRender;
     PlayerEntity player;
     OneWheelEntity ow;
+    private String name;
+    private BipedEntityModel<?> armorModel;
+
     public OneWheelPlayerRender(EntityRendererFactory.Context renderManager) {
         super(renderManager, new OneWheelPlayerModel());
     }
@@ -65,6 +69,11 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                 }
 
                 if (bone.getName().contains("armor")) bone.setHidden(true);
+//                if (bone.getName().contains("lower")&&bone.getName().contains("armor")) {
+//                    bone.setScaleX(bone.getScaleX()+1.5f);
+//                    bone.setScaleY(bone.getScaleY()+1.5f);
+//                    bone.setScaleZ(bone.getScaleZ()+1.5f);
+//                }
 
                 //outer layers
                 if (bone.getName().equals("headwear")) bone.setHidden(!player.isPartVisible(PlayerModelPart.HAT));
@@ -157,6 +166,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
             return toRadians *= -1;
         } return toRadians;
     }
+
     @Override
     public void renderLate(OneWheelPlayerEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
         this.realyaw = MathHelper.wrapDegrees(animatable.bodyYaw);
@@ -193,7 +203,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                 return chestplate;
             case "armorHead":
                 return helmet;
-            case "armorLegR":
+            //case "armorLegR":
             case "armorLeggings":
             case "armorLowerLegR":
             case "armorLegL":
@@ -228,6 +238,13 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
 
     @Override
     protected ModelPart getArmorPartForBone(String name, BipedEntityModel<?> armorModel) {
+        List<ModelPart.Cuboid> cuboids = new ArrayList<>();
+        cuboids.add(new ModelPart.Cuboid(0, 12+4, -2.0F, -1.0F, -2, 4.0F, 12F, 4.0F, 0, 15, 0, true, 64, 32));
+        Map<String, ModelPart> map = new HashMap<>();
+        map.put("left_leg_lower", armorModel.leftArm);
+        ModelPart leftLegLower = new ModelPart(cuboids, map);
+        ModelPart rightLegLower = ((BipedAccessor) armorModel).getR();
+
         switch (name) {
             case "armorRightArms":
                 return armorModel.rightArm;
@@ -239,8 +256,9 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
             case "armorLeggings":
                 return armorModel.body;
             case "armorLegR":
-            case "armorLowerLegR":
                 return armorModel.rightLeg;
+            case "armorLowerLegR":
+                return leftLegLower;
             case "armorLegL":
                 return armorModel.leftLeg;
             default:
