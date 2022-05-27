@@ -239,7 +239,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
     @Override
     protected ModelPart getArmorPartForBone(String name, BipedEntityModel<?> armorModel) {
         List<ModelPart.Cuboid> cuboids = new ArrayList<>();
-        cuboids.add(new ModelPart.Cuboid(0, 12+4, -2.0F, -1.0F, -2, 4.0F, 12F, 4.0F, 0, 15, 0, true, 64, 32));
+        cuboids.add(new ModelPart.Cuboid(0, 12+4, -3f, 0.5f, -1f, 4.0F, 12F, 4.0F, 0, 0, 0, true, 64, 32));
         Map<String, ModelPart> map = new HashMap<>();
         map.put("left_leg_lower", armorModel.leftArm);
         ModelPart leftLegLower = new ModelPart(cuboids, map);
