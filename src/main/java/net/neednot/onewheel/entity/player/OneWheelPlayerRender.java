@@ -218,6 +218,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
             case "armorLegL":
                 return leggings;
             case "armorFeetL":
+            case "armorFeetR":
                 return boots;
 
         }
@@ -240,6 +241,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
             case "armorLegL":
                 return EquipmentSlot.LEGS;
             case "armorFeetL":
+            case "armorFeetR":
                 return EquipmentSlot.FEET;
             default:
                 return null;
@@ -318,6 +320,8 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                 return leftLegUpper(armorModel);
             case "armorFeetL":
                 return armorModel.leftLeg;
+            case "armorFeetR":
+                return armorModel.rightLeg;
             default:
                 return null;
         }
