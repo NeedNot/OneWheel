@@ -203,7 +203,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                 return chestplate;
             case "armorHead":
                 return helmet;
-            //case "armorLegR":
+            case "armorLegR":
             case "armorLeggings":
             case "armorLowerLegR":
             case "armorLegL":
@@ -236,14 +236,37 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
         }
     }
 
-    @Override
-    protected ModelPart getArmorPartForBone(String name, BipedEntityModel<?> armorModel) {
+    private ModelPart rightLegLower(BipedEntityModel<?> armorModel) {
         List<ModelPart.Cuboid> cuboids = new ArrayList<>();
-        cuboids.add(new ModelPart.Cuboid(0, 12+4, -3f, 0.5f, -1f, 4.0F, 12F, 4.0F, 0, 0, 0, true, 64, 32));
+        cuboids.add(new ModelPart.Cuboid(0, 16+6, -2.5f, 5.75f, -1f, 4F, 6F, 4F, 0, 0, 0, false, 64, 32));
+        Map<String, ModelPart> map = new HashMap<>();
+        map.put("right_leg_lower", armorModel.leftArm);
+        return new ModelPart(cuboids, map);
+    }
+    private ModelPart rightLegUpper(BipedEntityModel<?> armorModel) {
+        List<ModelPart.Cuboid> cuboids = new ArrayList<>();
+        cuboids.add(new ModelPart.Cuboid(0, 12+4, -2.5f, -0.25f, -1f, 4F, 6f, 4F, 0, 0, 0, false, 64, 32));
+        Map<String, ModelPart> map = new HashMap<>();
+        map.put("right_leg_upper", armorModel.leftArm);
+        return new ModelPart(cuboids, map);
+    }
+    private ModelPart leftLegLower(BipedEntityModel<?> armorModel) {
+        List<ModelPart.Cuboid> cuboids = new ArrayList<>();
+        cuboids.add(new ModelPart.Cuboid(0, 12+4, -3f, -1f, -1f, 4.0F, 6F, 4.0F, 0, 0, 0, true, 64, 32));
         Map<String, ModelPart> map = new HashMap<>();
         map.put("left_leg_lower", armorModel.leftArm);
-        ModelPart leftLegLower = new ModelPart(cuboids, map);
-        ModelPart rightLegLower = ((BipedAccessor) armorModel).getR();
+        return new ModelPart(cuboids, map);
+    }
+    private ModelPart leftLegUpper(BipedEntityModel<?> armorModel) {
+        List<ModelPart.Cuboid> cuboids = new ArrayList<>();
+        cuboids.add(new ModelPart.Cuboid(0, 12+4, 0, 0, 0, 4.0F, 6F, 4.0F, 0, 0, 0, true, 64, 32));
+        Map<String, ModelPart> map = new HashMap<>();
+        map.put("left_leg_upper", armorModel.leftArm);
+        return new ModelPart(cuboids, map);
+    }
+
+    @Override
+    protected ModelPart getArmorPartForBone(String name, BipedEntityModel<?> armorModel) {
 
         switch (name) {
             case "armorRightArms":
@@ -256,11 +279,13 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
             case "armorLeggings":
                 return armorModel.body;
             case "armorLegR":
-                return armorModel.rightLeg;
+                return rightLegUpper(armorModel);
             case "armorLowerLegR":
-                return leftLegLower;
+                return rightLegLower(armorModel);
+            case "armorLowerLegL":
+                //return leftLegLower(armorModel);
             case "armorLegL":
-                return armorModel.leftLeg;
+                return armorModel.leftLeg;//leftLegUpper(armorModel);
             default:
                 return null;
         }
