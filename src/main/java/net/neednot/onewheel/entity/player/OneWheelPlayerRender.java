@@ -37,10 +37,13 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
     float realyaw;
     float prevyaw;
     boolean canRender;
+    public GeoBone prevRBone;
+    public GeoBone prevLBone;
     PlayerEntity player;
     OneWheelEntity ow;
     private String name;
     private BipedEntityModel<?> armorModel;
+    public OneWheelPlayerEntity oneWheelPlayer;
 
     public OneWheelPlayerRender(EntityRendererFactory.Context renderManager) {
         super(renderManager, new OneWheelPlayerModel());
@@ -91,7 +94,12 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
                 if (speed < 0) {
                     fakeyaw = invert(yaw);
                 }
-
+                if (bone.getName().equals("right_lower")) {
+                    prevRBone = bone;
+                }
+                if (bone.getName().equals("left_lower")) {
+                    prevLBone = bone;
+                }
                 if (bone.getName().equals("player")) {
                     if (ow.forcedb > 0 || ow.forcedF > 0) {
                         stack.scale(0.9375f , 0.9375f , 0.9375f);
@@ -174,6 +182,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
         if (animatable.assignedPlayer != null) {
             canRender = false;
             player = animatable.assignedPlayer;
+            oneWheelPlayer = animatable;
             ow = (OneWheelEntity) player.getVehicle();
             if (animatable.assignedPlayer.getUuidAsString().equals(MinecraftClient.getInstance().player.getUuidAsString())) {
                 MinecraftClient player = MinecraftClient.getInstance();
@@ -204,6 +213,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
             case "armorHead":
                 return helmet;
             case "armorLegR":
+            case "armorLowerLegL":
             case "armorLeggings":
             case "armorLowerLegR":
             case "armorLegL":
@@ -225,12 +235,11 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
             case "armorHead":
                 return EquipmentSlot.HEAD;
             case "armorLegR":
-            case "armorLeggings":
+            case "armorLowerLegL":
             case "armorLowerLegR":
+            case "armorLeggings":
             case "armorLegL":
                 return EquipmentSlot.LEGS;
-//            case "armorLowerLegR":
-//                return EquipmentSlot.FEET;
             default:
                 return null;
         }
@@ -247,10 +256,12 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
         List<ModelPart.Cuboid> cuboids = new ArrayList<>();
         float z = 0;
         float ey = 0;
-        if (ow != null) {
-            if (ow.yawVelocity != 0) {
+        if (ow != null && prevRBone != null) {
+            if (prevRBone.getRotationX() != 0) {
                 z = 0.05f;
                 ey = 0.2f;
+                z = (prevRBone.getRotationX() / -0.436332f) * z;
+                ey = (prevRBone.getRotationX() / -0.436332f) * ey;
             }
         }
         cuboids.add(new ModelPart.Cuboid(0, 12+4, -2.5f, -0.25f, -1-z, 4F, 6f, 4F, 0, ey, 0, false, 64, 32));
@@ -260,14 +271,24 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
     }
     private ModelPart leftLegLower(BipedEntityModel<?> armorModel) {
         List<ModelPart.Cuboid> cuboids = new ArrayList<>();
-        cuboids.add(new ModelPart.Cuboid(0, 12+4, -3f, -1f, -1f, 4.0F, 6F, 4.0F, 0, 0, 0, true, 64, 32));
+        cuboids.add(new ModelPart.Cuboid(0, 16+6, -3.5f, 6-0.125f, -1f, 4F, 3F, 4F, 0, 0.125f, 0, true, 64, 32));
         Map<String, ModelPart> map = new HashMap<>();
         map.put("left_leg_lower", armorModel.leftArm);
         return new ModelPart(cuboids, map);
     }
     private ModelPart leftLegUpper(BipedEntityModel<?> armorModel) {
         List<ModelPart.Cuboid> cuboids = new ArrayList<>();
-        cuboids.add(new ModelPart.Cuboid(0, 12+4, 0, 0, 0, 4.0F, 6F, 4.0F, 0, 0, 0, true, 64, 32));
+        float z = 0;
+        float ey = 0;
+        if (ow != null && prevLBone != null) {
+            if (prevLBone.getRotationX() != 0) {
+                z = 0.05f;
+                ey = 0.2f;
+                z = (prevLBone.getRotationX() / -0.436332f) * z;
+                ey = (prevLBone.getRotationX() / -0.436332f) * ey;
+            }
+        }
+        cuboids.add(new ModelPart.Cuboid(0, 12+4, -7.5f, -0.25f, -1-z, 4F, 6f, 4F, 0, ey, 0, true, 64, 32));
         Map<String, ModelPart> map = new HashMap<>();
         map.put("left_leg_upper", armorModel.leftArm);
         return new ModelPart(cuboids, map);
@@ -291,9 +312,9 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
             case "armorLowerLegR":
                 return rightLegLower(armorModel);
             case "armorLowerLegL":
-                //return leftLegLower(armorModel);
+                return leftLegLower(armorModel);
             case "armorLegL":
-                return armorModel.leftLeg;//leftLegUpper(armorModel);
+                return leftLegUpper(armorModel);
             default:
                 return null;
         }

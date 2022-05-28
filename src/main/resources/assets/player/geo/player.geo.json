@@ -208,6 +208,14 @@
 					"pivot": [2, 12, 0]
 				},
 				{
+					"name": "armorLegL",
+					"parent": "left_legs",
+					"pivot": [6, 12, 0],
+					"cubes": [
+						{"origin": [-0.5, 5.75, -2.5], "size": [5, 6.5, 5], "uv": [0, 0]}
+					]
+				},
+				{
 					"name": "left_pants",
 					"parent": "left_legs",
 					"pivot": [2, 12, 0],
@@ -245,11 +253,11 @@
 					]
 				},
 				{
-					"name": "armorLegL",
+					"name": "armorLowerLegL",
 					"parent": "left_lower",
 					"pivot": [2, 12, 0],
 					"cubes": [
-						{"origin": [0, 0, -2], "size": [4, 12, 4], "uv": [0, 0]}
+						{"origin": [-0.5, 1.25, -2.5], "size": [5, 3, 5], "uv": [0, 0]}
 					]
 				}
 			]
