@@ -238,7 +238,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
 
     private ModelPart rightLegLower(BipedEntityModel<?> armorModel) {
         List<ModelPart.Cuboid> cuboids = new ArrayList<>();
-        cuboids.add(new ModelPart.Cuboid(0, 16+6, -2.5f, 6f, -1f, 4F, 6F, 4F, 0, 0.25f, 0, false, 64, 32));
+        cuboids.add(new ModelPart.Cuboid(0, 16+6, -2.5f, 6-0.125f, -1f, 4F, 3F, 4F, 0, 0.125f, 0, false, 64, 32));
         Map<String, ModelPart> map = new HashMap<>();
         map.put("right_leg_lower", armorModel.leftArm);
         return new ModelPart(cuboids, map);
@@ -247,11 +247,12 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
         List<ModelPart.Cuboid> cuboids = new ArrayList<>();
         float z = 0;
         float ey = 0;
-        if (ow.yawVelocity != 0) {
-            z = 0.05f;
-            ey = 0.2f;
+        if (ow != null) {
+            if (ow.yawVelocity != 0) {
+                z = 0.05f;
+                ey = 0.2f;
+            }
         }
-
         cuboids.add(new ModelPart.Cuboid(0, 12+4, -2.5f, -0.25f, -1-z, 4F, 6f, 4F, 0, ey, 0, false, 64, 32));
         Map<String, ModelPart> map = new HashMap<>();
         map.put("right_leg_upper", armorModel.leftArm);
