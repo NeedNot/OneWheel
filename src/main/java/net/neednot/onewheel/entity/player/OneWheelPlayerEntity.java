@@ -221,6 +221,9 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                     equipStack(EquipmentSlot.FEET, assignedPlayer.getEquippedStack(EquipmentSlot.FEET));
                     setLeftHanded(assignedPlayer.getMainArm().equals(Arm.LEFT));
                 }
+                if (getEquippedStack(EquipmentSlot.OFFHAND) != null) {
+                    System.out.println(getEquippedStack(EquipmentSlot.OFFHAND));
+                }
 
                 if (ow.forcedb == 25 || ow.forcedF == 25) {
                     this.setHealth(assignedPlayer.getHealth());

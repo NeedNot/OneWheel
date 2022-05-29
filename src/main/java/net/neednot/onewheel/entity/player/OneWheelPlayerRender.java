@@ -198,7 +198,7 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
 
     @Override
     protected boolean isArmorBone(GeoBone bone) {
-        return true;
+        return bone.getName().contains("armor");
     }
 
     //armor stuff
@@ -337,9 +337,9 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
     @Override
     protected ItemStack getHeldItemForBone(String boneName , OneWheelPlayerEntity currentEntity) {
         switch (boneName) {
-            case "left_arms":
+            case "handL":
                 return currentEntity.isLeftHanded() ? mainHand : offHand;
-            case "right_arms":
+            case "handR":
                 return currentEntity.isLeftHanded() ? offHand : mainHand;
         }
         return null;
@@ -348,8 +348,8 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
     @Override
     protected ModelTransformation.Mode getCameraTransformForItemAtBone(ItemStack boneItem, String boneName) {
         switch (boneName) {
-            case "left_arms":
-            case "right_arms":
+            case "handL":
+            case "handR":
                 return ModelTransformation.Mode.THIRD_PERSON_RIGHT_HAND;
             default:
                 return ModelTransformation.Mode.NONE;
@@ -368,12 +368,18 @@ public class OneWheelPlayerRender extends ExtendedGeoEntityRenderer<OneWheelPlay
             boolean shieldFlag = item.getItem() instanceof ShieldItem;
             if(item == this.mainHand) {
                 if(shieldFlag) {
-                    stack.translate(0.0, 0.125, -0.25);
+                    stack.translate(0.0, 0.125, -0);
+                }
+                else {
+                    stack.translate(0, 0.13, 0.02);
                 }
             } else {
                 if(shieldFlag) {
-                    stack.translate(0, 0.125, 0.25);
+                    stack.translate(0, 0.125, 0.5);
                     stack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
+                }
+                else {
+                    stack.translate(0, 0.13, 0.02);
                 }
             }
         }
