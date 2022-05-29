@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#i#",
+    "iRi",
+    "#i#"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:coal"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    }
+  },
+  "result": {
+    "item": "onewheel:wheel",
+    "count": 1
+  }
+}
