@@ -215,6 +215,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         if (this.hasPassengers() && MinecraftClient.getInstance().player.getUuid().equals(getControllingPassenger().getUuid())) {
             if (event.getController().getCurrentAnimation() != null) name = event.getController().getCurrentAnimation().animationName;
             event.getController().setAnimationSpeed(1);
+            if (battery <= 0) {
+                event.getController().setAnimation(idle);
+                return PlayState.CONTINUE;
+            }
             if (noseDivingf && !(f == 0)) {
                 event.getController().setAnimationSpeed(2.5);
                 event.getController().setAnimation(nosedivef);
@@ -293,6 +297,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
+        if (battery <= 0 && getBattery() > 0) removeAllPassengers();
         if ((noseDivingf || noseDivingb) && world.isClient()) {
             PacketByteBuf buf = PacketByteBufs.create();
             Vec3d pos = getControllingPassenger().getPos();

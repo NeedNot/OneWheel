@@ -103,6 +103,10 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
         if (assignedPlayer.hasVehicle() && assignedPlayer.getUuidAsString().equals(MinecraftClient.getInstance().player.getUuidAsString())) {
             if (assignedPlayer.getVehicle() instanceof OneWheelEntity) {
                 OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
+                if (ow.battery <= 0) {
+                    event.getController().setAnimation(deadmount);
+                    return PlayState.CONTINUE;
+                }
                 if (ow.forcedF > 10) {
                     event.getController().animationSpeed = 4;
                     event.getController().setAnimation(nosedivef);
