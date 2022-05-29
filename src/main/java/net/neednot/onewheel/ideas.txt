@@ -4,10 +4,10 @@ add 180s - on hold
 
 make player show in inv - failed
 
-update water damage message
-logic for all the items
 after 1.0 release made servers work
 
+logic for all the items - done
+update water damage message - done
 add armor and held items
 fix players invisible when spawning in - done
 make entities show when spawned far away - done

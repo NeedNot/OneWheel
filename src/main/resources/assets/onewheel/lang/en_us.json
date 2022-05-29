@@ -8,9 +8,13 @@
   "onewheel.warning.water.title": "Liquid Damage Detected!",
   "onewheel.warning.water.problem": "There seems to be an electrical problem with",
   "onewheel.warning.water.reason": "your Onewheel+ XR due to liquid.",
-  "onewheel.warning.water.fix": "There is no fix to this issue, we recommend next time liquid proofing your Onewheel+ XR with honeycomb.",
+  "onewheel.warning.water.fix": "The only fix to this issue is to change the deck, we recommend next time liquid proofing your Onewheel+ XR with honeycomb.",
   "onewheel.warning.water.warranty": "This damage is not covered by the warranty!",
   "death.attack.crash": "%s fell of their Onewheel going too fast!",
   "item.onewheel.fender": "Fender",
-  "item.onewheel.hasfender": "Fender"
+  "item.onewheel.hasfender": "Fender",
+  "item.onewheel.battery": "Onewheel+ XR Battery",
+  "item.onewheel.deck": "Onewheel+ XR Deck",
+  "item.onewheel.wheel": "Vega Tire",
+  "block.onewheel.workbench": "Work Bench"
 }
