@@ -100,9 +100,9 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         if (assignedPlayer == null) return PlayState.STOP;
-        if (assignedPlayer.hasVehicle() && assignedPlayer.getUuidAsString().equals(MinecraftClient.getInstance().player.getUuidAsString())) {
-            if (assignedPlayer.getVehicle() instanceof OneWheelEntity) {
-                OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
+        if (assignedPlayer.getVehicle() instanceof OneWheelEntity) {
+            OneWheelEntity ow = (OneWheelEntity) assignedPlayer.getVehicle();
+            if (assignedPlayer.hasVehicle() && assignedPlayer.getUuidAsString().equals(MinecraftClient.getInstance().player.getUuidAsString())) {
                 if (ow.battery <= 0) {
                     event.getController().setAnimation(deadmount);
                     return PlayState.CONTINUE;
@@ -177,10 +177,14 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                     sendAnimPacket(null);
                 }
             }
-        }
-        else if (playAnimation != null) {
-            if (playAnimation.equals(nosediveb)||playAnimation.equals(nosedivef)) event.getController().animationSpeed = 4;
-            event.getController().setAnimation(playAnimation);
+            else if (playAnimation != null || ow.getBattery() <= 0) {
+                if (ow.getBattery() > 0) {
+                    if (playAnimation.equals(nosediveb) || playAnimation.equals(nosedivef)) event.getController().animationSpeed = 4;
+                    event.getController().setAnimation(playAnimation);
+                } else {
+                    event.getController().setAnimation(deadmount);
+                }
+            }
         }
         return PlayState.CONTINUE;
     }
@@ -224,9 +228,6 @@ public class OneWheelPlayerEntity extends AnimalEntity implements IAnimatable {
                     equipStack(EquipmentSlot.LEGS, assignedPlayer.getEquippedStack(EquipmentSlot.LEGS));
                     equipStack(EquipmentSlot.FEET, assignedPlayer.getEquippedStack(EquipmentSlot.FEET));
                     setLeftHanded(assignedPlayer.getMainArm().equals(Arm.LEFT));
-                }
-                if (getEquippedStack(EquipmentSlot.OFFHAND) != null) {
-                    System.out.println(getEquippedStack(EquipmentSlot.OFFHAND));
                 }
 
                 if (ow.forcedb == 25 || ow.forcedF == 25) {
