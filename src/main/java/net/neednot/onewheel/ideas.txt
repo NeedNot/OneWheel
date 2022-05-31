@@ -6,6 +6,7 @@ make player show in inv - failed
 
 after 1.0 release made servers work
 
+add variation to deck - dones
 logic for all the items - done
 update water damage message - done
 add armor and held items
