@@ -104,7 +104,11 @@ public class OneWheel implements ModInitializer {
 						it.remove();
 					}
 					if (entry != null) {
-						if (entry.getValue() > 6) it.remove();
+						try {
+							if (entry.getValue() > 6) it.remove();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
