@@ -1,18 +1,25 @@
 package net.neednot.onewheel.entity.board;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.board.OneWheelModel;
+import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
+import software.bernie.geckolib3.renderers.geo.ExtendedGeoEntityRenderer;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 
 import java.util.Objects;
 
-public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
+public class OneWheelRender extends ExtendedGeoEntityRenderer<OneWheelEntity> {
     float yaw;
     float x = 0f;
     float speed;
@@ -48,6 +55,51 @@ public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
         }
         super.renderRecursively(bone, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
     }
+
+    @Nullable
+    @Override
+    protected Identifier getTextureForBone(String boneName , OneWheelEntity currentEntity) {
+        //if (boneName.contains("fender")) return new Identifier("onewheel", "textures/red.png"); for when multicolor fenders are a thing
+        return null;
+    }
+
+    @Nullable
+    @Override
+    protected ItemStack getHeldItemForBone(String boneName , OneWheelEntity currentEntity) {
+        return null;
+    }
+
+    @Override
+    protected ModelTransformation.Mode getCameraTransformForItemAtBone(ItemStack boneItem , String boneName) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    protected BlockState getHeldBlockForBone(String boneName , OneWheelEntity currentEntity) {
+        return null;
+    }
+
+    @Override
+    protected void preRenderItem(MatrixStack matrixStack , ItemStack item , String boneName , OneWheelEntity currentEntity , IBone bone) {
+
+    }
+
+    @Override
+    protected void preRenderBlock(BlockState block , String boneName , OneWheelEntity currentEntity) {
+
+    }
+
+    @Override
+    protected void postRenderItem(MatrixStack matrixStack , ItemStack item , String boneName , OneWheelEntity currentEntity , IBone bone) {
+
+    }
+
+    @Override
+    protected void postRenderBlock(BlockState block , String boneName , OneWheelEntity currentEntity) {
+
+    }
+
     @Override
     public void renderLate(OneWheelEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
         this.yaw = animatable.yawVelocity;
@@ -62,6 +114,12 @@ public class OneWheelRender extends GeoEntityRenderer<OneWheelEntity> {
         super.renderLate(animatable, stackIn, ticks, renderTypeBuffer, bufferIn, packedLightIn, packedOverlayIn, red,
                 green, blue, partialTicks);
     }
+
+    @Override
+    protected boolean isArmorBone(GeoBone bone) {
+        return false;
+    }
+
     public Float invert(float f) {
         return f *=-1;
     }
