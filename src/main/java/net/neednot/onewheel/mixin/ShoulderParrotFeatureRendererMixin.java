@@ -25,8 +25,8 @@ public abstract class ShoulderParrotFeatureRendererMixin<T extends PlayerEntity>
     }
     @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/player/PlayerEntity;FFFFFF)V", cancellable = true)
     public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T playerEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-        if (MinecraftClient.getInstance().player.hasVehicle()) {
-            if (MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
+        if (playerEntity.hasVehicle()) {
+            if (playerEntity.getVehicle() instanceof OneWheelEntity) {
                 ci.cancel();
             }
         }

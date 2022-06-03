@@ -1,0 +1,6 @@
+{
+  "parent": "onewheel:item/deck_ow",
+  "textures": {
+    "0": "onewheel:cyan"
+  }
+}

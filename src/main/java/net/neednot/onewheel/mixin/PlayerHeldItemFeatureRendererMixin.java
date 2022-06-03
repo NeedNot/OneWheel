@@ -29,8 +29,8 @@ public abstract class PlayerHeldItemFeatureRendererMixin<T extends PlayerEntity,
 
     @Inject(at = @At("HEAD"), method = "renderItem", cancellable = true)
     protected void renderItem(LivingEntity entity, ItemStack stack, ModelTransformation.Mode transformationMode, Arm arm, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
-        if (MinecraftClient.getInstance().player.hasVehicle()) {
-            if (MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
+        if (entity.hasVehicle()) {
+            if (entity.getVehicle() instanceof OneWheelEntity) {
                 ci.cancel();
             }
         }

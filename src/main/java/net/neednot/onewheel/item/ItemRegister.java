@@ -13,6 +13,12 @@ public class ItemRegister {
             }
             return getColor(itemStack);
         });
+        FabricModelPredicateProviderRegistry.register(OneWheel.deck, new Identifier("decks"), (itemStack, clientWorld, livingEntity, seed) -> {
+            if (getColor(itemStack) == 0) {
+                return 0.0F;
+            }
+            return getColor(itemStack);
+        });
     }
 
     private static float getColor(ItemStack itemStack) {

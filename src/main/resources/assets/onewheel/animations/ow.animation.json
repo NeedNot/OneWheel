@@ -166,22 +166,6 @@
 				}
 			}
 		},
-		"animation.ow.nosedivef": {
-			"animation_length": 3.64,
-			"bones": {
-				"board": {
-					"rotation": {
-						"0.0": {
-							"vector": [0, 0, 0]
-						},
-						"0.32": {
-							"vector": [17.5, 0, 0],
-							"easing": "easeInQuart"
-						}
-					}
-				}
-			}
-		},
 		"animation.ow.nosediveb": {
 			"animation_length": 3.64,
 			"bones": {
@@ -192,6 +176,22 @@
 						},
 						"0.32": {
 							"vector": [-17.5, 0, 0],
+							"easing": "easeInQuart"
+						}
+					}
+				}
+			}
+		},
+		"animation.ow.nosedivef": {
+			"animation_length": 2.12,
+			"bones": {
+				"board": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.32": {
+							"vector": [17.5, 0, 0],
 							"easing": "easeInQuart"
 						}
 					}

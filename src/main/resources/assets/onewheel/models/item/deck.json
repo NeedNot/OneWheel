@@ -1,0 +1,106 @@
+{
+  "overrides": [
+    {
+      "predicate": {
+        "decks": 0
+      } ,
+      "model": "onewheel:item/deck_ow"
+    },
+    {
+      "predicate": {
+        "decks": 0.1
+      } ,
+      "model": "onewheel:item/deck_black"
+    },
+    {
+      "predicate": {
+        "decks": 0.2
+      } ,
+      "model": "onewheel:item/deck_brown"
+    },
+    {
+      "predicate": {
+        "decks": 0.3
+      } ,
+      "model": "onewheel:item/deck_cyan"
+    },
+    {
+      "predicate": {
+        "decks": 0.4
+      } ,
+      "model": "onewheel:item/deck_gray"
+    },
+    {
+      "predicate": {
+        "decks": 0.45
+      } ,
+      "model": "onewheel:item/deck_green"
+    },
+    {
+      "predicate": {
+        "decks": 0.5
+      } ,
+      "model": "onewheel:item/deck_lightblue"
+    },
+    {
+      "predicate": {
+        "decks": 0.55
+      } ,
+      "model": "onewheel:item/deck_lightgrey"
+    },
+    {
+      "predicate": {
+        "decks": 0.6
+      } ,
+      "model": "onewheel:item/deck_lime"
+    },
+    {
+      "predicate": {
+        "decks": 0.65
+      } ,
+      "model": "onewheel:item/deck_magenta"
+    },
+    {
+      "predicate": {
+        "decks": 0.7
+      } ,
+      "model": "onewheel:item/deck_orange"
+    },
+    {
+      "predicate": {
+        "decks": 0.75
+      } ,
+      "model": "onewheel:item/deck_pink"
+    },
+    {
+      "predicate": {
+        "decks": 0.8
+      } ,
+      "model": "onewheel:item/deck_purple"
+    },
+    {
+      "predicate": {
+        "decks": 0.85
+      } ,
+      "model": "onewheel:item/deck_red"
+    },
+    {
+      "predicate": {
+        "decks": 0.9
+      } ,
+      "model": "onewheel:item/deck_white"
+    },
+    {
+      "predicate": {
+        "decks": 0.95
+      } ,
+      "model": "onewheel:item/deck_yellow"
+    },
+    {
+      "predicate": {
+        "decks": 1
+      } ,
+      "model": "onewheel:item/deck_blue"
+    }
+  ]
+}

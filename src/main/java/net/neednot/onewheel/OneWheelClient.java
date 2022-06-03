@@ -1,29 +1,31 @@
 package net.neednot.onewheel;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.event.client.ClientTickCallback;
+import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.neednot.onewheel.entity.board.OneWheelEntity;
 import net.neednot.onewheel.entity.board.OneWheelRender;
 import net.neednot.onewheel.entity.player.OneWheelPlayerRender;
-import net.neednot.onewheel.packet.BatteryPacket;
-import net.neednot.onewheel.packet.FallPacket;
-import org.checkerframework.checker.units.qual.A;
-
-import java.util.*;
+import net.neednot.onewheel.item.FenderRender;
+import net.neednot.onewheel.item.ItemRegister;
+import net.neednot.onewheel.packet.*;
+import net.neednot.onewheel.ui.WorkBenchScreen;
+import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
 public class OneWheelClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        ItemRegister.registerOneWheelItem();
         HudRenderCallback.EVENT.register(((matrixStack, tickDelta) -> {
             Entity entity;
             int scaledwidth;
@@ -48,6 +50,12 @@ public class OneWheelClient implements ClientModInitializer {
                 }
             }
         }));
+        BlockRenderLayerMap.INSTANCE.putBlock(OneWheel.WORKBENCH, RenderLayer.getCutout());
+        ScreenRegistry.register(OneWheel.WORK_BENCH_SCREEN_HANDLER, WorkBenchScreen::new);
+        GeoItemRenderer.registerItemRenderer(OneWheel.fender, new FenderRender());
+        BoardAnimToClientPacket.registerPacket();
+        PlayerAnimToClientPacket.registerPacket();
+        SpawnFakePlayerPacket.registerPacket();
         FallPacket.registerPacket();
         BatteryPacket.registerPacket();
         EntityRendererRegistry.register(OneWheel.OWPE, OneWheelPlayerRender::new);

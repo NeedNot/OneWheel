@@ -1,6 +1,8 @@
 package net.neednot.onewheel.entity.board;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -18,20 +20,29 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.RaycastContext;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.neednot.onewheel.OneWheel;
+import net.neednot.onewheel.entity.player.OneWheelPlayerEntity;
+import net.neednot.onewheel.packet.*;
 import net.neednot.onewheel.ui.WarningScreen;
+import net.neednot.onewheel.util.ScreenSetter;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -41,9 +52,7 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 public class OneWheelEntity extends AnimalEntity implements IAnimatable {
@@ -62,6 +71,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public int forcedF;
     public int forcedb;
     public float yawVelocity;
+    public float fakeYawVelocity;
+    public float fakeSpeed;
     public float f = 0.0F;
     public float prevF;
     public float prevbd;
@@ -74,8 +85,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float battery = 0;
     public int odds = 350;
     public float prevprevf;
+    public float prevyawv;
     public float needSpeed = 1.11f;
     public boolean waterproof;
+    public boolean hasFender;
 
     public boolean playerMount;
     public boolean playerTiltF;
@@ -91,45 +104,98 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     private static final TrackedData<Float> nbtbattery = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.FLOAT);
     private static final TrackedData<Boolean> nbtwaterproof = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> nbtwaterdamage = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> nbtfender = DataTracker.registerData(OneWheelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     private AnimationFactory factory = new AnimationFactory(this);
 
-    public AnimationBuilder forward = new AnimationBuilder().addAnimation("animation.ow.forward" , true);
-    public AnimationBuilder backward = new AnimationBuilder().addAnimation("animation.ow.backward" , true);
-    public AnimationBuilder tiltf = new AnimationBuilder().addAnimation("animation.ow.tiltf" , false).addAnimation("animation.ow.holdb", true);
-    public AnimationBuilder tiltb = new AnimationBuilder().addAnimation("animation.ow.tiltb" , false).addAnimation("animation.ow.holdf", true);
-    public AnimationBuilder idle = new AnimationBuilder().addAnimation("animation.ow.idle" , true);
-    public AnimationBuilder mounta = new AnimationBuilder().addAnimation("animation.ow.mount" , false);
-    public AnimationBuilder flat = new AnimationBuilder().addAnimation("animation.ow.flat", true);
-    public AnimationBuilder holdf = new AnimationBuilder().addAnimation("animation.ow.holdf", true);
-    public AnimationBuilder holdb = new AnimationBuilder().addAnimation("animation.ow.holdb", true);
-    public AnimationBuilder dismount = new AnimationBuilder().addAnimation("animation.ow.dismount" , false).addAnimation("animation.ow.idle", true);
-    public AnimationBuilder pushbackf = new AnimationBuilder().addAnimation("animation.ow.pushbackf", false).addAnimation("animation.ow.holdf", true);
-    public AnimationBuilder pushbackb = new AnimationBuilder().addAnimation("animation.ow.pushbackb", false).addAnimation("animation.ow.holdb", true);
-    public AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.ow.nosedivef", true);
-    public AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.ow.nosediveb", true);
+    public static AnimationBuilder forward = new AnimationBuilder().addAnimation("animation.ow.forward" , true);
+    public static AnimationBuilder backward = new AnimationBuilder().addAnimation("animation.ow.backward" , true);
+    public static AnimationBuilder tiltf = new AnimationBuilder().addAnimation("animation.ow.tiltf" , false).addAnimation("animation.ow.holdb", true);
+    public static AnimationBuilder tiltb = new AnimationBuilder().addAnimation("animation.ow.tiltb" , false).addAnimation("animation.ow.holdf", true);
+    public static AnimationBuilder idle = new AnimationBuilder().addAnimation("animation.ow.idle" , true);
+    public static AnimationBuilder mounta = new AnimationBuilder().addAnimation("animation.ow.mount" , false);
+    public static AnimationBuilder flat = new AnimationBuilder().addAnimation("animation.ow.flat", true);
+    public static AnimationBuilder holdf = new AnimationBuilder().addAnimation("animation.ow.holdf", true);
+    public static AnimationBuilder holdb = new AnimationBuilder().addAnimation("animation.ow.holdb", true);
+    public static AnimationBuilder dismount = new AnimationBuilder().addAnimation("animation.ow.dismount" , false).addAnimation("animation.ow.idle", true);
+    public static AnimationBuilder pushbackf = new AnimationBuilder().addAnimation("animation.ow.pushbackf", false).addAnimation("animation.ow.holdf", true);
+    public static AnimationBuilder pushbackb = new AnimationBuilder().addAnimation("animation.ow.pushbackb", false).addAnimation("animation.ow.holdb", true);
+    public static AnimationBuilder nosedivef = new AnimationBuilder().addAnimation("animation.ow.nosedivef", true);
+    public static AnimationBuilder nosediveb = new AnimationBuilder().addAnimation("animation.ow.nosediveb", true);
+
+    public AnimationBuilder playAnimation;
+    public AnimationBuilder playAnimation1;
+
     public Vec3d bonePos = this.getPos();
     public Random rand = new Random();
     private boolean waterdamage;
 
+    public static final Map<Integer, AnimationBuilder> getMap() {
+        Map<Integer, AnimationBuilder> map = new HashMap<>();
+        map.put(0, forward);
+        map.put(1, backward);
+        map.put(2, tiltf);
+        map.put(3, tiltb);
+        map.put(4, idle);
+        map.put(5, mounta);
+        map.put(6, flat);
+        map.put(7, holdf);
+        map.put(8, holdb);
+        map.put(9, dismount);
+        map.put(10, pushbackf);
+        map.put(11, pushbackb);
+        map.put(12, nosediveb);
+        map.put(13, nosedivef);
+        return map;
+    }
+
+    public static AnimationBuilder getAnimation(int anim) {
+        return getMap().get(anim);
+    }
+    public Integer getKey(Map<Integer, AnimationBuilder> map, AnimationBuilder value) {
+        for (Map.Entry<Integer, AnimationBuilder> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return 4;
+    }
+
+    private AnimationBuilder holder;
+
+    private void sendAnimPacket(AnimationBuilder animationBuilder1) {
+        AnimationBuilder animationBuilder = holder;
+        int anim = getKey(getMap(), animationBuilder);
+        int anim1 = getKey(getMap(), animationBuilder1);
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(anim);
+        buf.writeInt(anim1);
+        buf.writeInt(getId());
+        buf.writeFloat(f);
+        ClientPlayNetworking.send(BoardAnimToServerPacket.PACKET_ID, buf);
+    }
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         event.getController().transitionLengthTicks = 0F;
-
-        if (this.hasPassengers()) {
+        holder = null;
+        if (this.hasPassengers() && MinecraftClient.getInstance().player.getUuid().equals(getControllingPassenger().getUuid())) {
             if (f > 0) {
                 event.getController().setAnimationSpeed(f*2.3f);
                 event.getController().setAnimation(forward);
+                holder = forward;
                 return PlayState.CONTINUE;
             }
             if (f < 0) {
                 event.getController().setAnimationSpeed(Math.abs(f*2.3f));
                 event.getController().setAnimation(backward);
+                holder = backward;
                 return PlayState.CONTINUE;
             }
         }
-        else {
-            return PlayState.STOP;
+        else if (playAnimation != null && !playAnimation.equals(idle)) {
+            event.getController().setAnimationSpeed(Math.abs(fakeSpeed*2.3f));
+            event.getController().setAnimation(playAnimation);
+            return PlayState.CONTINUE;
         }
         return PlayState.STOP;
     }
@@ -143,86 +209,113 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 //    }
 
     private <E extends IAnimatable> PlayState tilt(AnimationEvent<E> event) {
-        String name;
-        try {
-            name = event.getController().getCurrentAnimation().animationName;
-            //System.out.println("tilt "+name);
-        } catch (NullPointerException e) {
-            name = "null";
-        }
+        String name = "";
         playerTiltB = false;
         playerTiltF = false;
-        if (noseDivingf && !(f == 0)) {
-            event.getController().setAnimationSpeed(2.5);
-            event.getController().setAnimation(nosedivef);
-            return PlayState.CONTINUE;
-        }
-        if (noseDivingb && !(f == 0)) {
-            event.getController().setAnimationSpeed(2.5);
-            event.getController().setAnimation(nosediveb);
-            return PlayState.CONTINUE;
-        }
-
-        if (f > 0.66f) {
-            event.getController().setAnimation(pushbackf);
-            playerPushbackf = true;
-            return PlayState.CONTINUE;
-        }
-        if (f < -0.66f) {
-            event.getController().setAnimation(pushbackb);
-            playerPushbackb = true;
-            return PlayState.CONTINUE;
-        }
-
-        if (breakingf) {
-            playerBreakingF = true;
-            event.getController().setAnimation(holdf);
-            return PlayState.CONTINUE;
-        }
-        if (breakingb) {
-            playerBreakingB = true;
-            event.getController().setAnimation(holdb);
-            return PlayState.CONTINUE;
-        }
-        if (f < 0.66f && f > 0) {
-            event.getController().setAnimation(tiltf);
-            playerTiltF = true;
-            return PlayState.CONTINUE;
-        }
-
-        if (f > -0.66f && f < 0) {
-            event.getController().setAnimation(tiltb);
-            playerTiltB = true;
-            return PlayState.CONTINUE;
-        }
-
-        if (!this.hasPassengers()) {
-            event.getController().setAnimation(dismount);
-            return PlayState.CONTINUE;
-        }
-        if (mount) {
-            if (battery > 0) {
-                event.getController().setAnimation(mounta);
-                playerMount = true;
-                mount = false;
-                playerDeadMount = false;
+        if (this.hasPassengers() && MinecraftClient.getInstance().player.getUuid().equals(getControllingPassenger().getUuid())) {
+            if (event.getController().getCurrentAnimation() != null) name = event.getController().getCurrentAnimation().animationName;
+            event.getController().setAnimationSpeed(1);
+            if (battery <= 0) {
+                event.getController().setAnimation(idle);
                 return PlayState.CONTINUE;
             }
-            playerDeadMount = true;
-        }
-        if (f == 0 && !name.contains("mount") && battery > 0) {
-            playerFlat = true;
-            event.getController().setAnimation(flat);
-            return PlayState.CONTINUE;
-        }
+            if (noseDivingf && !(f == 0)) {
+                event.getController().setAnimationSpeed(2.5);
+                event.getController().setAnimation(nosedivef);
+                sendAnimPacket(nosedivef);
+                return PlayState.CONTINUE;
+            }
+            if (noseDivingb && !(f == 0)) {
+                event.getController().setAnimationSpeed(2.5);
+                event.getController().setAnimation(nosediveb);
+                sendAnimPacket(nosediveb);
+                return PlayState.CONTINUE;
+            }
 
+            if (f > 0.66f) {
+                event.getController().setAnimation(pushbackf);
+                playerPushbackf = true;
+                sendAnimPacket(pushbackf);
+                return PlayState.CONTINUE;
+            }
+            if (f < -0.66f) {
+                event.getController().setAnimation(pushbackb);
+                playerPushbackb = true;
+                sendAnimPacket(pushbackb);
+                return PlayState.CONTINUE;
+            }
 
+            if (breakingf) {
+                playerBreakingF = true;
+                event.getController().setAnimation(holdf);
+                sendAnimPacket(holdf);
+                return PlayState.CONTINUE;
+            }
+            if (breakingb) {
+                playerBreakingB = true;
+                event.getController().setAnimation(holdb);
+                sendAnimPacket(holdb);
+                return PlayState.CONTINUE;
+            }
+            if (f < 0.66f && f > 0) {
+                event.getController().setAnimation(tiltf);
+                playerTiltF = true;
+                sendAnimPacket(tiltf);
+                return PlayState.CONTINUE;
+            }
+
+            if (f > -0.66f && f < 0) {
+                event.getController().setAnimation(tiltb);
+                playerTiltB = true;
+                sendAnimPacket(tiltb);
+                return PlayState.CONTINUE;
+            }
+            if (mount) {
+                if (battery > 0) {
+                    event.getController().setAnimation(mounta);
+                    playerMount = true;
+                    mount = false;
+                    playerDeadMount = false;
+                    sendAnimPacket(mounta);
+                    return PlayState.CONTINUE;
+                }
+                playerDeadMount = true;
+            }
+            if (f == 0 && !name.contains("mount") && battery > 0) {
+                playerFlat = true;
+                event.getController().setAnimation(flat);
+                sendAnimPacket(flat);
+                return PlayState.CONTINUE;
+            }
+        } else if (playAnimation1 != null) {
+            if (playAnimation1.equals(nosediveb)||playAnimation1.equals(nosedivef)) event.getController().animationSpeed = 2.5;
+            event.getController().setAnimation(playAnimation1);
+        }
         return PlayState.CONTINUE;
     }
 
     @Override
     public void tick() {
         super.tick();
+        if (battery <= 0 && getBattery() > 0) removeAllPassengers();
+        if ((noseDivingf || noseDivingb) && world.isClient()) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            Vec3d pos = getControllingPassenger().getPos();
+            buf.writeDouble(pos.x);
+            buf.writeDouble(pos.y);
+            buf.writeDouble(pos.z);
+            ClientPlayNetworking.send(NoseDivePosPacket.PACKET_ID, buf);
+        }
+        if (!this.hasPassengers() && !world.isClient()) {
+            PacketByteBuf buf1 = PacketByteBufs.create();
+            buf1.writeInt(4);
+            buf1.writeInt(4);
+            buf1.writeInt(getId());
+            buf1.writeFloat(f);
+            for (ServerPlayerEntity player1 : PlayerLookup.tracking(this)) {
+                ServerPlayNetworking.send(player1, BoardAnimToClientPacket.PACKET_ID, buf1);
+            }
+        }
         setWaterProof(waterproof);
         setBattery(battery);
         if ((isSubmergedInWater() || isInLava()) && !isWaterproof() && !isWaterDamaged()) {
@@ -247,6 +340,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
+        pressingShift = player.isSneaking();
         ItemStack black_dye = new ItemStack(Items.BLACK_DYE);
         ItemStack red_dye = new ItemStack(Items.RED_DYE);
         ItemStack blue_dye = new ItemStack(Items.BLUE_DYE);
@@ -265,6 +359,8 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         ItemStack purple_dye = new ItemStack(Items.PURPLE_DYE);
         ItemStack shears = new ItemStack(Items.SHEARS);
         ItemStack wax = new ItemStack(Items.HONEYCOMB);
+        ItemStack fender = new ItemStack(OneWheel.fender.asItem());
+        ItemStack hook = new ItemStack(Items.TRIPWIRE_HOOK);
 
         if (player.getStackInHand(hand).isItemEqual(black_dye) && pressingShift) {
             setColor("black");
@@ -375,20 +471,31 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
             player.getStackInHand(hand).setCount(count-1);
             return super.interactMob(player, hand);
         }
+        if (player.getStackInHand(hand).isItemEqual(fender) && pressingShift) {
+            setFender(true);
+            int count = player.getStackInHand(hand).getCount();
+            player.getStackInHand(hand).setCount(count-1);
+            return super.interactMob(player, hand);
+        }
+        if (player.getStackInHand(hand).isItemEqual(hook) && pressingShift) {
+            setFender(false);
+            world.spawnEntity(new ItemEntity(world, getX(), getY(), getZ(), new ItemStack(OneWheel.fender.asItem())));
+            return super.interactMob(player, hand);
+        }
 
         if (!this.hasPassengers() && !pressingShift) {
             player.startRiding(this);
             mount = true;
             if (isWaterDamaged()) {
-                if (world.isClient) {
-                    MinecraftClient.getInstance().setScreen(new WarningScreen());
+                if (world.isClient()) {
+                    ScreenSetter.setWarningScreen();
                 }
             }
             needSpeed = 1.11f;
             if (!world.isClient) {
                 ServerWorld serverWorld = (ServerWorld) world;
                 PacketByteBuf buf = PacketByteBufs.create();
-                System.out.println("getbat"+getBattery());
+                buf.writeInt(getId());
                 buf.writeFloat(getBattery());
                 buf.writeBoolean(isWaterproof());
                 if (isWaterDamaged()) {
@@ -397,14 +504,60 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 else {
                     buf.writeInt(0);
                 }
-
+                buf.writeBoolean(hasFender());
                 ServerPlayNetworking.send((ServerPlayerEntity) player, OneWheel.BATTERY , buf);
-                OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
+                OneWheelPlayerEntity ow = (OneWheelPlayerEntity) OneWheel.OWPE.spawnFromItemStack(serverWorld, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
+                ow.setPosition(getControllingPassenger().getPos());
+                ow.setSyncedplayer(getControllingPassenger().getUuidAsString());
+
+                PacketByteBuf buf1 = PacketByteBufs.create();
+                buf1.writeString(getControllingPassenger().getUuidAsString());
+                buf1.writeInt(ow.getId());
+                System.out.println("id is "+ow.getId());
+                for (ServerPlayerEntity player1 : PlayerLookup.tracking((Entity) this)) {
+                    ServerPlayNetworking.send(player1, OneWheel.FAKE_PLAYER_PACKET, buf1);
+                }
             }
             return super.interactMob(player, hand);
         }
 
         return super.interactMob(player, hand);
+    }
+
+    public void reloadPlayer(ServerWorld world, OneWheelEntity entity) {
+        if (!world.isClient && entity.hasPassengers()) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeInt(entity.getId());
+            buf.writeFloat(getBattery());
+            buf.writeBoolean(isWaterproof());
+
+            setBattery(getBattery());
+            System.out.println(getBattery());
+            setWaterProof(isWaterproof());
+            setWaterDamage(isWaterDamaged());
+            setFender(hasFender());
+
+            if (isWaterDamaged()) {
+                buf.writeInt(1);
+            }
+            else {
+                buf.writeInt(0);
+            }
+            buf.writeBoolean(hasFender());
+            ServerPlayerEntity player = (ServerPlayerEntity) getControllingPassenger();
+            ServerPlayNetworking.send(player, OneWheel.BATTERY , buf);
+            OneWheelPlayerEntity ow = (OneWheelPlayerEntity) OneWheel.OWPE.spawnFromItemStack(world, player.getMainHandStack(), player, this.getBlockPos(), SpawnReason.EVENT, true, false);
+            ow.setPosition(getControllingPassenger().getPos());
+            ow.setSyncedplayer(getControllingPassenger().getUuidAsString());
+
+            PacketByteBuf buf1 = PacketByteBufs.create();
+            buf1.writeString(getControllingPassenger().getUuidAsString());
+            buf1.writeInt(ow.getId());
+            System.out.println("id is "+ow.getId());
+            for (ServerPlayerEntity player1 : PlayerLookup.tracking((Entity) this)) {
+                ServerPlayNetworking.send(player1, OneWheel.FAKE_PLAYER_PACKET, buf1);
+            }
+        }
     }
 
     @Override
@@ -417,43 +570,17 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         this.dataTracker.startTracking(nbtbattery, 32186.88f);
         this.dataTracker.startTracking(nbtwaterproof, false);
         this.dataTracker.startTracking(nbtwaterdamage, false);
+        this.dataTracker.startTracking(nbtfender, false);
         super.initDataTracker();
     }
 
     @Override
     public void travel(Vec3d pos) {
-        //ghosting
-//        if (breakingb || breakingf) {
-//            time += 1;
-//            System.out.println(time);
-//        }
-//        else {
-//            time = 0;
-//        }
-//        if (f == 0) {
-//            breakingb = false;
-//            breakingf = false;
-//        }
         breakingb = false;
         breakingf = false;
 
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null) {
-            pressingForward = player.input.pressingForward && battery > 0;
-            pressingBack = player.input.pressingBack && battery > 0;
-            pressingLeft = player.input.pressingLeft && battery > 0;
-            pressingRight = player.input.pressingRight && battery > 0;
-            pressingShift = player.isSneaking();
-            pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed();
-        }
-
-
         if (this.isAlive()) {
             yawVelocity = 0.0F;
-            if (forcedb == 25 || forcedF == 25 && playerShouldDie(player)) {
-                Entity livingEntity = this.getControllingPassenger();
-                livingEntity.damage(CrashDamageSource.CRASH, 20);
-            }
             if (forcedF > 30 || forcedb > 30 || f == 0) {
                 if (this.hasPassengers() && (forcedF > 30 || forcedb > 30)) {
                     Entity livingEntity = this.getControllingPassenger();
@@ -467,14 +594,42 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                 noseDivingb = false;
             }
             if (this.hasPassengers()) {
+                Entity livingEntity = this.getControllingPassenger();
+                if (forcedb == 25 || forcedF == 25 && playerShouldDie(livingEntity)) {
+                    livingEntity.damage(CrashDamageSource.CRASH, 20);
+                }
+                if (world.isClient() && this.getControllingPassenger().isPlayer()) {
+                    ClientPlayerEntity player = MinecraftClient.getInstance().player;
+                    if (player.getUuidAsString().equals(this.getControllingPassenger().getUuidAsString())) {
+                        pressingForward = player.input.pressingForward && battery > 0;
+                        pressingBack = player.input.pressingBack && battery > 0;
+                        pressingLeft = player.input.pressingLeft && battery > 0;
+                        pressingRight = player.input.pressingRight && battery > 0;
+                        pressingCtrl = MinecraftClient.getInstance().options.sprintKey.isPressed();
+
+                        PacketByteBuf buf = PacketByteBufs.create();
+
+                        buf.writeBoolean(pressingForward);
+                        buf.writeBoolean(pressingBack);
+                        buf.writeBoolean(pressingLeft);
+                        buf.writeBoolean(pressingRight);
+                        buf.writeBoolean(pressingCtrl);
+
+                        ClientPlayNetworking.send(InputPacket.PACKET_ID, buf);
+                    }
+                }
                 ghost = false;
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (pressingLeft) {
-                    this.yawVelocity -= 1.5F;
+                    this.yawVelocity -= 0.2F-prevyawv;
+                    if (yawVelocity < -2)yawVelocity = -2;
+                    if (yawVelocity > -1)yawVelocity = -1;
                 }
 
                 if (pressingRight) {
-                    this.yawVelocity += 1.5F;
+                    this.yawVelocity += 0.2F+prevyawv;
+                    if (yawVelocity > 2) yawVelocity = 2;
+                    if (yawVelocity < 1) yawVelocity = 1;
                 }
 
                 if (pressingRight != pressingLeft && !pressingForward && !pressingBack) {
@@ -575,11 +730,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                         f = 0.0f;
                     }
                     if (pressingLeft) {
-                        this.yawVelocity -= 4.5F;
+                        this.yawVelocity = -6F;
                     }
 
                     if (pressingRight) {
-                        this.yawVelocity += 4.5F;
+                        this.yawVelocity = 6F;
                     }
                     if (f == 0) {
                         noseDivingf = false;
@@ -610,11 +765,6 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     }
                 }
                 this.setMovementSpeed(1);
-//                if (!MinecraftClient.getInstance().options.sprintKey.isPressed()) {
-//                    f = prevF;
-//                    bdecay = prevbd;
-//                    fdecay = prevfd;
-//                }
 
                 HitResult deg15 = blockRaycast(45);
                 if (deg15.getType().equals(HitResult.Type.BLOCK)) {
@@ -673,13 +823,14 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
                     //}
                 //}
             }
+            prevyawv = yawVelocity;
             prevF = f;
             prevbd = bdecay;
             prevfd = fdecay;
         }
     }
 
-    private boolean playerShouldDie(ClientPlayerEntity player) {
+    private boolean playerShouldDie(Entity player) {
 
         Vec3d vec3d = player.getPos();
         BlockHitResult result = world.raycast(new RaycastContext(vec3d, vec3d.subtract(0, 2, 0), RaycastContext.ShapeType.VISUAL, RaycastContext.FluidHandling.WATER, this));
@@ -721,10 +872,11 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         Entity entity = source.getSource();
         if (entity instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entity;
-            if (player.getMainHandStack().isEmpty()) {
+            if (player.getMainHandStack().isEmpty() && !hasPassengers()) {
                 ItemStack ow = new ItemStack(OneWheel.oneWheel);
                 ow.setCount(1);
                 ow.getOrCreateNbt().putString("color", getColor());
+                ow.getOrCreateNbt().putBoolean("fender", hasFender());
                 ow.getOrCreateNbt().putFloat("battery", 32186.88f-getBattery());
                 ow.getOrCreateNbt().putBoolean("waterproof", isWaterproof());
                 ow.getOrCreateNbt().putBoolean("waterdamage", isWaterDamaged());
@@ -789,22 +941,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
 
     @Override
     public Vec3d updatePassengerForDismount(LivingEntity passenger) {
-        if (passenger instanceof ClientPlayerEntity) {
-            ClientPlayerEntity player = (ClientPlayerEntity) passenger;
-        }
         passenger.setInvisible(false);
-//        double d = 3;
-//        float f = -MathHelper.sin(this.getYaw() * 0.017453292F);
-//        float g = MathHelper.cos(this.getYaw() * 0.017453292F);
-//        float h = Math.max(Math.abs(f), Math.abs(g));
-//        Vec3d vec3d = new Vec3d(this.getX(), this.getY(), this.getZ()).add(new Vec3d((double)f * d / (double)h, 0.0d, (double)g * d / (double)h));
-//
-//        d = -1;
-//        f = -MathHelper.sin(this.getYaw()+90 * 0.017453292F);
-//        g = MathHelper.cos(this.getYaw()+90 * 0.017453292F);
-//        h = Math.max(Math.abs(f), Math.abs(g));
-//        return vec3d.add(new Vec3d((double)f * d / (double)h, 0.0D, (double)g * d / (double)h));
-        //return new Vec3d(this.getX()+x, this.getBoundingBox().maxY, this.getZ()+z);
         if (forcedF > 0 || forcedb > 0) {
             return bonePos;
         }
@@ -828,6 +965,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         nbt.putFloat("battery", battery);
         nbt.putBoolean("waterproof", isWaterproof());
         nbt.putBoolean("waterdamage", isWaterDamaged());
+        nbt.putBoolean("fender", hasFender());
     }
 
     @Override
@@ -837,6 +975,7 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         setBattery(nbt.getFloat("battery"));
         setWaterProof(nbt.getBoolean("waterproof"));
         setWaterDamage(nbt.getBoolean("waterdamage"));
+        setFender(nbt.getBoolean("fender"));
     }
 
     public void setColor(String color) {
@@ -855,6 +994,10 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
         this.waterdamage = yn;
         this.dataTracker.set(nbtwaterdamage, waterdamage);
     }
+    public void setFender(boolean yn) {
+        this.hasFender = yn;
+        this.dataTracker.set(nbtfender, hasFender);
+    }
     public String getColor() {
         color = this.dataTracker.get(nbtcolor);
         if (color.equals("")) {
@@ -865,12 +1008,9 @@ public class OneWheelEntity extends AnimalEntity implements IAnimatable {
     public float getBattery() {
         return this.dataTracker.get(nbtbattery);
     }
-    public boolean isWaterproof() {
-        return this.dataTracker.get(nbtwaterproof);
-    }
-    public boolean isWaterDamaged() {
-        return this.dataTracker.get(nbtwaterdamage);
-    }
+    public boolean isWaterproof() {return this.dataTracker.get(nbtwaterproof);}
+    public boolean isWaterDamaged() {return this.dataTracker.get(nbtwaterdamage);}
+    public boolean hasFender() { return this.dataTracker.get(nbtfender);}
 
     @Nullable
     public Entity getControllingPassenger() {

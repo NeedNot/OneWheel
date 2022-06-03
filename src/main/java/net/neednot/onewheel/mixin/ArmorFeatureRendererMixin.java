@@ -24,8 +24,8 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 
     @Inject(at = @At("HEAD"), method = "renderArmor", cancellable = true)
     private void renderArmor(MatrixStack matrices , VertexConsumerProvider vertexConsumers , T entity , EquipmentSlot armorSlot , int light , A model , CallbackInfo ci) {
-        if (MinecraftClient.getInstance().player.hasVehicle()) {
-            if (MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
+        if (entity.hasVehicle()) {
+            if (entity.getVehicle() instanceof OneWheelEntity) {
                 ci.cancel();
             }
         }

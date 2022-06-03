@@ -23,8 +23,8 @@ public abstract class StuckStingersFeatureRendererMixin<T extends LivingEntity, 
     }
     @Inject(at = @At("HEAD"), method = "renderObject", cancellable = true)
     protected void renderObject(MatrixStack matrices , VertexConsumerProvider vertexConsumers , int light , Entity entity , float directionX , float directionY , float directionZ , float tickDelta , CallbackInfo ci) {
-        if (MinecraftClient.getInstance().player.hasVehicle()) {
-            if (MinecraftClient.getInstance().player.getVehicle() instanceof OneWheelEntity) {
+        if (entity.hasVehicle()) {
+            if (entity.getVehicle() instanceof OneWheelEntity) {
                 ci.cancel();
             }
         }
