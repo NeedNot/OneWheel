@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "___",
+    "iii",
+    "i i"
+  ],
+  "key": {
+    "_": {
+      "item": "minecraft:oak_slab"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "onewheel:workbench",
+    "count": 1
+  }
+}

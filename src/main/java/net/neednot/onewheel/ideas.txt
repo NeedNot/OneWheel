@@ -1,11 +1,45 @@
-player animations
-nose dive at 26mph
-speedometer
-flight fins let you jump
-fender
-slow down if you hit a wall
-punch to pick up the board
+flight fins let you jump - on hold
+fender - on hold
+add 180s - on hold
 
+make player show in inv - failed
+
+after 1.0 release made servers work
+
+add variation to deck - dones
+logic for all the items - done
+update water damage message - done
+add armor and held items
+fix players invisible when spawning in - done
+make entities show when spawned far away - done
+fix players not placed in the correct spot after fall on server - done
+make turn sharper with increasing yaw velocity - done
+fix player skins - done
+add onewheel animations - done
+fix screen - done
+fix player not showing in tree - done
+fix magenta and brown not working - done
+toggle outerlayers - done
+fix player from falling from the sky - done
+fix head delays - done
+fix wheel colors - done
+add player board animations - done
+add water damage - done
+add battery indicator & battery nbt
+slow down if you hit a wall - done
+add translate text - done
+add item model - done
+make the item not replace other inventory items - done
+100% sync across rng - done
+add alex model - done
+add a way to stop accelerating - done
+fix board tilt when turning backwards - done
+fix speedometer glitches - done
+nose dive at 26mph - done
+punch to pick up the board - done
+require charging - done
+player animations - done
+speedometer - done
 nbt - done
 go up half slabs - done
 change colors with dye - done

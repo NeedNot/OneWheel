@@ -1,13 +1,8 @@
-package net.neednot.onewheel;
+package net.neednot.onewheel.entity.board;
 
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib3.GeckoLib;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import net.neednot.onewheel.entity.board.OneWheelEntity;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
-import software.bernie.shadowed.eliotlash.molang.MolangParser;
 
 public class OneWheelModel extends AnimatedGeoModel<OneWheelEntity> {
 
